@@ -28,10 +28,9 @@
                             Have questions or need HR support? Reach out to us, and our team will be happy to assist
                             you.
                         </p>
-                        <p data-aos="fade-up" data-aos-delay="200">
-                            <a href="#" class="btn btn-primary py-3 px-4 mr-3">Get Started</a>
-                            <a href="#" class="text-white">Learn More</a>
-                        </p>
+                        <p data-aos="fade-up"><a href="{{ route('auth.login') }}"
+                                class="btn btn-primary py-3 px-4 mr-3">Get Started</a> <a href="#our-company"
+                                class="text-white">Learn More</a></p>
                     </div>
 
 
@@ -165,7 +164,7 @@
                             &copy;
                             <script>
                                 document.write(new Date().getFullYear());
-                            </script> All rights reserved | HR Services
+                            </script> All rights reserved | Movers HR
                         </p>
                     </div>
                 </div> <!-- .row -->

@@ -23,7 +23,7 @@
 
                     <div class="account-wrapper">
                         <h3 class="account-title">Login</h3>
-                        <p class="account-subtitle">Access to our dashboard</p>
+                        <p class="account-subtitle">Welcome to MOVERS!</p>
 
                         <!-- Account Form -->
                         <form action="{{ route('auth.login.post') }}" method="POST">

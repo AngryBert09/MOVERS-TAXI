@@ -10,13 +10,6 @@
         <!-- Header -->
         <div class="header">
 
-            <!-- Logo -->
-            {{-- <div class="header-left">
-                <a href="index.html" class="logo">
-                    <img src="assets/img/logo.png" width="40" height="40" alt="">
-                </a>
-            </div> --}}
-            <!-- /Logo -->
 
             <!-- Header Title -->
             <div class="page-title-box float-left">
@@ -160,30 +153,36 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form>
+                            <form id="applyJobForm" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="job_posting_id" value="{{ $job->id }}">
+
                                 <div class="form-group">
                                     <label>Name</label>
-                                    <input class="form-control" type="text">
+                                    <input class="form-control" type="text" name="name" required>
                                 </div>
                                 <div class="form-group">
                                     <label>Email Address</label>
-                                    <input class="form-control" type="text">
+                                    <input class="form-control" type="email" name="email" required>
                                 </div>
                                 <div class="form-group">
-                                    <label>Message</label>
-                                    <textarea class="form-control"></textarea>
+                                    <label>Contact Number</label>
+                                    <input class="form-control" type="text" name="phone" required pattern="\d*"
+                                        title="Please enter a valid phone number">
                                 </div>
                                 <div class="form-group">
                                     <label>Upload your CV</label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="cv_upload">
+                                        <input type="file" class="custom-file-input" id="cv_upload"
+                                            name="resume" required>
                                         <label class="custom-file-label" for="cv_upload">Choose file</label>
                                     </div>
                                 </div>
                                 <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Submit</button>
+                                    <button type="submit" class="btn btn-primary submit-btn">Submit</button>
                                 </div>
                             </form>
+
                         </div>
                     </div>
                 </div>
@@ -205,6 +204,77 @@
 
     <!-- Custom JS -->
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        $(document).ready(function() {
+            $('#applyJobForm').on('submit', function(e) {
+                e.preventDefault(); // Prevent default form submission
+
+                let formData = new FormData(this); // Create form data object
+
+                $.ajax({
+                    url: "{{ route('apply.job') }}", // Laravel route
+                    type: "POST",
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // CSRF token
+                    },
+                    beforeSend: function() {
+                        $('.submit-btn').prop('disabled', true).text('Submitting...');
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Application Submitted!',
+                            text: 'Your job application has been submitted successfully.',
+                        });
+
+                        $('#applyJobForm')[0].reset(); // Reset form after submission
+                        $('.custom-file-label').text('Choose file'); // Reset file input label
+
+                        // Close modal after success
+                        $('#apply_job').modal('hide');
+                    },
+                    error: function(xhr) {
+                        let errors = xhr.responseJSON.errors;
+                        let errorMessage = "Something went wrong!";
+
+                        if (errors) {
+                            errorMessage = Object.values(errors).join("\n");
+                        }
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Submission Failed!',
+                            text: errorMessage,
+                        });
+
+                        // Close modal after error
+                        $('#apply_job').modal('hide');
+                    },
+                    complete: function() {
+                        $('.submit-btn').prop('disabled', false).text('Submit');
+                    }
+                });
+            });
+
+            // Update file input label with selected filename
+            $('#cv_upload').on('change', function(e) {
+                let fileName = e.target.files[0].name;
+                $(this).next('.custom-file-label').text(fileName);
+            });
+
+            // Clear form when modal is closed
+            $('#apply_job').on('hidden.bs.modal', function() {
+                $('#applyJobForm')[0].reset();
+                $('.custom-file-label').text('Choose file');
+            });
+        });
+    </script>
+
+
 
 </body>
 

@@ -32,6 +32,7 @@ Route::middleware('guest')->group(function () {
     //JOBS
     Route::get('/job-vacancies', [JobController::class, 'getJobVacancies'])->name('jobs.vacancies');
     Route::get('/job-details/{id}', [JobController::class, 'showJobDetails'])->name('jobs.details');
+    Route::post('/apply-job', [JobController::class, 'applyJob'])->name('apply.job');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('admin');;

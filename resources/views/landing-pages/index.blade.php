@@ -365,7 +365,7 @@
                         &copy;
                         <script>
                             document.write(new Date().getFullYear());
-                        </script> All rights reserved | HR Services
+                        </script> All rights reserved | Movers HR
                     </p>
                 </div>
             </div> <!-- .row -->

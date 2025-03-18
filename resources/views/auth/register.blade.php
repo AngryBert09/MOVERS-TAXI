@@ -22,7 +22,7 @@
                 <div class="account-box">
                     <div class="account-wrapper">
                         <h3 class="account-title">Register</h3>
-                        <p class="account-subtitle">Access to our dashboard</p>
+                        <p class="account-subtitle">Wanna be part of our team?</p>
 
                         <!-- Account Form -->
                         <form action="{{ route('auth.register.post') }}" method="POST">

@@ -21,4 +21,10 @@ class JobPosting extends Model
         'expired_date',
         'description'
     ];
+
+    // Relationship: One JobPosting has many JobApplications
+    public function applications()
+    {
+        return $this->hasMany(JobApplication::class);
+    }
 }
