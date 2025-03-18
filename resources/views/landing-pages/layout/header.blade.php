@@ -21,7 +21,7 @@
                     <li class="active">
                         <a href="{{ route('landing.page') }}" class="animsition-link">Home</a>
                     </li>
-                    <li><a href="{{ route('jobs-vacancies') }}" class="animsition-link">Job Vacancies</a></li>
+                    <li><a href="{{ route('jobs.vacancies') }}" class="animsition-link">Job Vacancies</a></li>
                     <li><a href="{{ route('landing.contact') }}" class="animsition-link">Contact</a></li>
                 </ul> <!-- .templateux-menu -->
 
