@@ -24,8 +24,8 @@
                         <p class="lead mb-5 text-white" data-aos="fade-up" data-aos-delay="100">Driving success with
                             strategic HR solutions that attract, retain, and develop top talent. Let us help you build a
                             thriving workforce.</p>
-                        <p data-aos="fade-up" data-aos-delay="200"><a href="{{ route('jobs.vacancies') }}"
-                                class="btn btn-primary py-3 px-4 mr-3">Get Started</a> <a href=""
+                        <p data-aos="fade-up" data-aos-delay="200"><a href="{{ route('auth.login') }}"
+                                class="btn btn-primary py-3 px-4 mr-3">Get Started</a> <a href="#our-company"
                                 class="text-white">Learn More</a></p>
                     </div>
                 </div>

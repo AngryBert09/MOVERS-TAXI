@@ -4,8 +4,7 @@
         <div class="row">
 
             <div class="col-3 templateux-logo">
-                <a href="{{ route('landing.page') }}" class="animsition-link">ABC Transportation Services
-                    INC.</a>
+                <a href="{{ route('landing.page') }}" class="animsition-link">Movers</a>
             </div>
             <nav class="col-9 site-nav">
                 <button
@@ -23,6 +22,8 @@
                     </li>
                     <li><a href="{{ route('jobs.vacancies') }}" class="animsition-link">Job Vacancies</a></li>
                     <li><a href="{{ route('landing.contact') }}" class="animsition-link">Contact</a></li>
+                    <li><a href="{{ route('auth.login') }}" class="animsition-link">Login</a></li>
+                    <li><a href="{{ route('auth.register') }}" class="animsition-link">Register</a></li>
                 </ul> <!-- .templateux-menu -->
 
             </nav> <!-- .site-nav -->
