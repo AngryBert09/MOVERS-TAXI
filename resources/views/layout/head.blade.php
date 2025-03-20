@@ -6,6 +6,7 @@
         content="admin, estimates, bootstrap, business, corporate, creative, management, minimal, modern, accounts, invoice, html5, responsive, CRM, Projects">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <meta name="application-name" content="My Website">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="msapplication-TileImage" content="{{ asset('assets/img/moverslogo.png') }}">
     <meta name="msapplication-TileColor" content="#ffffff">
 
@@ -33,7 +34,7 @@
 
     <!-- Datetimepicker CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap-datetimepicker.min.css') }}">
-
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <!-- Main CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
 

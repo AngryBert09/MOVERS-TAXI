@@ -41,6 +41,12 @@
 
                 <div class="row">
                     <div class="col-md-12">
+                        <div class="search-container mb-4">
+                            <div class="input-group" style="max-width: 300px; float: right;">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search..."
+                                    aria-label="Search">
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped custom-table mb-0 datatable">
                                 <thead>
@@ -56,7 +62,7 @@
                                         <th class="text-right">Actions</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="applicantTableBody">
                                     @foreach ($jobs as $job)
                                         <tr>
                                             <td>{{ $loop->iteration }}</td>
@@ -67,8 +73,11 @@
                                             <td>{{ \Carbon\Carbon::parse($job->expired_date)->format('d M Y') }}</td>
                                             <td class="text-center">{{ $job->job_type }}</td>
                                             <td class="text-center">{{ $job->status }}</td>
-                                            <td><a href="#" class="btn btn-sm btn-primary">View Applicants</a>
+                                            <td>
+                                                <a href="{{ route('job.applicants', $job->id) }}"
+                                                    class="btn btn-sm btn-primary">View Applicants</a>
                                             </td>
+
                                             <td class="text-right">
                                                 <div class="dropdown dropdown-action">
                                                     <a href="#" class="action-icon dropdown-toggle"
@@ -457,6 +466,11 @@
 
     <!-- jQuery -->
     <script>
+        $(document).ready(function() {
+            $('.datatable').DataTable(); // Activates DataTables
+        });
+    </script>
+    <script>
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
                 Swal.fire({
@@ -482,7 +496,18 @@
 
     <script src="assets/js/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
+    <script>
+        $(document).ready(function() {
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#applicantTableBody tr").filter(function() {
+                    $(this).toggle(
+                        $(this).text().toLowerCase().indexOf(value) > -1
+                    );
+                });
+            });
+        });
+    </script>
 
     <!-- Bootstrap Core JS -->
     <script src="assets/js/popper.min.js"></script>

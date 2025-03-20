@@ -64,6 +64,50 @@ class JobController extends Controller
         }
     }
 
+    public function getApplicants($jobPostingId)
+    {
+        try {
+            // Retrieve all job applications for a specific job posting
+            $jobApplications = JobApplication::with('jobPosting')
+                ->where('job_posting_id', $jobPostingId)
+                ->orderBy('apply_date', 'desc')
+                ->get();
+
+            // Get the job posting details
+            $jobPosting = JobPosting::findOrFail($jobPostingId);
+
+            return view('jobs.job-applicants', compact('jobApplications', 'jobPosting'));
+        } catch (\Exception $e) {
+            Log::error('Error fetching job applicants.', ['error' => $e->getMessage()]);
+            return redirect()->route('job-postings.index')->with('error', 'Job posting not found.');
+        }
+    }
+
+    public function updateStatus(Request $request)
+    {
+        Log::info('Update Status Request Received:', $request->all());
+
+        $request->validate([
+            'applicant_id' => 'required|exists:job_applications,id',
+            'status' => 'required|in:Pending,Hired,Rejected,Interviewed',
+        ]);
+
+        try {
+            $applicant = JobApplication::findOrFail($request->applicant_id);
+            $applicant->status = $request->status;
+            $applicant->save();
+
+            Log::info('Status updated successfully.', ['id' => $request->applicant_id, 'status' => $request->status]);
+
+            return response()->json(['success' => true, 'message' => 'Status updated successfully!']);
+        } catch (\Exception $e) {
+            Log::error('Error updating applicant status', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Error updating applicant status.'], 500);
+        }
+    }
+
+
+
 
     //FUNCTION FOR APPLICANTS
     public function applyJob(Request $request)

@@ -50,4 +50,7 @@ Route::middleware('admin')->group(function () {
     //JOBS
     Route::get('/manage-jobs', [JobController::class, 'getManageJobs'])->name('jobs.manage');
     Route::post('/jobs', [JobController::class, 'store'])->name('jobs.store');
+    Route::get('/job-postings/{id}/applicants', [JobController::class, 'getApplicants'])
+        ->name('job.applicants');
+    Route::post('/applicant/update-status', [JobController::class, 'updateStatus'])->name('update.applicant.status');
 });

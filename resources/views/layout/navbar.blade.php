@@ -1,11 +1,11 @@
 <div class="header">
 
     <!-- Logo -->
-    <div class="header-left">
+    {{-- <div class="header-left">
         <a href="index.html" class="logo">
             <img src="assets/img/logo.png" width="40" height="40" alt="">
         </a>
-    </div>
+    </div> --}}
     <!-- /Logo -->
 
     <a id="toggle_btn" href="javascript:void(0);">
@@ -18,7 +18,7 @@
 
     <!-- Header Title -->
     <div class="page-title-box">
-        <h3>Dreamguy's Technologies</h3>
+        <h3>Movers</h3>
     </div>
     <!-- /Header Title -->
 
