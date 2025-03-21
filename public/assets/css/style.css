@@ -2340,9 +2340,9 @@ table.dataTable thead>tr>td.sorting {
 }
 
 .dash-widget-icon {
-    background-color: rgba(244, 59, 72, 0.2);
+    background-color: rgba(89, 63, 238, 0.2);
     border-radius   : 100%;
-    color           : #f43b48;
+    color           : #1273EB;
     display         : inline-block;
     float           : left;
     font-size       : 30px;
