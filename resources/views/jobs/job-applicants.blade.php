@@ -83,26 +83,39 @@
                                                         </i> <span class="status-text">{{ $applicant->status }}</span>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-right">
-                                                        <a class="dropdown-item update-status" href="#"
-                                                            data-id="{{ $applicant->id }}" data-status="Pending">
-                                                            <i class="fa fa-dot-circle-o text-info"></i> Pending
-                                                        </a>
-                                                        <a class="dropdown-item update-status" href="#"
-                                                            data-id="{{ $applicant->id }}" data-status="Hired">
-                                                            <i class="fa fa-dot-circle-o text-success"></i> Hired
-                                                        </a>
-                                                        <a class="dropdown-item update-status" href="#"
-                                                            data-id="{{ $applicant->id }}" data-status="Rejected">
-                                                            <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                        </a>
-                                                        <a class="dropdown-item update-status" href="#"
-                                                            data-id="{{ $applicant->id }}" data-status="Interviewed">
-                                                            <i class="fa fa-dot-circle-o text-warning"></i> Interviewed
-                                                        </a>
+                                                        @if ($applicant->status == 'Rejected')
+                                                            <a class="dropdown-item disabled" href="#">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
+                                                                (Locked)
+                                                            </a>
+                                                        @elseif ($applicant->status != 'Hired')
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Pending">
+                                                                <i class="fa fa-dot-circle-o text-info"></i> Pending
+                                                            </a>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Hired">
+                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
+                                                            </a>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
+                                                            </a>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}"
+                                                                data-status="Interviewed">
+                                                                <i class="fa fa-dot-circle-o text-warning"></i>
+                                                                Interviewed
+                                                            </a>
+                                                        @else
+                                                            <a class="dropdown-item disabled" href="#">
+                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
+                                                                (Locked)
+                                                            </a>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             </td>
-
                                             <td>
                                                 <a href="{{ asset('storage/' . $applicant->resume) }}"
                                                     class="btn btn-sm btn-primary" download>
@@ -116,12 +129,10 @@
                                                         <i class="material-icons">more_vert</i>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-right">
-                                                        <a class="dropdown-item" href="#">
-                                                            <i class="fa fa-eye"></i> View Details
-                                                        </a>
                                                         <a class="dropdown-item schedule-interview" href="#"
-                                                            data-id="{{ $applicant->id }}">
-                                                            <i class="fa fa-clock-o"></i> Schedule Interview
+                                                            data-id="{{ $applicant->id }}" data-toggle="modal"
+                                                            data-target="#scheduleInterviewModal">
+                                                            <i class="fa fa-clock-o"></i> Send Interview Sched
                                                         </a>
                                                     </div>
                                                 </div>
@@ -152,6 +163,19 @@
                                 status: newStatus,
                                 _token: "{{ csrf_token() }}"
                             },
+                            beforeSend: function() {
+                                // Show loader before sending request
+                                Swal.fire({
+                                    title: "Updating Status...",
+                                    html: '<div class="spinner" style="margin-top: 15px;"></div>',
+                                    allowOutsideClick: false,
+                                    showConfirmButton: false,
+                                    didOpen: () => {
+                                        // Custom spinner animation
+                                        Swal.showLoading();
+                                    }
+                                });
+                            },
                             success: function(response) {
                                 if (response.success) {
                                     Swal.fire({
@@ -169,8 +193,13 @@
                             },
                             error: function(xhr) {
                                 Swal.fire("Error", "Something went wrong!", "error");
+                            },
+                            complete: function() {
+                                // Hide loader after request is complete
+                                Swal.close();
                             }
                         });
+
                     });
                 </script>
 
@@ -183,6 +212,107 @@
     <!-- /Page Wrapper -->
 
     </div>
+
+
+    <!-- Schedule Interview Modal -->
+    <div class="modal fade" id="scheduleInterviewModal" tabindex="-1" role="dialog"
+        aria-labelledby="scheduleInterviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="scheduleInterviewModalLabel">Schedule Interview</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="scheduleInterviewForm">
+                        <input type="hidden" name="applicant_id" id="applicant_id" value="">
+
+                        <!-- Interview Date -->
+                        <div class="form-group">
+                            <label for="interview_date">Interview Date</label>
+                            <input type="date" class="form-control" id="interview_date" name="interview_date"
+                                required>
+                        </div>
+
+                        <!-- Interview Time -->
+                        <div class="form-group">
+                            <label for="interview_time">Interview Time</label>
+                            <input type="time" class="form-control" id="interview_time" name="interview_time"
+                                required>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="saveInterviewBtn">Schedule Interview</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.schedule-interview').on('click', function() {
+                var applicantId = $(this).data('id');
+                $('#applicant_id').val(applicantId);
+            });
+
+            $('#saveInterviewBtn').on('click', function() {
+                var formData = $('#scheduleInterviewForm').serialize();
+
+                $.ajax({
+                    url: '{{ route('schedule.interview') }}',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    type: 'POST',
+                    data: formData,
+                    beforeSend: function() {
+                        // Show loader before sending request
+                        Swal.fire({
+                            title: "Scheduling Interview...",
+                            html: '<div class="spinner" style="margin-top: 15px;"></div>',
+                            allowOutsideClick: false,
+                            showConfirmButton: false,
+                            didOpen: () => {
+                                Swal.showLoading();
+                            }
+                        });
+                    },
+                    success: function(response) {
+                        Swal.fire({
+                            title: 'Success',
+                            text: response.success,
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false
+                        }).then(() => {
+                            $('#scheduleInterviewModal').modal('hide');
+                            $('#scheduleInterviewForm')[0].reset(); // Clear form fields
+                            location.reload(); // Reload the page to reflect changes
+                        });
+                    },
+                    error: function(xhr) {
+                        Swal.fire({
+                            title: 'Error',
+                            text: 'Error scheduling interview. Please try again.',
+                            icon: 'error'
+                        });
+                    },
+                    complete: function() {
+                        // Hide loader after request is complete
+                        Swal.close();
+                    }
+                });
+            });
+
+
+        });
+    </script>
     <!-- /Main Wrapper -->
     <script>
         $(document).ready(function() {

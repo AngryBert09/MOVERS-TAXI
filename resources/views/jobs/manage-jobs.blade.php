@@ -87,9 +87,12 @@
                                                         <a href="#" class="dropdown-item" data-toggle="modal"
                                                             data-target="#edit_job"><i class="fa fa-pencil m-r-5"></i>
                                                             Edit</a>
-                                                        <a href="#" class="dropdown-item" data-toggle="modal"
-                                                            data-target="#delete_job"><i
-                                                                class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                                        <a href="javascript:void(0);" class="dropdown-item"
+                                                            data-toggle="modal" data-target="#delete_job"
+                                                            onclick="setDeleteUrl('{{ route('jobs.destroy', $job->id) }}')">
+                                                            <i class="fa fa-trash-o m-r-5"></i> Delete
+                                                        </a>
+
                                                     </div>
                                                 </div>
                                             </td>
@@ -128,14 +131,12 @@
                                             <label>Department</label>
                                             <select class="select form-control" name="department" required>
                                                 <option value="">- Select Department -</option>
-                                                <option value="Web Development">Web Development</option>
-                                                <option value="Application Development">Application Development
-                                                </option>
-                                                <option value="IT Management">IT Management</option>
-                                                <option value="Accounts Management">Accounts Management</option>
-                                                <option value="Support Management">Support Management</option>
-                                                <option value="Marketing">Marketing</option>
+                                                @foreach ($departments as $department)
+                                                    <option value="{{ $department->department_name }}">
+                                                        {{ $department->department_name }}</option>
+                                                @endforeach
                                             </select>
+
                                         </div>
                                     </div>
                                 </div>
@@ -308,128 +309,162 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form>
+                            <form id="editJobForm" action="{{ route('jobs.update', $job->id) }}" method="POST">
+                                @csrf
+                                @method('PUT')
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Job Title</label>
-                                            <input class="form-control" type="text" value="Web Developer">
+                                            <input class="form-control" type="text" name="job_title"
+                                                value="{{ $job->job_title }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Department</label>
-                                            <select class="select">
-                                                <option>-</option>
-                                                <option selected>Web Development</option>
-                                                <option>Application Development</option>
-                                                <option>IT Management</option>
-                                                <option>Accounts Management</option>
-                                                <option>Support Management</option>
-                                                <option>Marketing</option>
+                                            <select class="form-control" name="department" required>
+                                                <option value="">- Select Department -</option>
+                                                @foreach ($departments as $department)
+                                                    <option value="{{ $department->department_name }}"
+                                                        {{ $job->department_id == $department->id ? 'selected' : '' }}>
+                                                        {{ $department->department_name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
+
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Job Location</label>
-                                            <input class="form-control" type="text" value="California">
+                                            <input class="form-control" type="text" name="job_location"
+                                                value="{{ $job->job_location }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>No of Vacancies</label>
-                                            <input class="form-control" type="text" value="5">
+                                            <input class="form-control" type="number" name="no_of_vacancies"
+                                                value="{{ $job->no_of_vacancies }}">
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Experience</label>
-                                            <input class="form-control" type="text" value="2 Years">
+                                            <input class="form-control" type="text" name="experience"
+                                                value="{{ $job->experience }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Age</label>
-                                            <input class="form-control" type="text" value="-">
+                                            <input class="form-control" type="number" name="age"
+                                                value="{{ $job->age }}">
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Salary From</label>
-                                            <input type="text" class="form-control" value="32k">
+                                            <input type="number" class="form-control" name="salary_from"
+                                                value="{{ $job->salary_from }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Salary To</label>
-                                            <input type="text" class="form-control" value="38k">
+                                            <input type="number" class="form-control" name="salary_to"
+                                                value="{{ $job->salary_to }}">
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Job Type</label>
-                                            <select class="select">
-                                                <option selected>Full Time</option>
-                                                <option>Part Time</option>
-                                                <option>Internship</option>
-                                                <option>Temporary</option>
-                                                <option>Remote</option>
-                                                <option>Others</option>
+                                            <select class="form-control" name="job_type">
+                                                <option value="Full Time"
+                                                    {{ $job->job_type == 'Full Time' ? 'selected' : '' }}>Full Time
+                                                </option>
+                                                <option value="Part Time"
+                                                    {{ $job->job_type == 'Part Time' ? 'selected' : '' }}>Part Time
+                                                </option>
+                                                <option value="Internship"
+                                                    {{ $job->job_type == 'Internship' ? 'selected' : '' }}>Internship
+                                                </option>
+                                                <option value="Temporary"
+                                                    {{ $job->job_type == 'Temporary' ? 'selected' : '' }}>Temporary
+                                                </option>
+                                                <option value="Remote"
+                                                    {{ $job->job_type == 'Remote' ? 'selected' : '' }}>Remote</option>
+                                                <option value="Others"
+                                                    {{ $job->job_type == 'Others' ? 'selected' : '' }}>Others</option>
                                             </select>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Status</label>
-                                            <select class="select">
-                                                <option selected>Open</option>
-                                                <option>Closed</option>
-                                                <option>Cancelled</option>
+                                            <select class="form-control" name="status">
+                                                <option value="Open" {{ $job->status == 'Open' ? 'selected' : '' }}>
+                                                    Open</option>
+                                                <option value="Closed"
+                                                    {{ $job->status == 'Closed' ? 'selected' : '' }}>Closed</option>
+                                                <option value="Cancelled"
+                                                    {{ $job->status == 'Cancelled' ? 'selected' : '' }}>Cancelled
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
                                 </div>
+
                                 <div class="row">
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Start Date</label>
-                                            <input type="text" class="form-control datetimepicker"
-                                                value="3 Mar 2019">
+                                            <input type="date" class="form-control" name="start_date"
+                                                value="{{ $job->start_date }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label>Expired Date</label>
-                                            <input type="text" class="form-control datetimepicker"
-                                                value="31 May 2019">
+                                            <input type="date" class="form-control" name="expired_date"
+                                                value="{{ $job->expired_date }}">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label>Description</label>
-                                            <textarea class="form-control"></textarea>
-                                        </div>
-                                    </div>
+
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea class="form-control" name="description">{{ $job->description }}</textarea>
                                 </div>
+
                                 <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Save</button>
+                                    <button type="submit" class="btn btn-primary submit-btn"
+                                        onclick="confirmUpdate(event)">Save</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- SweetAlert Confirmation -->
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
             <!-- /Edit Job Modal -->
 
             <!-- Delete Job Modal -->
@@ -437,25 +472,42 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-body">
-                            <div class="form-header">
+                            <div class="form-header text-center">
                                 <h3>Delete Job</h3>
-                                <p>Are you sure want to delete?</p>
+                                <p>Are you sure you want to delete this job?</p>
                             </div>
-                            <div class="modal-btn delete-action">
-                                <div class="row">
-                                    <div class="col-6">
-                                        <a href="javascript:void(0);" class="btn btn-primary continue-btn">Delete</a>
-                                    </div>
-                                    <div class="col-6">
-                                        <a href="javascript:void(0);" data-dismiss="modal"
-                                            class="btn btn-primary cancel-btn">Cancel</a>
+                            <form id="deleteJobForm" method="POST">
+                                @csrf
+                                @method('DELETE')
+                                <div class="modal-btn delete-action">
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <button type="submit"
+                                                class="btn btn-danger btn-lg btn-block continue-btn">
+                                                Delete
+                                            </button>
+                                        </div>
+                                        <div class="col-6">
+                                            <a href="javascript:void(0);" data-dismiss="modal"
+                                                class="btn btn-secondary btn-lg btn-block cancel-btn">
+                                                Cancel
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <script>
+                function setDeleteUrl(deleteUrl) {
+                    document.getElementById('deleteJobForm').setAttribute('action', deleteUrl);
+                }
+            </script>
+
+
             <!-- /Delete Job Modal -->
 
         </div>
@@ -464,12 +516,8 @@
     </div>
     <!-- /Main Wrapper -->
 
-    <!-- jQuery -->
-    <script>
-        $(document).ready(function() {
-            $('.datatable').DataTable(); // Activates DataTables
-        });
-    </script>
+
+
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             @if (session('success'))
@@ -494,6 +542,7 @@
         });
     </script>
 
+
     <script src="assets/js/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -510,25 +559,25 @@
     </script>
 
     <!-- Bootstrap Core JS -->
-    <script src="assets/js/popper.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
     <!-- Slimscroll JS -->
-    <script src="assets/js/jquery.slimscroll.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.slimscroll.min.js') }}"></script>
 
     <!-- Select2 JS -->
-    <script src="assets/js/select2.min.js"></script>
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
 
     <!-- Datatable JS -->
-    <script src="assets/js/jquery.dataTables.min.js"></script>
-    <script src="assets/js/dataTables.bootstrap4.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/js/dataTables.bootstrap4.min.js') }}"></script>
 
     <!-- Datetimepicker JS -->
-    <script src="assets/js/moment.min.js"></script>
-    <script src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="{{ asset('assets/js/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
 
     <!-- Custom JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
 
 </body>
 

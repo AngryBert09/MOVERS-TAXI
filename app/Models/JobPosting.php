@@ -27,4 +27,9 @@ class JobPosting extends Model
     {
         return $this->hasMany(JobApplication::class);
     }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class, 'id');
+    }
 }

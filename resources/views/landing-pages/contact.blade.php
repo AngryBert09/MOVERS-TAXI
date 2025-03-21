@@ -44,23 +44,25 @@
             <div class="container">
                 <div class="row mb-5">
                     <div class="col-md-7 pr-md-7 mb-5">
-                        <form action="#" method="post">
+                        <form action="{{ route('inquiries.store') }}" method="POST">
+                            @csrf
                             <div class="form-group">
                                 <label for="name">Name</label>
-                                <input type="text" class="form-control" id="name">
+                                <input type="text" class="form-control" id="name" name="name" required>
                             </div>
                             <div class="form-group">
                                 <label for="email">Email</label>
-                                <input type="email" class="form-control" id="email">
+                                <input type="email" class="form-control" id="email" name="email" required>
                             </div>
                             <div class="form-group">
                                 <label for="message">Message</label>
-                                <textarea name="message" id="message" cols="30" rows="10" class="form-control"></textarea>
+                                <textarea name="message" id="message" cols="30" rows="10" class="form-control" required></textarea>
                             </div>
                             <div class="form-group">
                                 <input type="submit" class="btn btn-primary py-3 px-5" value="Send Message">
                             </div>
                         </form>
+
                     </div>
                     <div class="col-md-5">
                         <div class="media block-icon-1 d-block text-center">
@@ -81,7 +83,7 @@
                         <div class="media block-icon-1 d-block text-center">
                             <div class="icon mb-3"><span class="ion-ios-email-outline"></span></div>
                             <div class="media-body">
-                                <h3 class="h5 mb-4">info@templateux.com</h3>
+                                <h3 class="h5 mb-4">humanresource2.moverstaxi.com</h3>
                             </div>
                         </div> <!-- .block-icon-1 -->
 
@@ -173,7 +175,30 @@
         </footer> <!-- .templateux-footer -->
 
     </div> <!-- .js-animsition -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            @endif
 
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Try Again'
+                });
+            @endif
+        });
+    </script>
     <script src="{{ asset('extras/js/scripts-all.js') }}"></script>
     <script src="{{ asset('extras/js/main.js') }}"></script>
 

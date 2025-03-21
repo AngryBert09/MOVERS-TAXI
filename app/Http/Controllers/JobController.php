@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use App\Models\JobApplication;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\InterviewScheduledMail;
+use App\Mail\ApplicationStatusMail;
+use App\Models\Department;
 
 
 
@@ -15,9 +19,12 @@ class JobController extends Controller
 {
     public function getManageJobs()
     {
-        $jobs = JobPosting::all();
-        return view('jobs.manage-jobs', compact('jobs'));
+        $jobs = JobPosting::with('department')->get(); // Eager load departments
+        $departments = Department::select('id', 'department_name')->get(); // Select only needed columns
+
+        return view('jobs.manage-jobs', compact('jobs', 'departments'));
     }
+
 
 
     public function getJobVacancies()
@@ -35,8 +42,11 @@ class JobController extends Controller
         return view('jobs.job-view', compact('job'));
     }
 
+    // ADD A JOB POSTING
     public function store(Request $request)
     {
+        Log::debug('JobController@store: Received request to store a new job.', ['request_data' => $request->all()]);
+
         $request->validate([
             'job_title'     => 'required|string|max:255',
             'department'    => 'required|string|max:255',
@@ -54,16 +64,45 @@ class JobController extends Controller
         ]);
 
         try {
+            Log::debug('JobController@store: Validation passed. Creating job posting.');
             $job = JobPosting::create($request->all());
 
             Log::info("New job posted: {$job->job_title}", ['job_id' => $job->id]);
             return redirect()->back()->with('success', 'Job posted successfully!');
         } catch (\Exception $e) {
-            Log::error("Job posting failed: " . $e->getMessage());
+            Log::error("JobController@store: Job posting failed.", ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to post job. Please try again.');
         }
     }
 
+    // UPDATE JOB POSTING
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'job_title'     => 'sometimes|string|max:255',
+            'department'    => 'sometimes|string|max:255',
+            'job_location'  => 'sometimes|string|max:255',
+            'no_of_vacancies' => 'sometimes|integer|min:1',
+            'experience'    => 'sometimes|string|max:255',
+            'age'           => 'sometimes|nullable|integer|min:18',
+            'salary_from'   => 'sometimes|numeric|min:0',
+            'salary_to'     => 'sometimes|numeric|min:0|gte:salary_from',
+            'job_type'      => 'sometimes|string|in:Full Time,Part Time,Internship,Temporary,Remote,Others',
+            'status'        => 'sometimes|string|in:Open,Closed,Cancelled',
+            'start_date'    => 'sometimes|date',
+            'expired_date'  => 'sometimes|date|after:start_date',
+            'description'   => 'sometimes|string',
+        ]);
+
+        $job = JobPosting::findOrFail($id);
+        $job->update($request->only(array_keys($request->all())));
+
+        return redirect()->back()->with('success', 'Job updated successfully!');
+    }
+
+
+
+    // GET ALL APPLICANTS
     public function getApplicants($jobPostingId)
     {
         try {
@@ -83,90 +122,26 @@ class JobController extends Controller
         }
     }
 
-    public function updateStatus(Request $request)
-    {
-        Log::info('Update Status Request Received:', $request->all());
-
-        $request->validate([
-            'applicant_id' => 'required|exists:job_applications,id',
-            'status' => 'required|in:Pending,Hired,Rejected,Interviewed',
-        ]);
-
-        try {
-            $applicant = JobApplication::findOrFail($request->applicant_id);
-            $applicant->status = $request->status;
-            $applicant->save();
-
-            Log::info('Status updated successfully.', ['id' => $request->applicant_id, 'status' => $request->status]);
-
-            return response()->json(['success' => true, 'message' => 'Status updated successfully!']);
-        } catch (\Exception $e) {
-            Log::error('Error updating applicant status', ['error' => $e->getMessage()]);
-            return response()->json(['success' => false, 'message' => 'Error updating applicant status.'], 500);
-        }
-    }
-
-
-
-
-    //FUNCTION FOR APPLICANTS
-    public function applyJob(Request $request)
+    public function destroy($id)
     {
         try {
-            Log::info('Job application request received.', ['request' => $request->all()]);
+            $job = JobPosting::findOrFail($id); // Find the job or throw a 404
 
-            // Validate request, ensuring the same email cannot be used for the same job posting
-            $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'email' => [
-                    'required',
-                    'email',
-                    'max:255',
-                    function ($attribute, $value, $fail) use ($request) {
-                        if (JobApplication::where('email', $value)
-                            ->where('job_posting_id', $request->job_posting_id)
-                            ->exists()
-                        ) {
-                            $fail('You have already applied for this job.');
-                        }
-                    }
-                ],
-                'phone' => 'required|string|max:15',
-                'resume' => 'required|file|mimes:pdf,doc,docx|max:2048',
-                'job_posting_id' => 'required|exists:job_postings,id',
+            // Delete all related job applications
+            $applicantsDeleted = $job->applications()->delete(); // Assuming a hasMany relationship
+
+            // Now delete the job posting itself
+            $job->delete();
+
+            Log::info("Job and related applicants deleted successfully", [
+                'job_id' => $id,
+                'applicants_deleted' => $applicantsDeleted
             ]);
 
-            // Store resume file
-            $resumePath = $request->file('resume')->store('resumes', 'public');
-            Log::info('Resume uploaded successfully.', ['resume_path' => $resumePath]);
-
-            // Create job application
-            $jobApplication = JobApplication::create([
-                'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
-                'phone' => $validatedData['phone'],
-                'apply_date' => now(),
-                'status' => 'Pending',
-                'resume' => $resumePath,
-                'job_posting_id' => $validatedData['job_posting_id'],
-            ]);
-
-            Log::info('Job application created successfully.', ['job_application' => $jobApplication]);
-
-            return response()->json(['message' => 'Application submitted successfully!'], 200);
-        } catch (ValidationException $e) {
-            // Handle validation errors
-            Log::warning('Validation failed.', ['errors' => $e->errors()]);
-            return response()->json([
-                'message' => 'Validation failed.',
-                'errors' => $e->errors()
-            ], 422);
+            return redirect()->back()->with('success', 'Job and its applicants deleted successfully!');
         } catch (\Exception $e) {
-            // Handle general errors
-            Log::error('Error applying for job.', ['error' => $e->getMessage()]);
-            return response()->json([
-                'message' => 'Something went wrong! Please try again later.'
-            ], 500);
+            Log::error("Error deleting job and its applicants", ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to delete job. Please try again.');
         }
     }
 }

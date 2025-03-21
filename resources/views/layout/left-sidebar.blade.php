@@ -6,7 +6,7 @@
                     <span>Main</span>
                 </li>
                 <li class="submenu">
-                    <a href="#"><i class="la la-dashboard"></i> <span> Dashboard</span>
+                    <a href="{{ route('dashboard') }}"><i class="la la-dashboard"></i> <span> Dashboard</span>
                 </li>
 
                 <li class="menu-title">
@@ -17,14 +17,14 @@
                         <span class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a href="employees.html">All Employees</a></li>
-                        <li><a href="departments.html">Departments</a></li>
-                        <li><a href="designations.html">Designations</a></li>
+                        <li><a href="{{ route('departments') }}">Departments</a></li>
+                        <li><a href="departments.html">New Hired List</a></li>
                     </ul>
                 </li>
 
 
                 <li>
-                    <a href="tickets.html"><i class="la la-ticket"></i> <span>Tickets</span></a>
+                    <a href="{{ route('inquiries') }}"><i class="la la-ticket"></i> <span>Inquiries</span></a>
                 </li>
                 <li class="menu-title">
                     <span>HR</span>
@@ -34,10 +34,7 @@
                     <a href="#"><i class="la la-files-o"></i> <span> Accounting </span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-
-                        <li><a href="budgets.html">Budgets</a></li>
-                        <li><a href="budget-expenses.html">Budget Expenses</a></li>
-                        <li><a href="budget-revenues.html">Budget Revenues</a></li>
+                        <li><a href="{{ route('budgets') }}">Budget Expenses</a></li>
                     </ul>
                 </li>
 
@@ -50,7 +47,6 @@
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a href="performance-indicator.html"> Performance Indicator </a></li>
-                        <li><a href="performance.html"> Performance Review </a></li>
                         <li><a href="performance-appraisal.html"> Performance Appraisal </a></li>
                     </ul>
                 </li>
@@ -59,16 +55,16 @@
                     <a href="#"><i class="la la-edit"></i> <span> Training </span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="training.html"> Training List </a></li>
-                        <li><a href="trainers.html"> Trainers</a></li>
-                        <li><a href="training-type.html"> Training Type </a></li>
+                        <li><a href="{{ route('training.list') }}"> Training List </a></li>
+                        <li><a href="{{ route('training.trainers') }}"> Trainers</a></li>
+                        <li><a href="{{ route('training.types') }}"> Training Type </a></li>
                     </ul>
                 </li>
-                <li><a href="promotion.html"><i class="la la-bullhorn"></i> <span>Promotion</span></a></li>
+                {{-- <li><a href="promotion.html"><i class="la la-bullhorn"></i> <span>Promotion</span></a></li>
                 <li><a href="resignation.html"><i class="la la-external-link-square"></i>
                         <span>Resignation</span></a></li>
                 <li><a href="termination.html"><i class="la la-times-circle"></i> <span>Termination</span></a>
-                </li>
+                </li> --}}
                 <li class="menu-title">
                     <span>Administration</span>
                 </li>
@@ -78,8 +74,7 @@
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a href="{{ route('jobs.manage') }}"> Manage Jobs </a></li>
-                        <li><a href="manage-resumes.html"> Manage Resumes </a></li>
-                        <li><a href="shortlist-candidates.html"> Shortlist Candidates </a></li>
+                        <li><a href="{{ route('applicants') }}"> Applicants </a></li>
                     </ul>
                 </li>
 
