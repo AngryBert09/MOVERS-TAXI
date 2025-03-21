@@ -14,7 +14,7 @@ class Training extends Model
     protected $fillable = [
         'training_type',
         'trainer',
-        'employees',
+        'trainee_id',
         'training_cost',
         'start_date',
         'end_date',
@@ -43,5 +43,12 @@ class Training extends Model
     public function trainingType()
     {
         return $this->belongsTo(TrainingType::class);
+    }
+
+
+
+    public function trainee()
+    {
+        return $this->belongsTo(JobApplication::class, 'trainee_id');
     }
 }

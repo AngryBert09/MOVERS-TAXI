@@ -54,7 +54,7 @@
                                         <th style="width: 30px;">#</th>
                                         <th>Training Type</th>
                                         <th>Trainer</th>
-                                        <th>Employee</th>
+                                        <th>Trainee</th>
                                         <th>Time Duration</th>
                                         <th>Description </th>
                                         <th>Cost </th>
@@ -75,35 +75,9 @@
                                                 </h2>
                                             </td>
                                             <td>
-                                                <ul class="team-members">
-                                                    @foreach ($training->employees as $employee)
-                                                        <li>
-                                                            <a href="#" title="{{ $employee['name'] }}"
-                                                                data-toggle="tooltip">
-                                                                <img alt="" src="{{ $employee['avatar'] }}">
-                                                            </a>
-                                                        </li>
-                                                    @endforeach
-                                                    @if (count($training->employees) > 3)
-                                                        <li class="dropdown avatar-dropdown">
-                                                            <a href="#" class="all-users dropdown-toggle"
-                                                                data-toggle="dropdown" aria-expanded="false">
-                                                                +{{ count($training->employees) - 3 }}
-                                                            </a>
-                                                            <div class="dropdown-menu dropdown-menu-right">
-                                                                <div class="avatar-group">
-                                                                    @foreach (array_slice($training->employees, 3) as $employee)
-                                                                        <a class="avatar avatar-xs" href="#">
-                                                                            <img alt=""
-                                                                                src="{{ $employee['avatar'] }}">
-                                                                        </a>
-                                                                    @endforeach
-                                                                </div>
-                                                            </div>
-                                                        </li>
-                                                    @endif
-                                                </ul>
+                                                {{ $training->trainee ? $training->trainee->name : 'N/A' }}
                                             </td>
+
                                             <td>{{ date('d M Y', strtotime($training->start_date)) }} -
                                                 {{ date('d M Y', strtotime($training->end_date)) }}</td>
                                             <td>{{ $training->description }}</td>
@@ -180,10 +154,10 @@
                                         <div class="form-group">
                                             <label class="col-form-label">Training Type <span
                                                     class="text-danger">*</span></label>
-                                            <select class="form-control" name="training_type_id" required>
+                                            <select class="form-control" name="training_type" required>
                                                 <option value="">Select Training Type</option>
                                                 @foreach ($trainingTypes as $type)
-                                                    <option value="{{ $type->id }}">{{ $type->type_name }}
+                                                    <option value="{{ $type->type_name }}">{{ $type->type_name }}
                                                     </option>
                                                 @endforeach
                                             </select>
@@ -195,11 +169,12 @@
                                         <div class="form-group">
                                             <label class="col-form-label">Trainer <span
                                                     class="text-danger">*</span></label>
-                                            <select class="form-control" name="trainer_id" required>
+                                            <select class="form-control" name="trainer" required>
                                                 <option value="">Select Trainer</option>
                                                 @foreach ($trainers as $trainer)
                                                     @if ($trainer->status === 'Active')
-                                                        <option value="{{ $trainer->id }}">
+                                                        <option
+                                                            value="{{ $trainer->first_name . ' ' . $trainer->last_name }}">
                                                             {{ $trainer->first_name }} {{ $trainer->last_name }}
                                                         </option>
                                                     @endif
@@ -209,20 +184,22 @@
                                     </div>
 
                                     <!-- Employees (Multiple Selection) -->
-                                    {{-- <div class="col-sm-12">
+                                    <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label class="col-form-label">Employees <span
-                                                    class="text-danger">*</span></label>
-                                            <select class="form-control select2" name="employee_ids[]" multiple
-                                                required>
+                                            <label class="col-form-label">Trainee's</label>
+                                            <select class="form-control select" name="trainee_id">
                                                 @foreach ($employees as $employee)
-                                                    <option value="{{ $employee->id }}">
-                                                        {{ $employee->first_name }} {{ $employee->last_name }}
-                                                    </option>
+                                                    @if (!$trainings->contains('trainee_id', $employee->id))
+                                                        <option value="{{ $employee->id }}">
+                                                            {{ $employee->name }}
+                                                        </option>
+                                                    @endif
                                                 @endforeach
                                             </select>
                                         </div>
-                                    </div> --}}
+                                    </div>
+
+
 
                                     <!-- Training Cost -->
                                     <div class="col-sm-6">

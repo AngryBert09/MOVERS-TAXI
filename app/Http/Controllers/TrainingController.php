@@ -6,39 +6,66 @@ use Illuminate\Http\Request;
 use App\Models\Training;
 use App\Models\TrainingType;
 use App\Models\Trainer;
+use App\Models\JobApplication;
+use Illuminate\Support\Facades\Log;
 
 class TrainingController extends Controller
 {
     public function getTrainingList()
     {
-        $trainings = Training::with(['trainer', 'trainingType', 'employee'])->get();
+        $trainings = Training::with(['trainer', 'trainingType'])->get();
         $trainingTypes = TrainingType::all();
         $trainers = Trainer::where('status', 'Active')->get();
-        // $employees = Employee::all();
 
-        return view('trainings.training-list', compact('trainings', 'trainingTypes', 'trainers'));
+        // Fetch only employees who have been hired
+        $employees = JobApplication::where('status', 'Hired')->get();
+
+        return view('trainings.training-list', compact('trainings', 'trainingTypes', 'trainers', 'employees'));
     }
-
-
-
 
     public function storeTraining(Request $request)
     {
+        Log::info('Store Training Request Received', ['request' => $request->all()]);
+
         $request->validate([
-            'training_type_id' => 'required|exists:training_types,id',
-            'trainer_id' => 'required|exists:trainers,id',
-            'employee_id' => 'required|exists:employees,id',
-            'training_cost' => 'required|numeric',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after:start_date',
+            'training_type' => 'required|exists:training_types,type_name',
+            'trainer' => 'required|string',
+            'trainee_id' => 'required|exists:job_applications,id',
+            'training_cost' => 'required|numeric|min:0',
+            'start_date' => 'required|date_format:d/m/Y',
+            'end_date' => 'required|date_format:d/m/Y|after_or_equal:start_date',
             'description' => 'required|string',
             'status' => 'required|in:Active,Inactive',
         ]);
 
-        Training::create($request->all());
+        Log::info('Validation Passed', ['validated_data' => $request->all()]);
+
+        // Convert date format to YYYY-MM-DD for database storage
+        $start_date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
+        $end_date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
+
+        Log::info('Date Conversion Completed', ['start_date' => $start_date, 'end_date' => $end_date]);
+
+        // Store the training record
+        $training = Training::create([
+            'training_type' => $request->training_type,
+            'trainer' => $request->trainer,
+            'trainee_id' => $request->trainee_id,
+            'training_cost' => $request->training_cost,
+            'start_date' => $start_date,
+            'end_date' => $end_date,
+            'description' => $request->description,
+            'status' => $request->status,
+        ]);
+
+        Log::info('Training Record Created', ['training' => $training]);
 
         return redirect()->back()->with('success', 'Training added successfully!');
     }
+
+
+
+
 
 
 
