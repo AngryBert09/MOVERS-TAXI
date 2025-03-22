@@ -54,8 +54,9 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        @foreach ($requests as $request)
+                                    @foreach ($requests as $request)
+                                        <tr>
+
                                             <td>{{ $request->id }}</td>
                                             <td>{{ $request->purpose }}</td>
                                             <td>{{ $request->amount }}</td>
@@ -86,9 +87,9 @@
                                                     </div>
                                                 </div>
                                             </td>
-                                        @endforeach
-                                    </tr>
 
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
