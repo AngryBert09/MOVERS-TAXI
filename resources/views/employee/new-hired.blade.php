@@ -25,10 +25,10 @@
                 <div class="page-header">
                     <div class="row align-items-center">
                         <div class="col">
-                            <h3 class="page-title">Performance Evaluation</h3>
+                            <h3 class="page-title">New Hired List</h3>
                             <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Performance</li>
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active">New Hired</li>
                             </ul>
                         </div>
                         <div class="col-auto float-right ml-auto">
@@ -49,6 +49,7 @@
                                         <th>Email</th>
                                         <th>Phone</th>
                                         <th>Department</th>
+                                        <th>Position</th>
                                         <th>Apply Date</th>
                                         <th class="text-center">Status</th>
                                         <th>Resume</th>
@@ -56,37 +57,30 @@
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
-                                    @foreach ($trainees as $trainee)
+                                    @foreach ($employees as $employee)
                                         <tr>
-                                            <td>{{ $trainee->id }}</td>
+                                            <td>{{ $employee->id }}</td>
                                             <td>
                                                 <h2 class="table-avatar">
                                                     <a href="#" class="avatar"><img alt=""
                                                             src="assets/img/default.jpg"></a>
-                                                    <a href="#">{{ $trainee->name }}</a>
+                                                    <a href="#">{{ $employee->name }}</a>
                                                 </h2>
                                             </td>
-                                            <td>{{ $trainee->email }}</td>
-                                            <td>{{ $trainee->phone }}</td>
-                                            <td>{{ $trainee->jobPosting ? $trainee->jobPosting->department : 'N/A' }}
+                                            <td>{{ $employee->email }}</td>
+                                            <td>{{ $employee->phone }}</td>
+                                            <td>{{ $employee->jobPosting ? $employee->jobPosting->department : 'N/A' }}
+                                            <td>{{ $employee->jobPosting ? $employee->jobPosting->job_title : 'N/A' }}
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($trainee->apply_date)->format('d M Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($employee->apply_date)->format('d M Y') }}</td>
                                             <td>
-                                                <div class="dropdown action-label">
-                                                    <a class="btn btn-white btn-sm btn-rounded dropdown-toggle"
-                                                        href="#" data-toggle="dropdown">
-                                                        <i class="fa fa-dot-circle-o text-success"></i> Active
-                                                    </a>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="#"><i
-                                                                class="fa fa-dot-circle-o text-success"></i> Active</a>
-                                                        <a class="dropdown-item" href="#"><i
-                                                                class="fa fa-dot-circle-o text-danger"></i> Inactive</a>
-                                                    </div>
-                                                </div>
+                                                <span
+                                                    class="{{ $employee->status == 'Hired' ? 'text-success' : ($employee->status == 'Rejected' ? 'text-danger' : ($employee->status == 'Pending' ? 'text-warning' : 'text-info')) }}">
+                                                    <i class="fa fa-dot-circle-o"></i> {{ $employee->status }}
+                                                </span>
                                             </td>
                                             <td>
-                                                <a href="{{ asset('storage/' . $trainee->resume) }}"
+                                                <a href="{{ asset('storage/' . $employee->resume) }}"
                                                     class="btn btn-sm btn-primary" download>
                                                     <i class="fa fa-download"></i> Download
                                                 </a>
@@ -97,10 +91,10 @@
                                                         data-toggle="dropdown" aria-expanded="false"><i
                                                             class="material-icons">more_vert</i></a>
                                                     <div class="dropdown-menu dropdown-menu-right">
-                                                        @if ($trainee->performanceEvaluations->isEmpty())
+                                                        @if ($employee->performanceEvaluations->isEmpty())
                                                             <!-- Display the Evaluate link -->
                                                             <a class="dropdown-item" href="#" data-toggle="modal"
-                                                                data-target="#edit_appraisal_{{ $trainee->id }}">
+                                                                data-target="#edit_appraisal_{{ $employee->id }}">
                                                                 <i class="fa fa-pencil m-r-5"></i> Evaluate
                                                             </a>
                                                         @else
@@ -125,7 +119,7 @@
 
 
             <!-- Edit Performance Appraisal Modal -->
-            @foreach ($trainees as $trainee)
+            {{-- @foreach ($trainees as $trainee)
                 <div id="edit_appraisal_{{ $trainee->id }}" class="modal fade" role="dialog">
                     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                         <div class="modal-content">
@@ -539,7 +533,7 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @endforeach --}}
 
             <!-- /Edit Performance Appraisal Modal -->
 

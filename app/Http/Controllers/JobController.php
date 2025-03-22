@@ -38,7 +38,7 @@ class JobController extends Controller
 
     public function showJobDetails($id)
     {
-        $job = JobPosting::findOrFail($id);
+        $job = JobPosting::withCount('applications')->findOrFail($id); // Include applicant count
         return view('jobs.job-view', compact('job'));
     }
 

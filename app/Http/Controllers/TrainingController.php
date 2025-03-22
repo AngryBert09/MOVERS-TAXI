@@ -27,41 +27,116 @@ class TrainingController extends Controller
     {
         Log::info('Store Training Request Received', ['request' => $request->all()]);
 
-        $request->validate([
-            'training_type' => 'required|exists:training_types,type_name',
-            'trainer' => 'required|string',
-            'trainee_id' => 'required|exists:job_applications,id',
-            'training_cost' => 'required|numeric|min:0',
-            'start_date' => 'required|date_format:d/m/Y',
-            'end_date' => 'required|date_format:d/m/Y|after_or_equal:start_date',
-            'description' => 'required|string',
-            'status' => 'required|in:Active,Inactive',
-        ]);
+        try {
+            // Validate request with additional rule to check if trainee is already assigned
+            $validatedData = $request->validate([
+                'training_type' => 'required|exists:training_types,type_name',
+                'trainer' => 'required|string',
+                'trainee_id' => [
+                    'required',
+                    'exists:job_applications,id',
+                    function ($attribute, $value, $fail) {
+                        if (Training::where('trainee_id', $value)->exists()) {
+                            $fail('The selected trainee is already assigned to a training.');
+                        }
+                    }
+                ],
+                'training_cost' => 'required|numeric|min:0',
+                'start_date' => 'required|date_format:d/m/Y',
+                'end_date' => 'required|date_format:d/m/Y|after_or_equal:start_date',
+                'description' => 'required|string',
+                'status' => 'required|in:Active,Inactive',
+            ]);
 
-        Log::info('Validation Passed', ['validated_data' => $request->all()]);
+            Log::info('Validation Passed', ['validated_data' => $validatedData]);
 
-        // Convert date format to YYYY-MM-DD for database storage
-        $start_date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
-        $end_date = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
+            // Convert date format to YYYY-MM-DD for database storage
+            $validatedData['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
+            $validatedData['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
 
-        Log::info('Date Conversion Completed', ['start_date' => $start_date, 'end_date' => $end_date]);
+            Log::info('Date Conversion Completed', [
+                'start_date' => $validatedData['start_date'],
+                'end_date' => $validatedData['end_date']
+            ]);
 
-        // Store the training record
-        $training = Training::create([
-            'training_type' => $request->training_type,
-            'trainer' => $request->trainer,
-            'trainee_id' => $request->trainee_id,
-            'training_cost' => $request->training_cost,
-            'start_date' => $start_date,
-            'end_date' => $end_date,
-            'description' => $request->description,
-            'status' => $request->status,
-        ]);
+            // Store the training record
+            $training = Training::create($validatedData);
 
-        Log::info('Training Record Created', ['training' => $training]);
+            Log::info('Training Record Created', ['training' => $training]);
 
-        return redirect()->back()->with('success', 'Training added successfully!');
+            return redirect()->back()->with('success', 'Training added successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation Error', ['errors' => $e->errors()]);
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Unexpected Error', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Something went wrong while adding the training. Please try again.');
+        }
     }
+
+
+    public function updateTraining(Request $request, $id)
+    {
+        Log::info('Update Training Request Received', ['training_id' => $id, 'request' => $request->all()]);
+
+        try {
+            // Adjust expected date format based on incoming request format
+            $dateFormat = 'Y-m-d'; // Laravel date pickers usually send dates in this format
+
+            // Validate request with a custom rule for `trainee_id`
+            $validatedData = $request->validate([
+                'training_type' => 'required|exists:training_types,type_name',
+                'trainer' => 'required|string',
+                'trainee_id' => [
+                    'required',
+                    'exists:job_applications,id',
+                    function ($attribute, $value, $fail) use ($id) {
+                        $exists = Training::where('trainee_id', $value)->where('id', '!=', $id)->exists();
+                        if ($exists) {
+                            $fail('The selected trainee is already assigned to another training.');
+                        }
+                    }
+                ],
+                'training_cost' => 'required|numeric|min:0',
+                'start_date' => 'required|date_format:' . $dateFormat,
+                'end_date' => 'required|date_format:' . $dateFormat . '|after_or_equal:start_date',
+                'description' => 'sometimes|required|string',
+                'status' => 'sometimes|required|in:Active,Inactive',
+            ]);
+
+            Log::info('Validation Passed', ['validated_data' => $validatedData]);
+
+            // Convert date format if needed
+            if ($request->has('start_date')) {
+                $validatedData['start_date'] = \Carbon\Carbon::createFromFormat($dateFormat, $request->start_date)->format('Y-m-d');
+            }
+            if ($request->has('end_date')) {
+                $validatedData['end_date'] = \Carbon\Carbon::createFromFormat($dateFormat, $request->end_date)->format('Y-m-d');
+            }
+
+            Log::info('Date Conversion Completed', [
+                'start_date' => $validatedData['start_date'] ?? null,
+                'end_date' => $validatedData['end_date'] ?? null
+            ]);
+
+            // Find and update the training record
+            $training = Training::findOrFail($id);
+            $training->update($validatedData);
+
+            Log::info('Training Record Updated', ['updated_training' => $training]);
+
+            return redirect()->back()->with('success', 'Training updated successfully!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation Error', ['errors' => $e->errors()]);
+            return redirect()->back()->withErrors($e->errors())->withInput();
+        } catch (\Exception $e) {
+            Log::error('Unexpected Error', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Something went wrong while updating the training. Please try again.');
+        }
+    }
+
+
+
 
 
 

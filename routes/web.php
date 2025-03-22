@@ -8,7 +8,10 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ApplicantController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\InquiriesController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\CompanyController;
 
 Route::middleware('guest')->group(function () {
     Route::name('landing.')->group(function () {
@@ -16,9 +19,7 @@ Route::middleware('guest')->group(function () {
             return view('landing-pages.index');
         })->name('page');
 
-        Route::get('/contact-us', function () {
-            return view('landing-pages.contact');
-        })->name('contact');
+        Route::get('/contact-us', [CompanyController::class, 'contacts'])->name('contact');
     });
 
     // Authentication Routes
@@ -79,6 +80,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/trainers/update/{id}', [TrainingController::class, 'updateTrainer'])->name('trainers.update');
     Route::delete('/trainers/{id}', [TrainingController::class, 'destroyTrainer'])->name('trainers.destroy');
     Route::post('/trainings', [TrainingController::class, 'storeTraining'])->name('trainings.store');
+    Route::put('/trainings/update/{id}', [TrainingController::class, 'updateTraining'])->name('trainings.update');
 
     //DEPARTMENTS
     Route::get('/departments', [DepartmentController::class, 'index'])->name('departments');
@@ -86,8 +88,20 @@ Route::middleware('admin')->group(function () {
 
     //BUDGET
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets');
+    Route::post('/budgets/request', [BudgetController::class, 'store'])->name('budget.store');
 
     //INQUIRIES
     Route::get('/inquiries', [InquiriesController::class, 'index'])->name('inquiries');
     Route::post('/inquiries/{id}/reply', [InquiriesController::class, 'reply'])->name('inquiries.reply');
+
+    //PERFORMANCE
+    Route::get('/performance-evaluation', [PerformanceController::class, 'index'])->name('performance.index');
+    Route::post('/performance-evaluation/store', [PerformanceController::class, 'store'])->name('performance.store');
+
+    //NEW HIRED
+    Route::get('/new-hired', [EmployeeController::class, 'index'])->name('employee.index');
+
+    //COMPANY SETTINGS
+    Route::get('/company-settings', [CompanyController::class, 'index'])->name('company.index');
+    Route::put('/settings/update', [CompanyController::class, 'update'])->name('company.update');
 });

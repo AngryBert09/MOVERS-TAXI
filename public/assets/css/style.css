@@ -2569,7 +2569,7 @@ table.dataTable thead>tr>td.sorting {
 }
 
 .select2-container--default .select2-results__option--highlighted[aria-selected] {
-    background-color: #f43b48;
+    background-color: #1273EB;
 }
 
 /*-----------------
@@ -2614,8 +2614,8 @@ table.dataTable thead>tr>td.sorting {
 .nav-tabs.nav-tabs-solid>li>a.active,
 .nav-tabs.nav-tabs-solid>li>a.active:hover,
 .nav-tabs.nav-tabs-solid>li>a.active:focus {
-    background-color: #f43b48;
-    border-color    : #f43b48;
+    background-color: #1273EB;
+    border-color    : #1273EB;
     color           : #fff;
 }
 

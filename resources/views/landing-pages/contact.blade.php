@@ -68,7 +68,7 @@
                         <div class="media block-icon-1 d-block text-center">
                             <div class="icon mb-3"><span class="ion-ios-location-outline"></span></div>
                             <div class="media-body">
-                                <h3 class="h5 mb-4">BLOCK 23 LOT 20 BAUTISTA ST. MALIGAYA PARK CAMARIN CALOOCAN CITY
+                                <h3 class="h5 mb-4">{{ $company->address ?? '' }}
                                 </h3>
                             </div>
                         </div> <!-- .block-icon-1 -->
@@ -76,14 +76,14 @@
                         <div class="media block-icon-1 d-block text-center">
                             <div class="icon mb-3"><span class="ion-ios-telephone-outline"></span></div>
                             <div class="media-body">
-                                <h3 class="h5 mb-4">+1 209 923 2302</h3>
+                                <h3 class="h5 mb-4">{{ $company->fax ?? '' }}</h3>
                             </div>
                         </div> <!-- .block-icon-1 -->
 
                         <div class="media block-icon-1 d-block text-center">
                             <div class="icon mb-3"><span class="ion-ios-email-outline"></span></div>
                             <div class="media-body">
-                                <h3 class="h5 mb-4">humanresource2.moverstaxi.com</h3>
+                                <h3 class="h5 mb-4">{{ $company->website_url ?? '' }}</h3>
                             </div>
                         </div> <!-- .block-icon-1 -->
 

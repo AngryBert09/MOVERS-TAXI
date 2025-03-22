@@ -18,7 +18,7 @@
                     <ul style="display: none;">
                         <li><a href="employees.html">All Employees</a></li>
                         <li><a href="{{ route('departments') }}">Departments</a></li>
-                        <li><a href="departments.html">New Hired List</a></li>
+                        <li><a href="{{ route('employee.index') }}">New Hired List</a></li>
                     </ul>
                 </li>
 
@@ -46,8 +46,7 @@
                     <a href="#"><i class="la la-graduation-cap"></i> <span> Performance </span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="performance-indicator.html"> Performance Indicator </a></li>
-                        <li><a href="performance-appraisal.html"> Performance Appraisal </a></li>
+                        <li><a href="{{ route('performance.index') }}"> Evaluation </a></li>
                     </ul>
                 </li>
 
@@ -83,7 +82,7 @@
                     <a href="users.html"><i class="la la-user-plus"></i> <span>Users</span></a>
                 </li>
                 <li>
-                    <a href="settings.html"><i class="la la-cog"></i> <span>Settings</span></a>
+                    <a href="{{ route('company.index') }}"><i class="la la-cog"></i> <span>Settings</span></a>
                 </li>
 
 

@@ -88,8 +88,8 @@
                                         class="text-blue">{{ \Carbon\Carbon::parse($job->expired_date)->format('M d, Y') }}</span>
                                 </li>
 
-                                <li><i class="fa fa-user-o"></i> Applications: <span class="text-blue">4</span></li>
-                                <li><i class="fa fa-eye"></i> Views: <span class="text-blue">3806</span></li>
+                                <li><i class="fa fa-user-o"></i> Applications: <span
+                                        class="text-blue">{{ $job->applications_count }}</span></li>
                             </ul>
                         </div>
                         <div class="job-content job-widget">
@@ -173,8 +173,8 @@
                                 <div class="form-group">
                                     <label>Upload your CV</label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="cv_upload"
-                                            name="resume" required>
+                                        <input type="file" class="custom-file-input" id="cv_upload" name="resume"
+                                            required>
                                         <label class="custom-file-label" for="cv_upload">Choose file</label>
                                     </div>
                                 </div>

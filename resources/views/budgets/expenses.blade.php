@@ -25,7 +25,7 @@
                 <div class="page-header">
                     <div class="row align-items-center">
                         <div class="col">
-                            <h3 class="page-title">Budgets Expenses</h3>
+                            <h3 class="page-title">Budget Request</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
                                 <li class="breadcrumb-item active">Accounts</li>
@@ -33,7 +33,7 @@
                         </div>
                         <div class="col-auto float-right ml-auto">
                             <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_categories"><i
-                                    class="fa fa-plus"></i> Add Expenses</a>
+                                    class="fa fa-plus"></i> Request</a>
                         </div>
                     </div>
                 </div>
@@ -46,61 +46,49 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
-                                        <th>Notes</th>
-                                        <th>Category Name</th>
-                                        <th>SubCategory Name</th>
+                                        <th>Purpose</th>
                                         <th>Amount</th>
-                                        <th>Revenue Date</th>
+                                        <th>Request Date</th>
+                                        <th>Status</th>
                                         <th class="text-right">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        <td>1</td>
-                                        <td>Test</td>
-                                        <td>Hardware</td>
-                                        <td>Hardware Expenses</td>
-                                        <td>1000.00</td>
-                                        <td>06 Jan 2020</td>
-                                        <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle"
-                                                    data-toggle="dropdown" aria-expanded="false"><i
-                                                        class="material-icons">more_vert</i></a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                                        data-target="#edit_categories"><i
-                                                            class="fa fa-pencil m-r-5"></i> Edit</a>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                                        data-target="#delete"><i class="fa fa-trash-o m-r-5"></i>
-                                                        Delete</a>
+                                        @foreach ($requests as $request)
+                                            <td>{{ $request->id }}</td>
+                                            <td>{{ $request->purpose }}</td>
+                                            <td>{{ $request->amount }}</td>
+                                            <td>{{ $request->created_at }}</td>
+                                            <td>
+                                                @if ($request->status == 'Pending')
+                                                    <span class="badge badge-warning">Pending</span>
+                                                @elseif ($request->status == 'Approved')
+                                                    <span class="badge badge-success">Approved</span>
+                                                @elseif ($request->status == 'Rejected')
+                                                    <span class="badge badge-danger">Rejected</span>
+                                                @else
+                                                    <span class="badge badge-secondary">{{ $request->status }}</span>
+                                                @endif
+                                            </td>
+                                            <td class="text-right">
+                                                <div class="dropdown dropdown-action">
+                                                    <a href="#" class="action-icon dropdown-toggle"
+                                                        data-toggle="dropdown" aria-expanded="false"><i
+                                                            class="material-icons">more_vert</i></a>
+                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                                            data-target="#edit_categories"><i
+                                                                class="fa fa-pencil m-r-5"></i> Edit</a>
+                                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                                            data-target="#delete"><i class="fa fa-trash-o m-r-5"></i>
+                                                            Delete</a>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
+                                            </td>
+                                        @endforeach
                                     </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Test</td>
-                                        <td>Project</td>
-                                        <td>Project Expenses</td>
-                                        <td>1000.00</td>
-                                        <td>06 Jan 2020</td>
-                                        <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle"
-                                                    data-toggle="dropdown" aria-expanded="false"><i
-                                                        class="material-icons">more_vert</i></a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                                        data-target="#edit_categories"><i
-                                                            class="fa fa-pencil m-r-5"></i> Edit</a>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                                        data-target="#delete"><i class="fa fa-trash-o m-r-5"></i>
-                                                        Delete</a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
+
                                 </tbody>
                             </table>
                         </div>
@@ -114,84 +102,49 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Add Expenses</h5>
+                            <h5 class="modal-title">Request Budget</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <div class="form-group form-row">
-                                <label class="col-lg-12 control-label">Amount <span class="text-danger">*</span></label>
-                                <div class="col-lg-6">
-                                    <input type="text" class="form-control" placeholder="800.00" name="amount">
+                            <form action="{{ route('budget.store') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                <div class="form-group form-row">
+                                    <label class="col-lg-12 control-label">Amount <span
+                                            class="text-danger">*</span></label>
+                                    <div class="col-lg-12">
+                                        <input type="number" class="form-control" placeholder="800.00" name="amount"
+                                            required>
+                                    </div>
                                 </div>
-                                <div class="col-lg-6">
-                                    <select name="currency_symbol" class="form-control">
-                                        <option value="$ - AUD">$ - Australian Dollar</option>
-                                        <option value="Bs. - VEF">Bs. - Bolívar Fuerte</option>
-                                        <option value="R$ - BRL">R$ - Brazilian Real</option>
-                                        <option value="£ - GBP">£ - British Pound</option>
-                                        <option value="$ - CAD">$ - Canadian Dollar</option>
 
-                                    </select>
+                                <div class="form-group form-row">
+                                    <label class="col-lg-12 control-label">Purpose <span
+                                            class="text-danger">*</span></label>
+                                    <div class="col-lg-12">
+                                        <textarea class="form-control ta" name="purpose" required></textarea>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="form-group form-row">
-                                <label class="col-lg-12 control-label">Notes <span class="text-danger">*</span></label>
-                                <div class="col-lg-12">
-                                    <textarea class="form-control ta" name="notes"></textarea>
-                                </div>
-                            </div>
-                            <div class="form-group form-row">
-                                <label class="col-lg-12 control-label">Expense Date <span
-                                        class="text-danger">*</span></label>
-                                <div class="col-lg-12">
-                                    <input class="datepicker-input form-control" type="text" value="07-05-2021"
-                                        name="expense_date" data-date-format="dd-mm-yyyy">
-                                </div>
-                            </div>
-                            <div class="form-group form-row">
-                                <label class="col-lg-12 control-label">Category <span
-                                        class="text-danger">*</span></label>
-                                <div class="col-lg-12">
-                                    <select name="category" class="form-control m-b" id="main_category">
-                                        <option value="" disabled="" selected="">Choose Category</option>
-                                        <option value="1">project1</option>
-                                        <option value="3">test category</option>
-                                        <option value="4">Hardware</option>
-                                        <option value="5">Material</option>
-                                        <option value="6">Vehicle</option>
-                                        <option value="8">TestctrE</option>
-                                        <option value="9">Twocatr</option>
-                                        <option value="10">fesferwf</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group form-row">
-                                <label class="col-lg-12 control-label">Sub Category <span
-                                        class="text-danger">*</span></label>
-                                <div class="col-lg-12">
-                                    <select name="sub_category" class="form-control m-b" id="sub_category">
-                                        <option value="">Choose Sub-Category</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="form-group form-row  position-relative">
-                                <label class="col-lg-12 control-label">Attach File</label>
-                                <div class="col-lg-12">
 
-                                    <input type="file" class="form-control" data-buttontext="Choose File"
-                                        data-icon="false" data-classbutton="btn btn-default"
-                                        data-classinput="form-control inline input-s" name="receipt">
+                                <div class="form-group form-row position-relative">
+                                    <label class="col-lg-12 control-label">Attach File <span
+                                            class="text-danger">*</span></label>
+                                    <div class="col-lg-12">
+                                        <input type="file" class="form-control" name="file"
+                                            accept=".pdf,.jpg,.png,.doc,.docx" required>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="submit-section">
-                                <button class="btn btn-primary submit-btn">Submit</button>
-                            </div>
+
+                                <div class="submit-section">
+                                    <button type="submit" class="btn btn-primary submit-btn">Submit</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!-- /Add Modal -->
 
             <!-- Edit Modal -->
@@ -312,6 +265,7 @@
 
     </div>
     <!-- /Main Wrapper -->
+
 
     <!-- jQuery -->
     <script src="assets/js/jquery-3.5.1.min.js"></script>

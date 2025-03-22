@@ -157,14 +157,22 @@ class ApplicantController extends Controller
             // Handle validation errors
             Log::warning('Validation failed.', ['errors' => $e->errors()]);
             return response()->json([
-                'message' => 'Validation failed.',
+                'message' => 'Validation failed. Please check the provided details.',
                 'errors' => $e->errors()
             ], 422);
-        } catch (\Exception $e) {
-            // Handle general errors
-            Log::error('Error applying for job.', ['error' => $e->getMessage()]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Handle database-related errors
+            Log::error('Database error while applying for job.', ['error' => $e->getMessage()]);
             return response()->json([
-                'message' => 'Something went wrong! Please try again later.'
+                'message' => 'A database error occurred. Please try again later.',
+                'error_details' => $e->getMessage() // Optionally remove this in production for security
+            ], 500);
+        } catch (\Throwable $e) {
+            // Handle unexpected errors
+            Log::error('Unexpected error applying for job.', ['error' => $e->getMessage()]);
+            return response()->json([
+                'message' => 'Something went wrong! Please check your input and try again.',
+                'error_details' => $e->getMessage() // Optionally remove in production
             ], 500);
         }
     }

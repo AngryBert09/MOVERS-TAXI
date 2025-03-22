@@ -16,5 +16,8 @@ class JobApplication extends Model
         return $this->belongsTo(JobPosting::class);
     }
 
-
+    public function performanceEvaluations()
+    {
+        return $this->hasMany(PerformanceEvaluation::class, 'trainee_id');
+    }
 }

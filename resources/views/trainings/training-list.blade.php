@@ -70,7 +70,7 @@
                                             <td>
                                                 <h2 class="table-avatar">
                                                     <a href="profile.html" class="avatar"><img alt=""
-                                                            src="assets/img/profiles/avatar-02.jpg"></a>
+                                                            src="assets/img/default.jpg"></a>
                                                     <a href="profile.html">{{ $training->trainer }}</a>
                                                 </h2>
                                             </td>
@@ -83,22 +83,11 @@
                                             <td>{{ $training->description }}</td>
                                             <td>${{ number_format($training->training_cost, 2) }}</td>
                                             <td>
-                                                <div class="dropdown action-label">
-                                                    <a class="btn btn-white btn-sm btn-rounded dropdown-toggle"
-                                                        href="#" data-toggle="dropdown" aria-expanded="false">
-                                                        @if ($training->status == 'Active')
-                                                            <i class="fa fa-dot-circle-o text-success"></i> Active
-                                                        @else
-                                                            <i class="fa fa-dot-circle-o text-danger"></i> Inactive
-                                                        @endif
-                                                    </a>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="#"><i
-                                                                class="fa fa-dot-circle-o text-success"></i> Active</a>
-                                                        <a class="dropdown-item" href="#"><i
-                                                                class="fa fa-dot-circle-o text-danger"></i> Inactive</a>
-                                                    </div>
-                                                </div>
+                                                @if ($training->status == 'Active')
+                                                    <i class="fa fa-dot-circle-o text-success"></i> Active
+                                                @else
+                                                    <i class="fa fa-dot-circle-o text-danger"></i> Inactive
+                                                @endif
                                             </td>
                                             <td class="text-right">
                                                 <div class="dropdown dropdown-action">
@@ -108,14 +97,10 @@
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
-                                                            data-target="#edit_training" data-id="{{ $training->id }}"
-                                                            data-training_type="{{ $training->training_type }}"
-                                                            data-trainer="{{ $training->trainer }}"
-                                                            data-cost="{{ $training->training_cost }}"
-                                                            data-start_date="{{ $training->start_date }}"
-                                                            data-end_date="{{ $training->end_date }}"
-                                                            data-description="{{ $training->description }}"><i
-                                                                class="fa fa-pencil m-r-5"></i> Edit</a>
+                                                            data-target="#edit_training_{{ $training->id }}">
+                                                            <i class="fa fa-pencil m-r-5"></i> Edit
+                                                        </a>
+
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#delete_training"
                                                             data-id="{{ $training->id }}"><i
@@ -242,7 +227,7 @@
                                     </div>
 
                                     <!-- Status -->
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-12">
                                         <div class="form-group">
                                             <label class="col-form-label">Status</label>
                                             <select class="form-control" name="status">
@@ -263,97 +248,134 @@
                 </div>
             </div>
 
-            <!-- /Add Training List Modal -->
-
-            <!-- /Add Training List Modal -->
 
             <!-- Edit Training List Modal -->
-            <div id="edit_training" class="modal custom-modal fade" role="dialog">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Edit Training List</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Training Type</label>
-                                            <select class="select">
-                                                <option selected>Node Training</option>
-                                                <option>Swift Training</option>
-                                                <option>Git Training</option>
-                                            </select>
+            @foreach ($trainings as $training)
+                <div id="edit_training_{{ $training->id }}" class="modal custom-modal fade" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Training List</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('trainings.update', $training->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+
+                                    <div class="row">
+                                        <!-- Training Type -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Training Type</label>
+                                                <select class="form-control" name="training_type">
+                                                    @foreach ($trainingTypes as $type)
+                                                        <option value="{{ $type->type_name }}"
+                                                            {{ $type->type_name == $training->training_type ? 'selected' : '' }}>
+                                                            {{ $type->type_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Trainer</label>
-                                            <select class="select">
-                                                <option>Mike Litorus </option>
-                                                <option selected>John Doe</option>
-                                            </select>
+
+                                        <!-- Trainer -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Trainer</label>
+                                                <select class="form-control" name="trainer">
+                                                    @foreach ($trainers as $trainer)
+                                                        <option
+                                                            value="{{ $trainer->first_name }} {{ $trainer->last_name }}"
+                                                            {{ $trainer->first_name . ' ' . $trainer->last_name == $training->trainer ? 'selected' : '' }}>
+                                                            {{ $trainer->first_name }} {{ $trainer->last_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Employees</label>
-                                            <select class="select">
-                                                <option>Bernardo Galaviz</option>
-                                                <option selected>Jeffrey Warden</option>
-                                            </select>
+
+                                        <!-- Employees -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Employees</label>
+                                                <select class="form-control" name="trainee_id">
+                                                    @foreach ($employees as $employee)
+                                                        <option value="{{ $employee->id }}"
+                                                            {{ $employee->id == $training->trainee_id ? 'selected' : '' }}>
+                                                            {{ $employee->name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Training Cost <span
-                                                    class="text-danger">*</span></label>
-                                            <input class="form-control" type="text" value="$400">
+
+                                        <!-- Training Cost -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Training Cost <span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="number" name="training_cost"
+                                                    value="{{ $training->training_cost }}" required>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Start Date <span class="text-danger">*</span></label>
-                                            <div class="cal-icon"><input class="form-control datetimepicker"
-                                                    value="07-08-2019" type="text"></div>
+
+                                        <!-- Start Date -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Start Date <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="date" name="start_date"
+                                                    value="{{ $training->start_date->format('Y-m-d') }}" required>
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>End Date <span class="text-danger">*</span></label>
-                                            <div class="cal-icon"><input class="form-control datetimepicker"
-                                                    value="10-08-2019" type="text"></div>
+
+                                        <!-- End Date -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>End Date <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="date" name="end_date"
+                                                    value="{{ $training->end_date->format('Y-m-d') }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Description -->
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label>Description <span class="text-danger">*</span></label>
+                                                <textarea class="form-control" rows="4" name="description" required>{{ $training->description }}</textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status -->
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Status</label>
+                                                <select class="form-control" name="status">
+                                                    <option value="Active"
+                                                        {{ $training->status == 'Active' ? 'selected' : '' }}>Active
+                                                    </option>
+                                                    <option value="Inactive"
+                                                        {{ $training->status == 'Inactive' ? 'selected' : '' }}>
+                                                        Inactive</option>
+                                                </select>
+                                            </div>
                                         </div>
                                     </div>
 
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label>Description <span class="text-danger">*</span></label>
-                                            <textarea class="form-control" rows="4">Lorem ipsum ismap</textarea>
-                                        </div>
+                                    <!-- Submit Button -->
+                                    <div class="submit-section">
+                                        <button type="submit" class="btn btn-primary submit-btn">Update
+                                            Training</button>
                                     </div>
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Status</label>
-                                            <select class="select">
-                                                <option selected>Active</option>
-                                                <option>Inactive</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Submit</button>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
+
             <!-- /Edit Training List Modal -->
 
             <!-- Delete Training List Modal -->
@@ -401,6 +423,62 @@
                 });
             });
         });
+    </script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll("form").forEach(form => {
+                let startDateInput = form.querySelector("input[name='start_date']");
+                let endDateInput = form.querySelector("input[name='end_date']");
+
+                if (startDateInput && endDateInput) {
+                    startDateInput.addEventListener("change", function() {
+                        let startDate = new Date(this.value);
+
+                        // Set the minimum date for the end date
+                        endDateInput.min = this.value;
+
+                        // Reset end date if it's before start date
+                        if (endDateInput.value && new Date(endDateInput.value) < startDate) {
+                            endDateInput.value = this.value;
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            $(".datetimepicker").datetimepicker({
+                format: "DD/MM/YYYY", // Ensures correct format
+                useCurrent: false
+            });
+
+            $("input[name='start_date']").on("dp.change", function(e) {
+                let startDate = e.date ? e.date.format("DD/MM/YYYY") : null;
+                let endDatePicker = $(this).closest("form").find("input[name='end_date']");
+
+                if (startDate) {
+                    endDatePicker.data("DateTimePicker").minDate(startDate);
+                }
+            });
+
+            $("input[name='end_date']").on("dp.change", function(e) {
+                let startDatePicker = $(this).closest("form").find("input[name='start_date']");
+                let startDate = startDatePicker.val();
+                let endDate = e.date ? e.date.format("DD/MM/YYYY") : null;
+
+                if (startDate && endDate && endDate < startDate) {
+                    alert("End date cannot be before start date!");
+                    $(this).val(startDate); // Reset end date if invalid
+                }
+            });
+        });
+    </script>
+
+
+
+    </script>
+
     </script>
     <!-- Bootstrap Core JS -->
     <script src="assets/js/popper.min.js"></script>
