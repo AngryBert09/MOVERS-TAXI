@@ -77,10 +77,10 @@
                     </ul>
                 </li>
 
-
+                {{--
                 <li>
                     <a href="users.html"><i class="la la-user-plus"></i> <span>Users</span></a>
-                </li>
+                </li> --}}
                 <li>
                     <a href="{{ route('company.index') }}"><i class="la la-cog"></i> <span>Settings</span></a>
                 </li>
