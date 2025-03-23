@@ -19,9 +19,7 @@ use App\Http\Controllers\ProfileController;
 
 Route::middleware('guest')->group(function () {
     Route::name('landing.')->group(function () {
-        Route::get('/', function () {
-            return view('landing-pages.index');
-        })->name('page');
+        Route::get('/', [CompanyController::class, 'landing'])->name('index');
 
         Route::get('/contact-us', [CompanyController::class, 'contacts'])->name('contact');
     });

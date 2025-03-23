@@ -4,7 +4,7 @@
         <div class="row">
 
             <div class="col-3 templateux-logo">
-                <a href="{{ route('landing.page') }}" class="animsition-link">Movers</a>
+                <a href="{{ route('landing.index') }}" class="animsition-link">{{ $company->company_name }}</a>
             </div>
             <nav class="col-9 site-nav">
                 <button
@@ -18,7 +18,7 @@
 
                 <ul class="sf-menu templateux-menu d-none d-md-block">
                     <li class="active">
-                        <a href="{{ route('landing.page') }}" class="animsition-link">Home</a>
+                        <a href="{{ route('landing.index') }}" class="animsition-link">Home</a>
                     </li>
                     <li><a href="{{ route('jobs.vacancies') }}" class="animsition-link">Job Vacancies</a></li>
                     <li><a href="{{ route('landing.contact') }}" class="animsition-link">Contact</a></li>

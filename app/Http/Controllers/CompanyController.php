@@ -20,6 +20,12 @@ class CompanyController extends Controller
         return view('landing-pages.contact', compact('company'));
     }
 
+    public function landing()
+    {
+        $company = DB::table('company')->first(); // Fetch first company
+        return view('landing-pages.index', compact('company'));
+    }
+
     public function update(Request $request)
     {
         Log::debug('Entering update method.');
