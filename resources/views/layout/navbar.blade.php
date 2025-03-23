@@ -153,7 +153,7 @@
                 <span>Admin</span>
             </a>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="profile.html">My Profile</a>
+                <a class="dropdown-item" href="{{ route('profile.index') }}">My Profile</a>
                 <a class="dropdown-item" href="{{ route('company.index') }}">Settings</a>
                 <form id="logout-form" action="{{ route('auth.logout') }}" method="POST" style="display: none;">
                     @csrf

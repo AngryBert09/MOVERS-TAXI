@@ -123,19 +123,35 @@
                                                 </a>
                                             </td>
                                             <td class="text-right">
-                                                <div class="dropdown dropdown-action">
-                                                    <a href="#" class="action-icon dropdown-toggle"
-                                                        data-toggle="dropdown">
-                                                        <i class="material-icons">more_vert</i>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-right">
-                                                        <a class="dropdown-item schedule-interview" href="#"
-                                                            data-id="{{ $applicant->id }}" data-toggle="modal"
-                                                            data-target="#scheduleInterviewModal">
-                                                            <i class="fa fa-clock-o"></i> Send Interview Sched
+                                                @if (!in_array($applicant->status, ['Hired', 'Rejected', 'Interviewed']))
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle"
+                                                            data-toggle="dropdown">
+                                                            <i class="material-icons">more_vert</i>
                                                         </a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item schedule-interview" href="#"
+                                                                data-id="{{ $applicant->id }}" data-toggle="modal"
+                                                                data-target="#scheduleInterviewModal">
+                                                                <i class="fa fa-clock-o"></i> Send Interview Sched
+                                                            </a>
+                                                        </div>
                                                     </div>
-                                                </div>
+                                                @elseif ($applicant->status != 'Hired' && $applicant->status != 'Rejected')
+                                                    <div class="dropdown dropdown-action">
+                                                        <a href="#" class="action-icon dropdown-toggle"
+                                                            data-toggle="dropdown">
+                                                            <i class="material-icons">more_vert</i>
+                                                        </a>
+                                                        <div class="dropdown-menu dropdown-menu-right">
+                                                            <a class="dropdown-item analyze-resume" href="#"
+                                                                data-id="{{ $applicant->id }}" data-toggle="modal"
+                                                                data-target="#analyzeResumeModal">
+                                                                <i class="fa fa-file-text-o"></i> AI Analyze Resume
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach
@@ -253,6 +269,67 @@
             </div>
         </div>
     </div>
+
+    <!-- AI ANALYZER -->
+    <div class="modal fade" id="analyzeResumeModal" tabindex="-1" aria-labelledby="analyzeResumeLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl"> <!-- Extra-large modal -->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="analyzeResumeLabel">AI Resume Analysis</h5>
+                    <button type="button" class="btn-close" data-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="max-height: 70vh; overflow-y: auto;"> <!-- Scrollable content -->
+                    <div id="aiAnalysisResult" style="word-wrap: break-word; white-space: normal;">
+                        <p class="text-center">Analyzing resume... Please wait.</p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-primary" id="copyAnalysis">Copy to Clipboard</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(document).ready(function() {
+            $(".analyze-resume").on("click", function() {
+                var applicantId = $(this).data("id");
+                $("#aiAnalysisResult").html('<p class="text-center">Analyzing resume... Please wait.</p>');
+
+                $.ajax({
+                    url: "/analyze-resume",
+                    type: "POST",
+                    data: {
+                        applicant_id: applicantId,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        if (response.analysis) {
+                            let cleanText = response.analysis.replace(/[*-]/g,
+                                ""); // Remove asterisks and dashes
+                            cleanText = cleanText.replace(/\n\s*\n/g,
+                                "\n\n"); // Remove excessive line breaks
+
+                            $("#aiAnalysisResult").html(
+                                "<pre style='white-space: pre-wrap; word-wrap: break-word;'>" +
+                                cleanText +
+                                "</pre>");
+                        } else {
+                            $("#aiAnalysisResult").html(
+                                "<p class='text-danger'>No analysis found.</p>");
+                        }
+                    },
+
+                    error: function(xhr) {
+                        $("#aiAnalysisResult").html("<p class='text-danger'>Error: " + (xhr
+                            .responseJSON?.error || "Unexpected error") + "</p>");
+                    }
+                });
+            });
+        });
+    </script>
+
 
     <script>
         $(document).ready(function() {

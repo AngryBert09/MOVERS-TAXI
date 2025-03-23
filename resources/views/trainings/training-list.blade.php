@@ -102,12 +102,47 @@
                                                         </a>
 
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
-                                                            data-target="#delete_training"
-                                                            data-id="{{ $training->id }}"><i
-                                                                class="fa fa-trash-o m-r-5"></i> Delete</a>
+                                                            data-target="#deleteBudgetModal">
+                                                            <i class="fa fa-trash-o m-r-5"></i> Delete
+                                                        </a>
                                                     </div>
                                                 </div>
                                             </td>
+                                            <!-- Delete Budget Request Modal -->
+                                            <div class="modal custom-modal fade" id="deleteBudgetModal" role="dialog">
+                                                <div class="modal-dialog modal-dialog-centered">
+                                                    <div class="modal-content">
+                                                        <div class="modal-body">
+                                                            <div class="form-header">
+                                                                <h3>Delete Budget Request</h3>
+                                                                <p>Are you sure you want to delete this Training?
+                                                                </p>
+                                                            </div>
+                                                            <div class="modal-btn delete-action">
+                                                                <div class="row">
+                                                                    <div class="col-6">
+                                                                        <form id="deleteBudgetForm"
+                                                                            action="{{ route('trainings.destroy', $training->id) }}"
+                                                                            method="POST">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <button type="submit"
+                                                                                class="btn btn-danger btn-lg btn-block continue-btn">
+                                                                                Delete
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                    <div class="col-6">
+                                                                        <a href="javascript:void(0);"
+                                                                            data-dismiss="modal"
+                                                                            class="btn btn-secondary btn-lg cancel-btn">Cancel</a>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </tr>
                                     @endforeach
                                 </tbody>

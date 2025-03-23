@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class BudgetController extends Controller
 {
@@ -62,6 +63,32 @@ class BudgetController extends Controller
 
             // Friendly error message for the user
             return redirect()->back()->withErrors(['error' => 'Something went wrong while processing your request. Please try again later.'])->withInput();
+        }
+    }
+
+    public function destroy($id)
+    {
+        try {
+            // Find the budget request
+            $budgetRequest = DB::table('budget_requests')->where('id', $id)->first();
+
+            if (!$budgetRequest) {
+                return redirect()->back()->withErrors(['error' => 'Budget request not found.']);
+            }
+
+            // Delete the associated file if it exists
+            if ($budgetRequest->file_path) {
+                Storage::disk('public')->delete($budgetRequest->file_path);
+            }
+
+            // Delete the budget request from the database
+            DB::table('budget_requests')->where('id', $id)->delete();
+
+            return redirect()->back()->with('success', 'Budget request deleted successfully!');
+        } catch (\Exception $e) {
+            Log::error('Failed to delete budget request: ' . $e->getMessage());
+
+            return redirect()->back()->withErrors(['error' => 'An error occurred while deleting the budget request. Please try again.']);
         }
     }
 }

@@ -135,6 +135,30 @@ class TrainingController extends Controller
         }
     }
 
+    public function destroyTraining($id)
+    {
+        Log::info('Delete Training Request Received', ['training_id' => $id]);
+
+        try {
+            // Find the training record
+            $training = Training::findOrFail($id);
+
+            // Delete the training record
+            $training->delete();
+
+            Log::info('Training Record Deleted', ['deleted_training_id' => $id]);
+
+            return redirect()->back()->with('success', 'Training deleted successfully!');
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            Log::error('Training Not Found', ['training_id' => $id]);
+            return redirect()->back()->with('error', 'Training record not found.');
+        } catch (\Exception $e) {
+            Log::error('Unexpected Error While Deleting', ['message' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Something went wrong while deleting the training. Please try again.');
+        }
+    }
+
+
 
 
 

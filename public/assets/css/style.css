@@ -9366,7 +9366,7 @@ ul.comment-list li ul.children {
     .nav-tabs.nav-tabs-bottom>li>a.active:focus {
         border-bottom-width: 2px;
         border-color       : transparent;
-        border-bottom-color: #f43b48;
+        border-bottom-color: #1273EB;
         background-color   : transparent;
         transition         : none 0s ease 0s;
         -moz-transition    : none 0s ease 0s;

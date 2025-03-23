@@ -12,6 +12,10 @@ use App\Http\Controllers\PerformanceController;
 use App\Http\Controllers\InquiriesController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\ResumeAnalyzerController;
+use App\Http\Controllers\ProfileController;
+
+
 
 Route::middleware('guest')->group(function () {
     Route::name('landing.')->group(function () {
@@ -68,6 +72,8 @@ Route::middleware('admin')->group(function () {
         ->name('job.applicants');
     Route::post('/applicant/update-status', [ApplicantController::class, 'updateStatus'])->name('update.applicant.status');
     Route::post('/schedule-interview', [ApplicantController::class, 'scheduleInterview'])->name('schedule.interview');
+    Route::post('/analyze-resume', [ResumeAnalyzerController::class, 'analyzeResume']);
+
 
     //TRAININGS
     Route::get('/training-list', [TrainingController::class, 'getTrainingList'])->name('training.list');
@@ -81,14 +87,20 @@ Route::middleware('admin')->group(function () {
     Route::delete('/trainers/{id}', [TrainingController::class, 'destroyTrainer'])->name('trainers.destroy');
     Route::post('/trainings', [TrainingController::class, 'storeTraining'])->name('trainings.store');
     Route::put('/trainings/update/{id}', [TrainingController::class, 'updateTraining'])->name('trainings.update');
+    Route::delete('/training/{id}', [TrainingController::class, 'destroyTraining'])->name('trainings.destroy');
+
 
     //DEPARTMENTS
     Route::get('/departments', [DepartmentController::class, 'index'])->name('departments');
     Route::post('/departments/store', [DepartmentController::class, 'store'])->name('departments.store');
+    Route::put('/departments/update/{id}', [DepartmentController::class, 'update'])->name('departments.update');
+    Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
 
     //BUDGET
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets');
     Route::post('/budgets/request', [BudgetController::class, 'store'])->name('budget.store');
+    Route::delete('/budgets/{id}', [BudgetController::class, 'destroy'])->name('budget.destroy');
+
 
     //INQUIRIES
     Route::get('/inquiries', [InquiriesController::class, 'index'])->name('inquiries');
@@ -104,4 +116,7 @@ Route::middleware('admin')->group(function () {
     //COMPANY SETTINGS
     Route::get('/company-settings', [CompanyController::class, 'index'])->name('company.index');
     Route::put('/settings/update', [CompanyController::class, 'update'])->name('company.update');
+
+    //PROFILE
+    Route::get('/my-profile', [ProfileController::class, 'index'])->name('profile.index');
 });

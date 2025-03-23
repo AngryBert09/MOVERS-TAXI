@@ -40,6 +40,12 @@
 
                 <div class="row">
                     <div class="col-md-12">
+                        <div class="search-container mb-4">
+                            <div class="input-group" style="max-width: 300px; float: right;">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search..."
+                                    aria-label="Search">
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped custom-table mb-0 datatable">
                                 <thead>
@@ -592,6 +598,20 @@
                 });
             @endif
         });
+    </script>
+    <script>
+        < script >
+            $(document).ready(function() {
+                $("#searchInput").on("keyup", function() {
+                    var value = $(this).val().toLowerCase();
+                    $("#applicantTableBody tr").filter(function() {
+                        $(this).toggle(
+                            $(this).text().toLowerCase().indexOf(value) > -1
+                        );
+                    });
+                });
+            });
+    </>
     </script>
     <!-- jQuery -->
     <script src="assets/js/jquery-3.5.1.min.js"></script>
