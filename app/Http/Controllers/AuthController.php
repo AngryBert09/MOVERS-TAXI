@@ -10,6 +10,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Session;
+use App\Mail\TwoFactorCodeMail;
 use Illuminate\Support\Facades\Http;
 
 
@@ -36,7 +38,7 @@ class AuthController extends Controller
 
         // Verify reCAPTCHA
         $recaptchaResponse = $request->input('g-recaptcha-response');
-        $secretKey = env('RECAPTCHA_SECRET_KEY');
+        $secretKey = '6LfueP0qAAAAAMae8EWZI9ubex1cy505U_ws70UL';
         $recaptchaVerify = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $secretKey,
             'response' => $recaptchaResponse,
@@ -67,22 +69,19 @@ class AuthController extends Controller
             return back()->with('error', 'Invalid credentials. Please check your password.');
         }
 
-        // Successful login
-        $user = Auth::user();
-        Log::info("User logged in: {$user->email}", ['ip' => $request->ip()]);
+        // Generate and store 2FA code
+        $twoFactorCode = rand(1000, 9999); // Generate a 4-digit code
+        Session::put('2fa_user_id', $user->id);
+        Session::put('2fa_code', $twoFactorCode);
+        Session::put('2fa_expiry', now()->addMinutes(10)); // Code expires in 10 minutes
 
-        // Check if user is admin
-        if ($user->role !== 'admin') {
-            Auth::logout();
-            Log::warning("Unauthorized login attempt: {$user->email} (Not admin)", ['ip' => $request->ip()]);
-            return back()->with('error', 'Access denied. Admins only.');
-        }
+        // Send email with 2FA code
+        Mail::to($user->email)->send(new TwoFactorCodeMail($twoFactorCode));
 
-        // Regenerate session for security
-        $request->session()->regenerate();
+        Log::info("2FA code sent to: {$user->email}", ['ip' => $request->ip()]);
 
-        Log::info("Admin login successful: {$user->email}");
-        return redirect()->route('dashboard')->with('success', 'Welcome Admin!');
+        // Redirect to 2FA verification page
+        return redirect()->route('2fa.verify')->with('success', 'A verification code has been sent to your email.');
     }
 
 
@@ -180,5 +179,71 @@ class AuthController extends Controller
         }
 
         return redirect('/login')->with('success', 'Email verified. You can now log in.');
+    }
+
+
+    public function show2faForm()
+    {
+        if (!Session::has('2fa_user_id')) {
+            return redirect()->route('auth.login')->with('error', 'Session expired. Please login again.');
+        }
+
+        return view('auth.2fa');
+    }
+    public function verify2fa(Request $request)
+    {
+        $request->validate([
+            'two_factor_code' => 'required|digits:4'
+        ]);
+
+        if (!Session::has('2fa_user_id') || !Session::has('2fa_code')) {
+            return redirect()->route('login')->with('error', 'Session expired. Please login again.');
+        }
+
+        $user = \App\Models\User::find(Session::get('2fa_user_id'));
+
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Invalid session. Please login again.');
+        }
+
+        if ($request->two_factor_code != Session::get('2fa_code')) {
+            return back()->with('error', 'Invalid verification code. Please try again.');
+        }
+
+        // Clear 2FA session data
+        Session::forget(['2fa_user_id', '2fa_code', '2fa_expiry']);
+
+        // Regenerate session for security
+        Auth::login($user);
+        $request->session()->regenerate();
+
+        Log::info("User 2FA verified: {$user->email}");
+
+        return redirect()->route('dashboard')->with('success', 'Welcome back!');
+    }
+
+    public function resend2fa()
+    {
+        if (!Session::has('2fa_user_id')) {
+            return redirect()->route('auth.login')->with('error', 'Session expired. Please login again.');
+        }
+
+        $user = \App\Models\User::find(Session::get('2fa_user_id'));
+
+        if (!$user) {
+            return redirect()->route('auth.login')->with('error', 'Invalid session. Please login again.');
+        }
+
+        // Generate a new 4-digit OTP
+        $newOtp = rand(1000, 9999);
+        Session::put('2fa_code', $newOtp);
+        Session::put('2fa_expiry', now()->addMinutes(10)); // Reset expiration time
+
+        // Send new OTP via email
+        Mail::to($user->email)->send(new TwoFactorCodeMail($newOtp));
+
+        Log::info("New 2FA code resent to: {$user->email}");
+
+        return back()->with('success', 'A new verification code has been sent to your email.');
     }
 }
