@@ -123,35 +123,33 @@
                                                 </a>
                                             </td>
                                             <td class="text-right">
-                                                @if (!in_array($applicant->status, ['Hired', 'Rejected', 'Interviewed']))
+                                                @if (!in_array($applicant->status, ['Hired', 'Rejected']))
                                                     <div class="dropdown dropdown-action">
                                                         <a href="#" class="action-icon dropdown-toggle"
                                                             data-toggle="dropdown">
                                                             <i class="material-icons">more_vert</i>
                                                         </a>
                                                         <div class="dropdown-menu dropdown-menu-right">
-                                                            <a class="dropdown-item schedule-interview" href="#"
-                                                                data-id="{{ $applicant->id }}" data-toggle="modal"
-                                                                data-target="#scheduleInterviewModal">
-                                                                <i class="fa fa-clock-o"></i> Send Interview Sched
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                @elseif ($applicant->status != 'Hired' && $applicant->status != 'Rejected')
-                                                    <div class="dropdown dropdown-action">
-                                                        <a href="#" class="action-icon dropdown-toggle"
-                                                            data-toggle="dropdown">
-                                                            <i class="material-icons">more_vert</i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-right">
-                                                            <a class="dropdown-item analyze-resume" href="#"
-                                                                data-id="{{ $applicant->id }}" data-toggle="modal"
-                                                                data-target="#analyzeResumeModal">
-                                                                <i class="fa fa-file-text-o"></i> AI Analyze Resume
-                                                            </a>
+                                                            @if ($applicant->status === 'Pending')
+                                                                <a class="dropdown-item schedule-interview"
+                                                                    href="#" data-id="{{ $applicant->id }}"
+                                                                    data-toggle="modal"
+                                                                    data-target="#scheduleInterviewModal">
+                                                                    <i class="fa fa-clock-o"></i> Send Interview Sched
+                                                                </a>
+                                                            @endif
+
+                                                            @if (in_array($applicant->status, ['Pending', 'Interviewed']))
+                                                                <a class="dropdown-item analyze-resume" href="#"
+                                                                    data-id="{{ $applicant->id }}" data-toggle="modal"
+                                                                    data-target="#analyzeResumeModal">
+                                                                    <i class="fa fa-file-text-o"></i> AI Analyze Resume
+                                                                </a>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endif
+
                                             </td>
                                         </tr>
                                     @endforeach
