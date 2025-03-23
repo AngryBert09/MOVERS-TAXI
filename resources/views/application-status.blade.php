@@ -74,15 +74,16 @@
                                     <div class="row">
                                         <div class="col-md-6">
                                             <p><i class="fas fa-check-circle text-secondary"></i>
-                                                <strong>Status:</strong></p>
+                                                <strong>Status:</strong>
+                                            </p>
                                         </div>
                                         <div class="col-md-6">
                                             <span id="appStatus" class="badge badge-pill"
-                                                  :class="{
-                                                      'badge-success': response.data.status === 'Approved',
-                                                      'badge-warning': response.data.status === 'Pending',
-                                                      'badge-danger': response.data.status === 'Rejected'
-                                                  }">
+                                                :class="{
+                                                    'badge-success': response.data.status === 'Hired',
+                                                    'badge-warning': response.data.status === 'Pending',
+                                                    'badge-danger': response.data.status === 'Rejected'
+                                                }">
                                             </span>
                                         </div>
                                     </div>
