@@ -100,7 +100,8 @@
 
                             <!-- Google reCAPTCHA -->
                             <div class="form-group text-center">
-                                <div class="g-recaptcha ml-5" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                                <div class="g-recaptcha" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"
+                                    style="margin-left:60px;"></div>
                                 @error('g-recaptcha-response')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
