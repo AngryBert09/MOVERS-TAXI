@@ -135,6 +135,9 @@ class ApplicantController extends Controller
                 'job_posting_id' => 'required|exists:job_postings,id',
             ]);
 
+            // Check if the user is authenticated
+            $userId = auth()->check() ? auth()->id() : null;
+
             // Store resume file
             $resumePath = $request->file('resume')->store('resumes', 'public');
             Log::info('Resume uploaded successfully.', ['resume_path' => $resumePath]);
@@ -148,11 +151,16 @@ class ApplicantController extends Controller
                 'status' => 'Pending',
                 'resume' => $resumePath,
                 'job_posting_id' => $validatedData['job_posting_id'],
+                'user_id' => $userId, // Associate with user if authenticated
+                'application_code' => uniqid('APP-'), // Generate unique application code
             ]);
 
             Log::info('Job application created successfully.', ['job_application' => $jobApplication]);
 
-            return response()->json(['message' => 'Application submitted successfully!'], 200);
+            return response()->json([
+                'message' => 'Application submitted successfully!',
+                'application_code' => $jobApplication->application_code
+            ], 200);
         } catch (ValidationException $e) {
             // Handle validation errors
             Log::warning('Validation failed.', ['errors' => $e->errors()]);
@@ -175,5 +183,35 @@ class ApplicantController extends Controller
                 'error_details' => $e->getMessage() // Optionally remove in production
             ], 500);
         }
+    }
+
+    public function searchApplication(Request $request)
+    {
+        $request->validate([
+            'query' => 'required|string|max:255',
+        ]);
+
+        $query = $request->input('query');
+
+        $application = JobApplication::where('application_code', $query)
+            ->orWhere('email', $query)
+            ->first();
+
+        if ($application) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Application found!',
+                'data' => [
+                    'application_code' => $application->application_code,
+                    'email' => $application->email,
+                    'status' => $application->status,
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No application found with the provided details.',
+        ], 404);
     }
 }

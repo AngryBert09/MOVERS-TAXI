@@ -20,17 +20,20 @@ use App\Http\Controllers\ProfileController;
 Route::middleware('guest')->group(function () {
     Route::name('landing.')->group(function () {
         Route::get('/', [CompanyController::class, 'landing'])->name('index');
-
         Route::get('/contact-us', [CompanyController::class, 'contacts'])->name('contact');
     });
+
+    Route::get('/application-status', function () {
+        return view('application-status');
+    })->name('search');
 
     // Authentication Routes
     Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
     Route::post('/login', [AuthController::class, 'login'])->name('auth.login.post');;
 
 
-    Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');
-    Route::post('/register', [AuthController::class, 'register'])->name('auth.register.post');
+    // Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');
+    // Route::post('/register', [AuthController::class, 'register'])->name('auth.register.post');
 
     // Email Verification Routes
     Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
@@ -45,6 +48,9 @@ Route::middleware('guest')->group(function () {
 
     //INQUIRIES
     Route::post('/inquiries/store', [InquiriesController::class, 'store'])->name('inquiries.store');
+
+    //APPLICATION STATUS
+    Route::get('/search-application', [ApplicantController::class, 'searchApplication'])->name('application.search');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('admin');;

@@ -228,17 +228,17 @@
                         Swal.fire({
                             icon: 'success',
                             title: 'Application Submitted!',
-                            text: 'Your job application has been submitted successfully.',
+                            text: 'Please save this code to track your application.\nApplication Code: ' +
+                                response.application_code,
+                        }).then(() => {
+                            $('#applyJobForm')[0].reset(); // Reset form after success
+                            $('.custom-file-label').text(
+                                'Choose file'); // Reset file input label
+                            $('#apply_job').modal('hide'); // Close modal after success
                         });
-
-                        $('#applyJobForm')[0].reset(); // Reset form after submission
-                        $('.custom-file-label').text('Choose file'); // Reset file input label
-
-                        // Close modal after success
-                        $('#apply_job').modal('hide');
                     },
                     error: function(xhr) {
-                        let errors = xhr.responseJSON.errors;
+                        let errors = xhr.responseJSON?.errors;
                         let errorMessage = "Something went wrong!";
 
                         if (errors) {
