@@ -29,7 +29,7 @@ Route::middleware('guest')->group(function () {
 
     // Authentication Routes
     Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
-    Route::post('/login', [AuthController::class, 'login'])->name('auth.login.post');;
+    Route::post('/login', [AuthController::class, 'login'])->name('auth.login.post');
 
 
     // Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');

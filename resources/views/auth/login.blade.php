@@ -43,7 +43,6 @@
                                 </div>
                             @endif
 
-
                             <div class="form-group">
                                 <label>Email Address</label>
                                 <input class="form-control @error('email') is-invalid @enderror" type="email"
@@ -77,6 +76,8 @@
                                 @enderror
                             </div>
 
+
+
                             <!-- JavaScript for Toggle Password Visibility -->
                             <script>
                                 document.getElementById('togglePassword').addEventListener('click', function() {
@@ -93,9 +94,16 @@
                                 });
                             </script>
 
-
                             <div class="form-group text-center">
                                 <button class="btn btn-primary account-btn" type="submit">Login</button>
+                            </div>
+
+                            <!-- Google reCAPTCHA -->
+                            <div class="form-group text-center">
+                                <div class="g-recaptcha ml-5" data-sitekey="{{ env('RECAPTCHA_SITE_KEY') }}"></div>
+                                @error('g-recaptcha-response')
+                                    <span class="text-danger">{{ $message }}</span>
+                                @enderror
                             </div>
 
                             <div class="account-footer">
@@ -103,6 +111,9 @@
                                 </p>
                             </div>
                         </form>
+
+                        <!-- Include Google reCAPTCHA script -->
+                        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
                         <!-- /Account Form -->
 
                     </div>

@@ -10,6 +10,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+
 
 class AuthController extends Controller
 {
@@ -29,29 +31,40 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email',
             'password' => 'required|min:6',
+            'g-recaptcha-response' => 'required' // Ensure reCAPTCHA response exists
         ]);
+
+        // Verify reCAPTCHA
+        $recaptchaResponse = $request->input('g-recaptcha-response');
+        $secretKey = env('RECAPTCHA_SECRET_KEY');
+        $recaptchaVerify = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => $secretKey,
+            'response' => $recaptchaResponse,
+        ])->json();
+
+        if (!$recaptchaVerify['success']) {
+            Log::warning("Failed reCAPTCHA verification for: {$request->email}", ['ip' => $request->ip()]);
+            return back()->with('error', 'reCAPTCHA verification failed. Please try again.');
+        }
 
         // Find user by email
         $user = \App\Models\User::where('email', $request->email)->first();
 
         if (!$user) {
             Log::warning("Login attempt failed: Email not found ({$request->email})", ['ip' => $request->ip()]);
-            session()->flash('error', 'No account found with this email.');
-            return back();
+            return back()->with('error', 'No account found with this email.');
         }
 
         // Check if email is verified
         if (!$user->hasVerifiedEmail()) {
             Log::warning("Unverified email login attempt: {$user->email}", ['ip' => $request->ip()]);
-            session()->flash('error', 'Please verify your email before logging in.');
-            return back();
+            return back()->with('error', 'Please verify your email before logging in.');
         }
 
         // Attempt login
         if (!Auth::attempt($request->only('email', 'password'))) {
             Log::warning("Failed login attempt: Incorrect password for ({$request->email})", ['ip' => $request->ip()]);
-            session()->flash('error', 'Invalid credentials. Please check your password.');
-            return back();
+            return back()->with('error', 'Invalid credentials. Please check your password.');
         }
 
         // Successful login
@@ -62,8 +75,7 @@ class AuthController extends Controller
         if ($user->role !== 'admin') {
             Auth::logout();
             Log::warning("Unauthorized login attempt: {$user->email} (Not admin)", ['ip' => $request->ip()]);
-            session()->flash('error', 'Access denied. Admins only.');
-            return back();
+            return back()->with('error', 'Access denied. Admins only.');
         }
 
         // Regenerate session for security
@@ -72,6 +84,7 @@ class AuthController extends Controller
         Log::info("Admin login successful: {$user->email}");
         return redirect()->route('dashboard')->with('success', 'Welcome Admin!');
     }
+
 
 
 
