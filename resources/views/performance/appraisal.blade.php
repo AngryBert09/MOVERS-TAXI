@@ -40,6 +40,8 @@
 
                 <div class="row">
                     <div class="col-md-12">
+
+
                         <div class="table-responsive">
                             <table class="table table-striped custom-table mb-0 datatable">
                                 <thead>
@@ -50,7 +52,6 @@
                                         <th>Phone</th>
                                         <th>Department</th>
                                         <th>Apply Date</th>
-                                        <th class="text-center">Status</th>
                                         <th>Resume</th>
                                         <th class="text-right">Actions</th>
                                     </tr>
@@ -71,20 +72,6 @@
                                             <td>{{ $trainee->jobPosting ? $trainee->jobPosting->department : 'N/A' }}
                                             </td>
                                             <td>{{ \Carbon\Carbon::parse($trainee->apply_date)->format('d M Y') }}</td>
-                                            <td>
-                                                <div class="dropdown action-label">
-                                                    <a class="btn btn-white btn-sm btn-rounded dropdown-toggle"
-                                                        href="#" data-toggle="dropdown">
-                                                        <i class="fa fa-dot-circle-o text-success"></i> Active
-                                                    </a>
-                                                    <div class="dropdown-menu">
-                                                        <a class="dropdown-item" href="#"><i
-                                                                class="fa fa-dot-circle-o text-success"></i> Active</a>
-                                                        <a class="dropdown-item" href="#"><i
-                                                                class="fa fa-dot-circle-o text-danger"></i> Inactive</a>
-                                                    </div>
-                                                </div>
-                                            </td>
                                             <td>
                                                 <a href="{{ asset('storage/' . $trainee->resume) }}"
                                                     class="btn btn-sm btn-primary" download>
@@ -575,6 +562,7 @@
     </div>
     <!-- /Main Wrapper -->
 
+
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -601,6 +589,7 @@
     </script>
     <!-- jQuery -->
     <script src="assets/js/jquery-3.5.1.min.js"></script>
+
 
     <!-- Bootstrap Core JS -->
     <script src="assets/js/popper.min.js"></script>
