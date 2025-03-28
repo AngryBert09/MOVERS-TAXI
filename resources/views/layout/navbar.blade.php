@@ -33,12 +33,96 @@
                 <a href="javascript:void(0);" class="responsive-search">
                     <i class="fa fa-search"></i>
                 </a>
-                <form action="search.html">
-                    <input class="form-control" type="text" placeholder="Search here">
+                <form id="searchForm">
+                    <input class="form-control" type="text" id="searchInput" placeholder="Search here">
                     <button class="btn" type="submit"><i class="fa fa-search"></i></button>
                 </form>
+                <!-- Search Results Dropdown -->
+                <div class="dropdown-menu search-dropdown" id="searchResults"></div>
             </div>
         </li>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                const pages = [{
+                        name: "Dashboard",
+                        url: "{{ route('dashboard') }}"
+                    },
+                    {
+                        name: "Employees",
+                        url: "{{ route('employees') }}"
+                    },
+                    {
+                        name: "Training",
+                        url: "{{ route('training.list') }}"
+                    },
+                    {
+                        name: "Performance",
+                        url: "{{ route('performance.index') }}"
+                    },
+                    {
+                        name: "Settings",
+                        url: "{{ route('company.index') }}"
+                    }
+                ];
+
+                const searchInput = document.getElementById("searchInput");
+                const searchResults = document.getElementById("searchResults");
+
+                searchInput.addEventListener("input", function() {
+                    const query = this.value.toLowerCase();
+                    searchResults.innerHTML = "";
+
+                    if (query) {
+                        const filteredPages = pages.filter(page => page.name.toLowerCase().includes(query));
+
+                        if (filteredPages.length > 0) {
+                            searchResults.classList.add("show");
+                            filteredPages.forEach(page => {
+                                const item = document.createElement("a");
+                                item.classList.add("dropdown-item");
+                                item.href = page.url;
+                                item.textContent = page.name;
+                                searchResults.appendChild(item);
+                            });
+                        } else {
+                            searchResults.classList.remove("show");
+                        }
+                    } else {
+                        searchResults.classList.remove("show");
+                    }
+                });
+
+                document.getElementById("searchForm").addEventListener("submit", function(event) {
+                    event.preventDefault();
+                    const firstResult = searchResults.querySelector("a");
+                    if (firstResult) {
+                        window.location.href = firstResult.href;
+                    }
+                });
+            });
+        </script>
+
+        <style>
+            .search-dropdown {
+                position: absolute;
+                top: 100%;
+                left: 0;
+                background: white;
+                border: 1px solid #ddd;
+                width: 70%;
+                display: none;
+            }
+
+            .search-dropdown.show {
+                display: block;
+            }
+
+            .search-dropdown .dropdown-item {
+                padding: 5px;
+            }
+        </style>
+
         <!-- /Search -->
 
 
@@ -55,20 +139,7 @@
                 <div class="noti-content">
                     <ul class="notification-list">
                         <li class="notification-message">
-                            <a href="activities.html">
-                                <div class="media">
-                                    <span class="avatar">
-                                        <img alt="" src="assets/img/profiles/avatar-02.jpg">
-                                    </span>
-                                    <div class="media-body">
-                                        <p class="noti-details"><span class="noti-title">John Doe</span> added
-                                            new task <span class="noti-title">Patient appointment
-                                                booking</span></p>
-                                        <p class="noti-time"><span class="notification-time">4 mins ago</span>
-                                        </p>
-                                    </div>
-                                </div>
-                            </a>
+
                         </li>
 
                     </ul>
@@ -86,7 +157,10 @@
                 <span>Admin</span>
             </a>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="{{ route('profile.index') }}">My Profile</a>
+                <a class="dropdown-item text-muted" href="javascript:void(0);" disabled>
+                    My Profile (Under Development)
+                </a>
+
                 <a class="dropdown-item" href="{{ route('company.index') }}">Settings</a>
                 <form id="logout-form" action="{{ route('auth.logout') }}" method="POST" style="display: none;">
                     @csrf
