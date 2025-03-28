@@ -16,9 +16,9 @@
                     <a href="#" class="noti-dot"><i class="la la-user"></i> <span> Employees</span>
                         <span class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="employees.html">All Employees</a></li>
+                        <li><a href="{{ route('employees') }}">All Employees</a></li>
                         <li><a href="{{ route('departments') }}">Departments</a></li>
-                        <li><a href="{{ route('employee.index') }}">New Hired List</a></li>
+                        <li><a href="{{ route('employee.new-hired') }}">New Hired List</a></li>
                     </ul>
                 </li>
 

@@ -75,13 +75,20 @@
                                                 </h2>
                                             </td>
                                             <td>
-                                                {{ $training->trainee ? $training->trainee->name : 'N/A' }}
+                                                @php
+                                                    $trainee = collect($employees)->firstWhere(
+                                                        'id',
+                                                        $training->trainee_id,
+                                                    );
+                                                @endphp
+                                                {{ $trainee ? $trainee['first_name'] . ' ' . $trainee['last_name'] : 'N/A' }}
                                             </td>
+
 
                                             <td>{{ date('d M Y', strtotime($training->start_date)) }} -
                                                 {{ date('d M Y', strtotime($training->end_date)) }}</td>
                                             <td>{{ $training->description }}</td>
-                                            <td>${{ number_format($training->training_cost, 2) }}</td>
+                                            <td>₱{{ number_format($training->training_cost, 2) }}</td>
                                             <td>
                                                 @if ($training->status == 'Active')
                                                     <i class="fa fa-dot-circle-o text-success"></i> Active
@@ -206,20 +213,16 @@
                                     <!-- Employees (Multiple Selection) -->
                                     <div class="col-sm-6">
                                         <div class="form-group">
-                                            <label class="col-form-label">Trainee's</label>
+                                            <label class="col-form-label">Trainees</label>
                                             <select class="form-control select" name="trainee_id">
                                                 @foreach ($employees as $employee)
-                                                    @if (!$trainings->contains('trainee_id', $employee->id))
-                                                        <option value="{{ $employee->id }}">
-                                                            {{ $employee->name }}
-                                                        </option>
-                                                    @endif
+                                                    <option value="{{ $employee['id'] }}">
+                                                        {{ $employee['first_name'] }} {{ $employee['last_name'] }}
+                                                    </option>
                                                 @endforeach
                                             </select>
                                         </div>
                                     </div>
-
-
 
                                     <!-- Training Cost -->
                                     <div class="col-sm-6">
@@ -284,6 +287,7 @@
             </div>
 
 
+
             <!-- Edit Training List Modal -->
             @foreach ($trainings as $training)
                 <div id="edit_training_{{ $training->id }}" class="modal custom-modal fade" role="dialog">
@@ -335,17 +339,17 @@
                                         <!-- Employees -->
                                         <div class="col-sm-6">
                                             <div class="form-group">
-                                                <label class="col-form-label">Employees</label>
-                                                <select class="form-control" name="trainee_id">
+                                                <label class="col-form-label">Trainees</label>
+                                                <select class="form-control select" name="trainee_id">
                                                     @foreach ($employees as $employee)
-                                                        <option value="{{ $employee->id }}"
-                                                            {{ $employee->id == $training->trainee_id ? 'selected' : '' }}>
-                                                            {{ $employee->name }}
+                                                        <option value="{{ $employee['id'] }}">
+                                                            {{ $employee['first_name'] }} {{ $employee['last_name'] }}
                                                         </option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
+
 
                                         <!-- Training Cost -->
                                         <div class="col-sm-6">

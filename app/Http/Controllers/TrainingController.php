@@ -8,6 +8,8 @@ use App\Models\TrainingType;
 use App\Models\Trainer;
 use App\Models\JobApplication;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Carbon;
 
 class TrainingController extends Controller
 {
@@ -17,8 +19,23 @@ class TrainingController extends Controller
         $trainingTypes = TrainingType::all();
         $trainers = Trainer::where('status', 'Active')->get();
 
-        // Fetch only employees who have been hired
-        $employees = JobApplication::where('status', 'Hired')->get();
+        // Fetch employees from external API
+        $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
+        $apiToken = env('HR1_API_KEY'); // Store token in .env
+
+        try {
+            $response = Http::withToken($apiToken)->get($apiUrl);
+
+            if ($response->successful()) {
+                $employees = $response->json(); // Convert response to an array
+            } else {
+                Log::error('Failed to fetch employees', ['status' => $response->status(), 'body' => $response->body()]);
+                $employees = []; // Fallback to empty if API fails
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching employees from API', ['message' => $e->getMessage()]);
+            $employees = [];
+        }
 
         return view('trainings.training-list', compact('trainings', 'trainingTypes', 'trainers', 'employees'));
     }
@@ -28,14 +45,28 @@ class TrainingController extends Controller
         Log::info('Store Training Request Received', ['request' => $request->all()]);
 
         try {
-            // Validate request with additional rule to check if trainee is already assigned
+            // Fetch employees from API
+            $response = Http::withToken(env('HR1_API_KEY'))
+                ->get('https://hr1.moverstaxi.com/api/v1/employees');
+
+            if ($response->failed()) {
+                Log::error('Failed to fetch employees from API', ['response' => $response->body()]);
+                return redirect()->back()->with('error', 'Failed to fetch employees. Please try again.');
+            }
+
+            $employees = $response->json();
+            $employeeIds = collect($employees)->pluck('id')->toArray(); // Extract IDs
+
+            // Validate request
             $validatedData = $request->validate([
                 'training_type' => 'required|exists:training_types,type_name',
                 'trainer' => 'required|string',
                 'trainee_id' => [
                     'required',
-                    'exists:job_applications,id',
-                    function ($attribute, $value, $fail) {
+                    function ($attribute, $value, $fail) use ($employeeIds) {
+                        if (!in_array($value, $employeeIds)) {
+                            $fail('The selected trainee is not a valid employee.');
+                        }
                         if (Training::where('trainee_id', $value)->exists()) {
                             $fail('The selected trainee is already assigned to a training.');
                         }
@@ -50,9 +81,9 @@ class TrainingController extends Controller
 
             Log::info('Validation Passed', ['validated_data' => $validatedData]);
 
-            // Convert date format to YYYY-MM-DD for database storage
-            $validatedData['start_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
-            $validatedData['end_date'] = \Carbon\Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
+            // Convert date format to YYYY-MM-DD
+            $validatedData['start_date'] = Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
+            $validatedData['end_date'] = Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
 
             Log::info('Date Conversion Completed', [
                 'start_date' => $validatedData['start_date'],
@@ -80,17 +111,31 @@ class TrainingController extends Controller
         Log::info('Update Training Request Received', ['training_id' => $id, 'request' => $request->all()]);
 
         try {
-            // Adjust expected date format based on incoming request format
-            $dateFormat = 'Y-m-d'; // Laravel date pickers usually send dates in this format
+            // API setup for fetching employees
+            $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
+            $apiToken = env('HR1_API_KEY'); // Store token in .env
 
-            // Validate request with a custom rule for `trainee_id`
+            $response = Http::withToken($apiToken)->get($apiUrl);
+            if ($response->successful()) {
+                $employees = collect($response->json()); // Convert API response to a collection
+            } else {
+                Log::error('Failed to fetch employees from API');
+                return redirect()->back()->with('error', 'Failed to retrieve employees. Please try again.');
+            }
+
+            // Validate request
             $validatedData = $request->validate([
                 'training_type' => 'required|exists:training_types,type_name',
                 'trainer' => 'required|string',
                 'trainee_id' => [
                     'required',
-                    'exists:job_applications,id',
-                    function ($attribute, $value, $fail) use ($id) {
+                    function ($attribute, $value, $fail) use ($employees, $id) {
+                        // Check if trainee exists in API response
+                        if (!$employees->contains('id', $value)) {
+                            $fail('The selected trainee does not exist.');
+                        }
+
+                        // Ensure trainee isn't already assigned to another training
                         $exists = Training::where('trainee_id', $value)->where('id', '!=', $id)->exists();
                         if ($exists) {
                             $fail('The selected trainee is already assigned to another training.');
@@ -98,26 +143,13 @@ class TrainingController extends Controller
                     }
                 ],
                 'training_cost' => 'required|numeric|min:0',
-                'start_date' => 'required|date_format:' . $dateFormat,
-                'end_date' => 'required|date_format:' . $dateFormat . '|after_or_equal:start_date',
+                'start_date' => 'required|date_format:Y-m-d',
+                'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
                 'description' => 'sometimes|required|string',
                 'status' => 'sometimes|required|in:Active,Inactive',
             ]);
 
             Log::info('Validation Passed', ['validated_data' => $validatedData]);
-
-            // Convert date format if needed
-            if ($request->has('start_date')) {
-                $validatedData['start_date'] = \Carbon\Carbon::createFromFormat($dateFormat, $request->start_date)->format('Y-m-d');
-            }
-            if ($request->has('end_date')) {
-                $validatedData['end_date'] = \Carbon\Carbon::createFromFormat($dateFormat, $request->end_date)->format('Y-m-d');
-            }
-
-            Log::info('Date Conversion Completed', [
-                'start_date' => $validatedData['start_date'] ?? null,
-                'end_date' => $validatedData['end_date'] ?? null
-            ]);
 
             // Find and update the training record
             $training = Training::findOrFail($id);
@@ -134,6 +166,7 @@ class TrainingController extends Controller
             return redirect()->back()->with('error', 'Something went wrong while updating the training. Please try again.');
         }
     }
+
 
     public function destroyTraining($id)
     {

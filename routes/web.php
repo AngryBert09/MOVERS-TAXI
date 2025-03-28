@@ -32,8 +32,8 @@ Route::middleware('guest')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('auth.login.post');
 
 
-    // Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');
-    // Route::post('/register', [AuthController::class, 'register'])->name('auth.register.post');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('auth.register');
+    Route::post('/register', [AuthController::class, 'register'])->name('auth.register.post');
 
     // Email Verification Routes
     Route::get('/email/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])
@@ -120,8 +120,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/performance-evaluation', [PerformanceController::class, 'index'])->name('performance.index');
     Route::post('/performance-evaluation/store', [PerformanceController::class, 'store'])->name('performance.store');
 
-    //NEW HIRED
-    Route::get('/new-hired', [EmployeeController::class, 'index'])->name('employee.index');
+    //EMPLOYEES
+    Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
+    Route::get('/new-hired', [EmployeeController::class, 'getNewHired'])->name('employee.new-hired');
 
     //COMPANY SETTINGS
     Route::get('/company-settings', [CompanyController::class, 'index'])->name('company.index');

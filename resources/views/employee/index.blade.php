@@ -25,10 +25,10 @@
                 <div class="page-header">
                     <div class="row align-items-center">
                         <div class="col">
-                            <h3 class="page-title">Performance Evaluation</h3>
+                            <h3 class="page-title">Employees</h3>
                             <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Performance</li>
+                                <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Dashboard</a></li>
+                                <li class="breadcrumb-item active">Employees</li>
                             </ul>
                         </div>
                         <div class="col-auto float-right ml-auto">
@@ -40,8 +40,12 @@
 
                 <div class="row">
                     <div class="col-md-12">
-
-
+                        <div class="search-container mb-4">
+                            <div class="input-group" style="max-width: 300px; float: right;">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search..."
+                                    aria-label="Search">
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped custom-table mb-0 datatable">
                                 <thead>
@@ -52,57 +56,55 @@
                                         <th>Phone</th>
                                         <th>Department</th>
                                         <th>Position</th>
-                                        <th>Gender</th>
-                                        <th class="text-right">Actions</th>
+                                        <th>Birth Date</th>
+                                        <th>Job Type</th>
+                                        <th class="text-center">Gender</th>
+                                        <th class="text-center">Status</th>
+                                        <th>Created At</th>
+
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
-                                    @foreach ($trainees as $trainee)
+                                    @foreach ($employees as $employee)
                                         <tr>
-                                            <td>{{ $trainee['id'] }}</td>
+                                            <td>{{ $employee['id'] }}</td>
                                             <td>
                                                 <h2 class="table-avatar">
                                                     <a href="#" class="avatar">
-                                                        <img alt="" src="{{ asset('assets/img/default.jpg') }}">
+                                                        <img alt="Profile Picture"
+                                                            src="{{ asset('assets/img/default.jpg') }}">
                                                     </a>
-                                                    <a href="#">{{ $trainee['first_name'] }}
-                                                        {{ $trainee['last_name'] }}</a>
+                                                    <a href="#">{{ $employee['first_name'] }}
+                                                        {{ $employee['last_name'] }}</a>
                                                 </h2>
                                             </td>
-                                            <td>{{ $trainee['email'] }}</td>
-                                            <td>{{ $trainee['contact'] }}</td>
-                                            <td>{{ $trainee['department'] ?? 'N/A' }}</td>
-                                            <td>{{ $trainee['position'] }}</td>
-                                            <td>{{ $trainee['gender'] }}</td>
-
-                                            <td class="text-right">
-                                                <div class="dropdown dropdown-action">
-                                                    <a href="#" class="action-icon dropdown-toggle"
-                                                        data-toggle="dropdown" aria-expanded="false">
-                                                        <i class="material-icons">more_vert</i>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-right">
-                                                        @if (!in_array($trainee['id'], $evaluations))
-                                                            <a class="dropdown-item" href="#" data-toggle="modal"
-                                                                data-target="#edit_appraisal_{{ $trainee['id'] }}">
-                                                                <i class="fa fa-pencil m-r-5"></i> Evaluate
-                                                            </a>
-                                                        @else
-                                                            <span class="dropdown-item text-muted">
-                                                                <i class="fa fa-check m-r-5"></i> Evaluated
-                                                            </span>
-                                                        @endif
-                                                    </div>
-                                                </div>
+                                            <td>{{ $employee['email'] }}</td>
+                                            <td>{{ $employee['contact'] ?? 'N/A' }}</td>
+                                            <td>{{ $employee['department'] ?? 'N/A' }}</td>
+                                            <td>{{ $employee['position'] ?? 'N/A' }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($employee['bdate'])->format('d M Y') }}</td>
+                                            <td>{{ ucfirst($employee['job_type']) }}</td>
+                                            <td class="text-center">{{ ucfirst($employee['gender']) }}</td>
+                                            <td>
+                                                <span
+                                                    class="
+                                                    {{ $employee['status'] == 'active'
+                                                        ? 'text-success'
+                                                        : ($employee['status'] == 'inactive'
+                                                            ? 'text-danger'
+                                                            : 'text-warning') }}">
+                                                    <i class="fa fa-dot-circle-o"></i>
+                                                    {{ ucfirst($employee['status']) }}
+                                                </span>
                                             </td>
-
+                                            <td>{{ \Carbon\Carbon::parse($employee['created_at'])->format('d M Y') }}
+                                            </td>
 
                                         </tr>
                                     @endforeach
-
-
                                 </tbody>
                             </table>
+
                         </div>
                     </div>
                 </div>
@@ -112,12 +114,12 @@
 
 
             <!-- Edit Performance Appraisal Modal -->
-            @foreach ($trainees as $trainee)
-                <div id="edit_appraisal_{{ $trainee['id'] }}" class="modal fade" role="dialog">
+            {{-- @foreach ($trainees as $trainee)
+                <div id="edit_appraisal_{{ $trainee->id }}" class="modal fade" role="dialog">
                     <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title">Performance Evaluation</h5>
+                                <h5 class="modal-title">Edit Performance Appraisal</h5>
                                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
@@ -129,12 +131,10 @@
                                         <div class="col-sm-12">
                                             <div class="form-group">
                                                 <label class="col-form-label">Trainee</label>
-                                                <input type="text" class="form-control"
-                                                    value="{{ $trainee['first_name'] }} {{ $trainee['last_name'] }}"
+                                                <input type="text" class="form-control" value="{{ $trainee->name }}"
                                                     readonly>
-                                                <input type="hidden" name="trainee_id" value="{{ $trainee['id'] }}">
+                                                <input type="hidden" name="trainee_id" value="{{ $trainee->id }}">
                                             </div>
-
 
                                         </div>
                                         <div class="col-sm-12">
@@ -528,7 +528,7 @@
                         </div>
                     </div>
                 </div>
-            @endforeach
+            @endforeach --}}
 
             <!-- /Edit Performance Appraisal Modal -->
 
@@ -564,7 +564,6 @@
     </div>
     <!-- /Main Wrapper -->
 
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -589,30 +588,43 @@
             @endif
         });
     </script>
+    <script>
+        < script >
+            $(document).ready(function() {
+                $("#searchInput").on("keyup", function() {
+                    var value = $(this).val().toLowerCase();
+                    $("#applicantTableBody tr").filter(function() {
+                        $(this).toggle(
+                            $(this).text().toLowerCase().indexOf(value) > -1
+                        );
+                    });
+                });
+            }); <
+        />
+    </script>
     <!-- jQuery -->
-    <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
+    <script src="assets/js/jquery-3.5.1.min.js"></script>
 
     <!-- Bootstrap Core JS -->
-    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
-    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
+    <script src="assets/js/popper.min.js"></script>
+    <script src="assets/js/bootstrap.min.js"></script>
 
     <!-- Slimscroll JS -->
-    <script src="{{ asset('assets/js/jquery.slimscroll.min.js') }}"></script>
+    <script src="assets/js/jquery.slimscroll.min.js"></script>
 
     <!-- Select2 JS -->
-    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
+    <script src="assets/js/select2.min.js"></script>
 
     <!-- Datatable JS -->
-    <script src="{{ asset('assets/js/jquery.dataTables.min.js') }}"></script>
-    <script src="{{ asset('assets/js/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="assets/js/jquery.dataTables.min.js"></script>
+    <script src="assets/js/dataTables.bootstrap4.min.js"></script>
 
     <!-- Datetimepicker JS -->
-    <script src="{{ asset('assets/js/moment.min.js') }}"></script>
-    <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
+    <script src="assets/js/moment.min.js"></script>
+    <script src="assets/js/bootstrap-datetimepicker.min.js"></script>
 
     <!-- Custom JS -->
-    <script src="{{ asset('assets/js/app.js') }}"></script>
-
+    <script src="assets/js/app.js"></script>
 
 </body>
 

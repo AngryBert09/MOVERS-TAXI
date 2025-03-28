@@ -174,14 +174,7 @@
                                             <input type="text" class="form-control" value="4487 Snowbird Lane">
                                         </div>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Pin Code</label>
-                                            <input type="text" class="form-control" value="10523">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Phone Number</label>
                                             <input type="text" class="form-control" value="631-889-3206">

@@ -7,14 +7,28 @@ use App\Models\JobApplication;
 use App\Models\PerformanceEvaluation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 
 class PerformanceController extends Controller
 {
     public function index()
     {
-        $trainees = JobApplication::where('status', 'Hired')->with('jobPosting')->get();
-        return view('performance.appraisal', compact('trainees'));
+        $trainees = []; // Fetch trainees from API
+        $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
+        $apiToken = env('HR1_API_KEY'); // Store token in .env
+
+        $response = Http::withToken($apiToken)->get($apiUrl);
+        if ($response->successful()) {
+            $trainees = $response->json(); // Convert response to an array
+        }
+
+        // Fetch existing evaluations
+        $evaluations = PerformanceEvaluation::pluck('trainee_id')->toArray();
+
+
+        return view('performance.appraisal', compact('trainees', 'evaluations'));
     }
+
 
     public function store(Request $request)
     {
@@ -22,9 +36,29 @@ class PerformanceController extends Controller
             // Debugging: Log the incoming request data
             Log::info('Store Performance Evaluation Request:', $request->all());
 
-            // Validate the form data
+            // Fetch employees from API
+            $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
+            $apiToken = env('HR1_API_KEY');
+
+            $response = Http::withToken($apiToken)->get($apiUrl);
+
+            if ($response->successful()) {
+                $employees = collect($response->json()); // Convert response to collection
+            } else {
+                Log::error('Failed to fetch employees from API');
+                return redirect()->back()->with('error', 'Failed to retrieve employees. Please try again.');
+            }
+
+            // Validate request
             $request->validate([
-                'trainee_id' => 'required|exists:job_applications,id',
+                'trainee_id' => [
+                    'required',
+                    function ($attribute, $value, $fail) use ($employees) {
+                        if (!$employees->contains('id', $value)) {
+                            $fail('The selected trainee does not exist.');
+                        }
+                    }
+                ],
                 'customer_experience' => 'required|string|max:255',
                 'marketing' => 'required|string|max:255',
                 'management' => 'required|string|max:255',
@@ -40,11 +74,6 @@ class PerformanceController extends Controller
                 'attendance' => 'required|string|max:255',
                 'ability_to_meet_deadline' => 'required|string|max:255',
                 'status' => 'required|in:Active,Inactive',
-            ], [
-                'trainee_id.required' => 'The trainee ID is required.',
-                'trainee_id.exists' => 'The selected trainee does not exist.',
-                'status.in' => 'The status must be either Active or Inactive.',
-                // Add custom error messages for other fields as needed
             ]);
 
             // Check if a performance evaluation already exists for the trainee
@@ -53,7 +82,7 @@ class PerformanceController extends Controller
                 return redirect()->back()->with('error', 'A performance evaluation already exists for this trainee.');
             }
 
-            // Create a new PerformanceAppraisal record
+            // Create a new Performance Evaluation record
             PerformanceEvaluation::create([
                 'trainee_id' => $request->trainee_id,
                 'evaluation_date' => Carbon::now()->startOfDay(),
@@ -74,13 +103,9 @@ class PerformanceController extends Controller
                 'status' => $request->status,
             ]);
 
-            // Redirect back with a success message
             return redirect()->back()->with('success', 'Evaluation saved successfully!');
         } catch (\Exception $e) {
-            // Log the error
             Log::error('Error storing performance evaluation: ' . $e->getMessage());
-
-            // Redirect back with an error message
             return redirect()->back()->with('error', 'An error occurred while saving the performance evaluation. Please try again. Error: ' . $e->getMessage());
         }
     }
