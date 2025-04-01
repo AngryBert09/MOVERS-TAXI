@@ -92,6 +92,8 @@
                                             <td>
                                                 @if ($training->status == 'Active')
                                                     <i class="fa fa-dot-circle-o text-success"></i> Active
+                                                @elseif ($training->status == 'Completed')
+                                                    <i class="fa fa-dot-circle-o text-blue"></i> Completed
                                                 @else
                                                     <i class="fa fa-dot-circle-o text-danger"></i> Inactive
                                                 @endif
@@ -342,14 +344,14 @@
                                                 <label class="col-form-label">Trainees</label>
                                                 <select class="form-control select" name="trainee_id">
                                                     @foreach ($employees as $employee)
-                                                        <option value="{{ $employee['id'] }}">
+                                                        <option value="{{ $employee['id'] }}"
+                                                            {{ $employee['id'] == $training->trainee_id ? 'selected' : '' }}>
                                                             {{ $employee['first_name'] }} {{ $employee['last_name'] }}
                                                         </option>
                                                     @endforeach
                                                 </select>
                                             </div>
                                         </div>
-
 
                                         <!-- Training Cost -->
                                         <div class="col-sm-6">
@@ -391,13 +393,17 @@
                                         <div class="col-sm-12">
                                             <div class="form-group">
                                                 <label class="col-form-label">Status</label>
-                                                <select class="form-control" name="status">
+                                                <select class="form-control" name="status"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }}>
                                                     <option value="Active"
                                                         {{ $training->status == 'Active' ? 'selected' : '' }}>Active
                                                     </option>
                                                     <option value="Inactive"
                                                         {{ $training->status == 'Inactive' ? 'selected' : '' }}>
                                                         Inactive</option>
+                                                    <option value="Completed"
+                                                        {{ $training->status == 'Completed' ? 'selected' : '' }}>
+                                                        Completed</option>
                                                 </select>
                                             </div>
                                         </div>
@@ -405,7 +411,8 @@
 
                                     <!-- Submit Button -->
                                     <div class="submit-section">
-                                        <button type="submit" class="btn btn-primary submit-btn">Update
+                                        <button type="submit" class="btn btn-primary submit-btn"
+                                            {{ $training->status == 'Completed' ? 'disabled' : '' }}>Update
                                             Training</button>
                                     </div>
                                 </form>
@@ -414,6 +421,137 @@
                     </div>
                 </div>
             @endforeach
+            @foreach ($trainings as $training)
+                <div id="edit_training_{{ $training->id }}" class="modal custom-modal fade" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit Training List</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('trainings.update', $training->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+
+                                    <div class="row">
+                                        <!-- Training Type -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Training Type</label>
+                                                <select class="form-control" name="training_type">
+                                                    @foreach ($trainingTypes as $type)
+                                                        <option value="{{ $type->type_name }}"
+                                                            {{ $type->type_name == $training->training_type ? 'selected' : '' }}>
+                                                            {{ $type->type_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Trainer -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Trainer</label>
+                                                <select class="form-control" name="trainer">
+                                                    @foreach ($trainers as $trainer)
+                                                        <option
+                                                            value="{{ $trainer->first_name }} {{ $trainer->last_name }}"
+                                                            {{ $trainer->first_name . ' ' . $trainer->last_name == $training->trainer ? 'selected' : '' }}>
+                                                            {{ $trainer->first_name }} {{ $trainer->last_name }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Employees -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Trainees</label>
+                                                <select class="form-control select" name="trainee_id">
+                                                    @foreach ($employees as $employee)
+                                                        <option value="{{ $employee['id'] }}"
+                                                            {{ $employee['id'] == $training->trainee_id ? 'selected' : '' }}>
+                                                            {{ $employee['first_name'] }} {{ $employee['last_name'] }}
+                                                        </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Training Cost -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Training Cost <span
+                                                        class="text-danger">*</span></label>
+                                                <input class="form-control" type="number" name="training_cost"
+                                                    value="{{ $training->training_cost }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Start Date -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Start Date <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="date" name="start_date"
+                                                    value="{{ $training->start_date->format('Y-m-d') }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- End Date -->
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>End Date <span class="text-danger">*</span></label>
+                                                <input class="form-control" type="date" name="end_date"
+                                                    value="{{ $training->end_date->format('Y-m-d') }}" required>
+                                            </div>
+                                        </div>
+
+                                        <!-- Description -->
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label>Description <span class="text-danger">*</span></label>
+                                                <textarea class="form-control" rows="4" name="description" required>{{ $training->description }}</textarea>
+                                            </div>
+                                        </div>
+
+                                        <!-- Status -->
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label class="col-form-label">Status</label>
+                                                <select class="form-control" name="status"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }}>
+                                                    <option value="Active"
+                                                        {{ $training->status == 'Active' ? 'selected' : '' }}>Active
+                                                    </option>
+                                                    <option value="Inactive"
+                                                        {{ $training->status == 'Inactive' ? 'selected' : '' }}>
+                                                        Inactive</option>
+                                                    <option value="Completed"
+                                                        {{ $training->status == 'Completed' ? 'selected' : '' }}>
+                                                        Completed</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Submit Button -->
+                                    <div class="submit-section">
+                                        <button type="submit" class="btn btn-primary submit-btn"
+                                            {{ $training->status == 'Completed' ? 'disabled' : '' }}>Update
+                                            Training</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
 
             <!-- /Edit Training List Modal -->
 

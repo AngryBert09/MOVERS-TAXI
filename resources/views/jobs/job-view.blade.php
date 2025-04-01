@@ -21,7 +21,7 @@
             <ul class="nav user-menu">
 
                 <!-- Search -->
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <div class="top-nav-search">
                         <a href="javascript:void(0);" class="responsive-search">
                             <i class="fa fa-search"></i>
@@ -31,7 +31,7 @@
                             <button class="btn" type="submit"><i class="fa fa-search"></i></button>
                         </form>
                     </div>
-                </li>
+                </li> --}}
                 <!-- /Search -->
 
 
@@ -156,9 +156,11 @@
                                 <input type="hidden" name="job_posting_id" value="{{ $job->id }}">
 
                                 <div class="form-group">
-                                    <label>Name</label>
+                                    <label>Name <span style="font-size: 0.75rem; color: #000000;">(e.g., Richmon D.
+                                            Salarda)</span></label>
                                     <input class="form-control" type="text" name="name" required>
                                 </div>
+
                                 <div class="form-group">
                                     <label>Email Address</label>
                                     <input class="form-control" type="email" name="email" required>
@@ -184,8 +186,8 @@
                                 <div class="form-group">
                                     <label>Upload your CV</label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="cv_upload"
-                                            name="resume" required>
+                                        <input type="file" class="custom-file-input" id="cv_upload" name="resume"
+                                            required>
                                         <label class="custom-file-label" for="cv_upload">Choose file</label>
                                     </div>
                                 </div>

@@ -21,7 +21,7 @@
             <ul class="nav user-menu">
 
                 <!-- Search -->
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <div class="top-nav-search">
                         <a href="javascript:void(0);" class="responsive-search">
                             <i class="fa fa-search"></i>
@@ -31,7 +31,7 @@
                             <button class="btn" type="submit"><i class="fa fa-search"></i></button>
                         </form>
                     </div>
-                </li>
+                </li> --}}
                 <!-- /Search -->
 
 

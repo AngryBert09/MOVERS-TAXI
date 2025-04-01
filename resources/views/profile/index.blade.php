@@ -42,19 +42,22 @@
                                 <div class="profile-view">
                                     <div class="profile-img-wrap">
                                         <div class="profile-img">
-                                            <a href="#"><img alt=""
-                                                    src="assets/img/profiles/avatar-02.jpg"></a>
+                                            <a href="#"><img alt="" src="assets/img/default.jpg"></a>
                                         </div>
                                     </div>
                                     <div class="profile-basic">
                                         <div class="row">
                                             <div class="col-md-5">
                                                 <div class="profile-info-left">
-                                                    <h3 class="user-name m-t-0 mb-0">John Doe</h3>
-                                                    <h6 class="text-muted">UI/UX Design Team</h6>
-                                                    <small class="text-muted">Web Designer</small>
-                                                    <div class="staff-id">Employee ID : FT-0001</div>
-                                                    <div class="small doj text-muted">Date of Join : 1st Jan 2013</div>
+                                                    <h3 class="user-name m-t-0 mb-0">
+                                                        {{ $user->personalInformation->first_name }}</h3>
+                                                    <h6 class="text-muted">{{ $user->job_title ?? 'Human Resource' }}
+                                                    </h6>
+                                                    <small class="text-muted">{{ $user->role ?? 'HR' }}</small>
+                                                    <div class="staff-id">Employee ID :
+                                                        {{ $user->id ?? 'FT-0001' }}</div>
+                                                    <div class="small doj text-muted">Date of Join :
+                                                        {{ $user->created_at ?? '1st Jan 2013' }}</div>
                                                     <div class="staff-msg"><a class="btn btn-primary"
                                                             href="chat.html">LOL</a></div>
                                                 </div>
@@ -63,38 +66,50 @@
                                                 <ul class="personal-info">
                                                     <li>
                                                         <div class="title">Phone:</div>
-                                                        <div class="text"><a href="">9876543210</a></div>
+                                                        <div class="text"><a
+                                                                href="tel:{{ $user->personalInformation->phone_number ?? 'NOT AVAILABLE' }}">{{ optional($user->personalInformation)->phone_number ?? 'NOT AVAILABLE' }}</a>
+                                                        </div>
                                                     </li>
                                                     <li>
                                                         <div class="title">Email:</div>
-                                                        <div class="text"><a href="">johndoe@example.com</a>
+                                                        <div class="text"><a
+                                                                href="mailto:{{ $user->email }}">{{ $user->email }}</a>
                                                         </div>
                                                     </li>
                                                     <li>
                                                         <div class="title">Birthday:</div>
-                                                        <div class="text">24th July</div>
+                                                        <div class="text">
+                                                            {{ $user->personalInformation->birth_date ?? 'Not available' }}
+                                                        </div>
                                                     </li>
                                                     <li>
                                                         <div class="title">Address:</div>
-                                                        <div class="text">1861 Bayonne Ave, Manchester Township, NJ,
-                                                            08759</div>
+                                                        <div class="text">
+                                                            {{ optional($user->personalInformation)->address ?? 'Not available' }}
+                                                        </div>
                                                     </li>
                                                     <li>
                                                         <div class="title">Gender:</div>
-                                                        <div class="text">Male</div>
+                                                        <div class="text">
+                                                            {{ optional($user->personalInformation)->gender ?? 'Not specified' }}
+                                                        </div>
                                                     </li>
-
                                                 </ul>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="pro-edit"><a data-target="#profile_info" data-toggle="modal"
-                                            class="edit-icon" href="#"><i class="fa fa-pencil"></i></a></div>
+                                    <div class="pro-edit">
+                                        <a data-target="#profile_info" data-toggle="modal" class="edit-icon"
+                                            href="#">
+                                            <i class="fa fa-pencil"></i>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
+
 
                 {{-- <div class="card tab-box">
                     <div class="row user-tabs">
@@ -122,28 +137,33 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form>
+                            <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+                                @csrf
+                                @method('PUT')
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="profile-img-wrap edit-img">
-                                            <img class="inline-block" src="assets/img/profiles/avatar-02.jpg"
-                                                alt="user">
+                                            {{-- <img class="inline-block"
+                                                src="{{ asset('assets/img/profiles/' . $user->avatar) }}"
+                                                alt="user"> --}}
                                             <div class="fileupload btn">
-                                                <span class="btn-text">edit</span>
-                                                <input class="upload" type="file">
+                                                <span class="btn-text">Edit</span>
+                                                <input class="upload" type="file" name="avatar">
                                             </div>
                                         </div>
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>First Name</label>
-                                                    <input type="text" class="form-control" value="John">
+                                                    <input type="text" class="form-control" name="first_name"
+                                                        value="{{ $user->personalInformation->first_name ?? '' }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Last Name</label>
-                                                    <input type="text" class="form-control" value="Doe">
+                                                    <input type="text" class="form-control" name="last_name"
+                                                        value="{{ $user->personalInformation->last_name ?? '' }}">
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
@@ -151,16 +171,21 @@
                                                     <label>Birth Date</label>
                                                     <div class="cal-icon">
                                                         <input class="form-control datetimepicker" type="text"
-                                                            value="05/06/1985">
+                                                            name="birth_date"
+                                                            value="{{ $user->personalInformation->birth_date ?? '' }}">
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6">
                                                 <div class="form-group">
                                                     <label>Gender</label>
-                                                    <select class="select form-control">
-                                                        <option value="male selected">Male</option>
-                                                        <option value="female">Female</option>
+                                                    <select class="select form-control" name="gender">
+                                                        <option value="male"
+                                                            {{ $user->personalInformation->gender == 'Male' ? 'selected' : '' }}>
+                                                            Male</option>
+                                                        <option value="female"
+                                                            {{ $user->personalInformation->gender == 'Female' ? 'selected' : '' }}>
+                                                            Female</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -171,37 +196,44 @@
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Address</label>
-                                            <input type="text" class="form-control" value="4487 Snowbird Lane">
+                                            <input type="text" class="form-control" name="address"
+                                                value="{{ $user->personalInformation->address ?? '' }}">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Phone Number</label>
-                                            <input type="text" class="form-control" value="631-889-3206">
+                                            <input type="text" class="form-control" name="phone"
+                                                value="{{ $user->phone }}">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Department <span class="text-danger">*</span></label>
-                                            <select class="select">
+                                            <select class="select" name="department">
                                                 <option>Select Department</option>
-                                                <option>Web Development</option>
-                                                <option>IT Management</option>
-                                                <option>Marketing</option>
+                                                <option value="Web Development"
+                                                    {{ $user->department == 'Web Development' ? 'selected' : '' }}>Web
+                                                    Development</option>
+                                                <option value="IT Management"
+                                                    {{ $user->department == 'IT Management' ? 'selected' : '' }}>IT
+                                                    Management</option>
+                                                <option value="Marketing"
+                                                    {{ $user->department == 'Marketing' ? 'selected' : '' }}>Marketing
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
-
-
                                 </div>
                                 <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Submit</button>
+                                    <button class="btn btn-primary submit-btn" type="submit">Submit</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+
             <!-- /Profile Modal -->
 
             <!-- Personal Info Modal -->
@@ -292,6 +324,34 @@
 
     <!-- jQuery -->
     <script src="assets/js/jquery-3.5.1.min.js"></script>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Try Again'
+                });
+            @endif
+        });
+    </script>
+
+
 
     <!-- Bootstrap Core JS -->
     <script src="assets/js/popper.min.js"></script>

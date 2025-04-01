@@ -157,8 +157,8 @@
                 <span>Admin</span>
             </a>
             <div class="dropdown-menu">
-                <a class="dropdown-item text-muted" href="javascript:void(0);" disabled>
-                    My Profile (Under Development)
+                <a class="dropdown-item" href="{{ route('profile.index') }}">
+                    My Profile
                 </a>
 
                 <a class="dropdown-item" href="{{ route('company.index') }}">Settings</a>

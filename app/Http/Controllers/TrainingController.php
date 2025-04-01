@@ -10,6 +10,7 @@ use App\Models\JobApplication;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Carbon;
+use App\Models\TrainingAchievement;
 
 class TrainingController extends Controller
 {
@@ -146,7 +147,7 @@ class TrainingController extends Controller
                 'start_date' => 'required|date_format:Y-m-d',
                 'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
                 'description' => 'sometimes|required|string',
-                'status' => 'sometimes|required|in:Active,Inactive',
+                'status' => 'sometimes|required|in:Active,Inactive,Completed',
             ]);
 
             Log::info('Validation Passed', ['validated_data' => $validatedData]);
@@ -157,6 +158,22 @@ class TrainingController extends Controller
 
             Log::info('Training Record Updated', ['updated_training' => $training]);
 
+            // If the training status is completed, store in the training_achievements table
+            if ($training->status == 'Completed') {
+
+
+                // Store the training achievement details
+                $trainingAchievement = TrainingAchievement::create([
+                    'employee_id' => $training->trainee_id,  // Trainee's employee ID
+                    'type' => $training->training_type,  // Training type
+                    'training_date' => $training->end_date,  // End date of training
+                    'training_provider' => $training->trainer,  // Training provider
+                    'status' => 'Completed',  // Status of the training
+                ]);
+
+                Log::info('Training Achievement Created', ['training_achievement' => $trainingAchievement]);
+            }
+
             return redirect()->back()->with('success', 'Training updated successfully!');
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation Error', ['errors' => $e->errors()]);
@@ -166,6 +183,7 @@ class TrainingController extends Controller
             return redirect()->back()->with('error', 'Something went wrong while updating the training. Please try again.');
         }
     }
+
 
 
     public function destroyTraining($id)

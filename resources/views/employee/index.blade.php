@@ -60,6 +60,7 @@
                                         <th>Job Type</th>
                                         <th class="text-center">Gender</th>
                                         <th class="text-center">Status</th>
+                                        <th class="text-center">Actions</th> <!-- Added actions column -->
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
@@ -86,21 +87,75 @@
                                             <td>
                                                 <span
                                                     class="
-                                                    {{ $employee['status'] == 'active'
-                                                        ? 'text-success'
-                                                        : ($employee['status'] == 'inactive'
-                                                            ? 'text-danger'
-                                                            : 'text-warning') }}">
+                                                {{ $employee['status'] == 'active'
+                                                    ? 'text-success'
+                                                    : ($employee['status'] == 'inactive'
+                                                        ? 'text-danger'
+                                                        : 'text-warning') }}">
                                                     <i class="fa fa-dot-circle-o"></i>
                                                     {{ ucfirst($employee['status']) }}
                                                 </span>
                                             </td>
+                                            <td class="text-center">
+                                                <!-- Trigger modal with employee's achievements -->
+                                                <a href="#viewAchievementsModal{{ $employee['id'] }}"
+                                                    class="btn btn-primary btn-sm" data-toggle="modal">
+                                                    View Achievements
+                                                </a>
                                             </td>
-
                                         </tr>
+
+                                        <!-- Modal for each employee -->
+                                        <div class="modal fade" id="viewAchievementsModal{{ $employee['id'] }}"
+                                            tabindex="-1" role="dialog"
+                                            aria-labelledby="viewAchievementsModalLabel{{ $employee['id'] }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title"
+                                                            id="viewAchievementsModalLabel{{ $employee['id'] }}">
+                                                            <i class="fa fa-trophy"></i> Training Achievements:
+                                                            {{ $employee['first_name'] }} {{ $employee['last_name'] }}
+                                                        </h5>
+                                                        <button type="button" class="close text-white"
+                                                            data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <!-- List the achievements here -->
+                                                        @if (count($employee['achievements']) > 0)
+                                                            <div class="list-group">
+                                                                @foreach ($employee['achievements'] as $achievement)
+                                                                    <div class="list-group-item">
+                                                                        <h6 class="font-weight-bold">
+                                                                            {{ $achievement->type }}</h6>
+                                                                        <p class="text-muted">
+                                                                            <small>Completed on:
+                                                                                {{ \Carbon\Carbon::parse($achievement->created_at)->format('d M Y') }}</small>
+                                                                        </p>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+                                                        @else
+                                                            <p class="text-center text-muted">No achievements available.
+                                                            </p>
+                                                        @endif
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary"
+                                                            data-dismiss="modal"><i class="fa fa-times"></i>
+                                                            Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endforeach
                                 </tbody>
                             </table>
+
+
 
                         </div>
                     </div>

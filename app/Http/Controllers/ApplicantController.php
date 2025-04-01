@@ -11,6 +11,7 @@ use App\Mail\InterviewScheduledMail;
 use App\Mail\ApplicationStatusMail;
 use Illuminate\Validation\ValidationException;
 use App\Models\PersonalInformation;
+use Illuminate\Support\Facades\Http;
 
 class ApplicantController extends Controller
 {
@@ -80,19 +81,39 @@ class ApplicantController extends Controller
     {
         Log::info('Update Status Request Received:', $request->all());
 
+        // Validate incoming request data
         $request->validate([
             'applicant_id' => 'required|exists:job_applications,id',
             'status' => 'required|in:Pending,Hired,Rejected,Interviewed',
         ]);
 
         try {
+            // Find the job application
             $applicant = JobApplication::findOrFail($request->applicant_id);
+
+            // Get associated personal information
+            $personalInfo = $applicant->personalInformation;
+
+            // If personal information is not found, return error
+            if (!$personalInfo) {
+                return response()->json(['success' => false, 'message' => 'Personal information not found.'], 404);
+            }
+
+            // Get the job posting (to fetch job_title)
+            $jobPosting = $applicant->jobPosting; // Assuming JobApplication has a relationship with JobPosting
+
+            // If job posting is not found, return error
+            if (!$jobPosting) {
+                return response()->json(['success' => false, 'message' => 'Job posting not found.'], 404);
+            }
+
+            // Update the job application status
             $applicant->status = $request->status;
             $applicant->save();
 
             Log::info('Status updated successfully.', ['id' => $request->applicant_id, 'status' => $request->status]);
 
-            // Send email only if Hired or Rejected
+            // Send email notification for Hired or Rejected status
             if (in_array($request->status, ['Hired', 'Rejected'])) {
                 Mail::to($applicant->email)->send(new ApplicationStatusMail(
                     $applicant->name,
@@ -101,12 +122,48 @@ class ApplicantController extends Controller
                 Log::info('Status email sent successfully.', ['email' => $applicant->email, 'status' => $request->status]);
             }
 
+            // If applicant is Hired, send data to external API
+            if ($request->status === 'Hired') {
+                // Prepare the data to send to the external API using personal information and job title
+                $employeeData = [
+                    'first_name' => $personalInfo->first_name,
+                    'last_name' => $personalInfo->last_name,
+                    'email' => $applicant->email,
+                    'department' => $jobPosting->department,
+                    'position' => $jobPosting->job_title, // Get job_title from JobPosting model
+                    'bdate' => $personalInfo->birth_date,
+                    'job_type' => $jobPosting->job_type, // Assuming job_type exists in JobApplication model
+                    'gender' => $personalInfo->gender,
+                    'status' => 'active', // Assuming "active" status is applicable when hired
+                    'contact' => $applicant->phone, // Assuming phone exists in JobApplication model
+                ];
+
+                // Log the data that is being sent to the API for debugging purposes
+                Log::info('Sending employee data to external API:', ['employee_data' => $employeeData]);
+
+                // Send a POST request to the external API
+                $response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . env('HR1_API_KEY'), // Retrieve HR1 API Key from .env file
+                ])->post('https://hr1.moverstaxi.com/api/v1/employees', $employeeData);
+
+                // Log the response from the external API
+                Log::info('External API response:', ['response' => $response->body()]);
+
+                if ($response->successful()) {
+                    Log::info('Employee data successfully sent to external API.');
+                } else {
+                    Log::error('Failed to send employee data to external API.', ['response' => $response->body()]);
+                }
+            }
+
             return response()->json(['success' => true, 'message' => 'Status updated successfully!']);
         } catch (\Exception $e) {
             Log::error('Error updating applicant status', ['error' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Error updating applicant status.'], 500);
         }
     }
+
+
 
 
     //FUNCTION FOR APPLICANTS {START HERE}
@@ -146,9 +203,11 @@ class ApplicantController extends Controller
             Log::info('Resume uploaded successfully.', ['resume_path' => $resumePath]);
 
             // Split full name into first and last name
+
             $nameParts = explode(' ', trim($validatedData['name']));
             $firstName = $nameParts[0] ?? '';
-            $lastName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : '';
+            $lastName = count($nameParts) > 2 ? array_pop($nameParts) : '';
+
 
             // Create job application
             $jobApplication = JobApplication::create([

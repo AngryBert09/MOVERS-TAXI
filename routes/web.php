@@ -133,4 +133,5 @@ Route::middleware('admin')->group(function () {
 
     //PROFILE
     Route::get('/my-profile', [ProfileController::class, 'index'])->name('profile.index');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
