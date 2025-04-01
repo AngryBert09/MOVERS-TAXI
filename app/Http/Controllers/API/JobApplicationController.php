@@ -12,9 +12,51 @@ class JobApplicationController extends Controller
     // GET All Job Applications
     public function index()
     {
-        $applications = JobApplication::with('jobPosting')->get();
+        $commonLastNames = ['Dela Cruz', 'De la Cruz', 'De los Santos', 'Delos Reyes', 'San Juan']; // Add more as needed
+
+        $applications = JobApplication::where('status', 'Hired')
+            ->with(['jobPosting:id,job_title,department,job_type'])
+            ->get(['id', 'name', 'email', 'phone', 'status', 'resume', 'job_posting_id'])
+            ->map(function ($application) use ($commonLastNames) {
+                $nameParts = explode(' ', $application->name);
+                $nameCount = count($nameParts);
+
+                if ($nameCount === 1) {
+                    $firstName = $application->name;
+                    $lastName = '';
+                } elseif ($nameCount === 2) {
+                    [$firstName, $lastName] = $nameParts;
+                } else {
+                    $potentialLastName = "{$nameParts[$nameCount - 2]} {$nameParts[$nameCount - 1]}";
+
+                    if (in_array($potentialLastName, $commonLastNames)) {
+                        $firstName = implode(' ', array_slice($nameParts, 0, $nameCount - 2));
+                        $lastName = $potentialLastName;
+                    } else {
+                        $firstName = implode(' ', array_slice($nameParts, 0, $nameCount - 1));
+                        $lastName = $nameParts[$nameCount - 1];
+                    }
+                }
+
+                $application->first_name = $firstName;
+                $application->last_name = $lastName;
+                unset($application->name); // Remove original name field
+
+                // Rename job_posting to job_details
+                $application->job_details = $application->jobPosting;
+                unset($application->jobPosting);
+
+                return $application;
+            });
+
         return response()->json($applications);
     }
+
+
+
+
+
+
 
     // GET Single Application
     public function show($id)
