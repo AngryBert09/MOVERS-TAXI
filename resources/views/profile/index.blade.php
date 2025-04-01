@@ -42,8 +42,12 @@
                                 <div class="profile-view">
                                     <div class="profile-img-wrap">
                                         <div class="profile-img">
-                                            <a href="#"><img alt="" src="assets/img/default.jpg"></a>
+                                            <a href="#">
+                                                <img alt="User Avatar"
+                                                    src="{{ !empty($user->personalInformation) && !empty($user->personalInformation->avatar_path) ? asset('storage/' . $user->personalInformation->avatar_path) : asset('assets/img/default.jpg') }}">
+                                            </a>
                                         </div>
+
                                     </div>
                                     <div class="profile-basic">
                                         <div class="row">
@@ -143,14 +147,38 @@
                                 <div class="row">
                                     <div class="col-md-12">
                                         <div class="profile-img-wrap edit-img">
-                                            {{-- <img class="inline-block"
-                                                src="{{ asset('assets/img/profiles/' . $user->avatar) }}"
-                                                alt="user"> --}}
+                                            @php
+                                                $avatarPath =
+                                                    !empty($user->personalInformation) &&
+                                                    !empty($user->personalInformation->avatar_path)
+                                                        ? asset('storage/' . $user->personalInformation->avatar_path) // Use storage path if applicable
+                                                        : asset('assets/img/default.jpg');
+
+                                            @endphp
+
+                                            <!-- Avatar Image -->
+                                            <img id="avatarPreview" class="inline-block" src="{{ $avatarPath }}"
+                                                alt="User Avatar">
+
+                                            <!-- Upload Button -->
                                             <div class="fileupload btn">
                                                 <span class="btn-text">Edit</span>
-                                                <input class="upload" type="file" name="avatar">
+                                                <input class="upload" type="file" name="avatar" id="avatarInput"
+                                                    accept="image/*">
                                             </div>
                                         </div>
+
+                                        <!-- JavaScript to Preview Image -->
+                                        <script>
+                                            document.getElementById('avatarInput').addEventListener('change', function(event) {
+                                                const reader = new FileReader();
+                                                reader.onload = function(e) {
+                                                    document.getElementById('avatarPreview').src = e.target.result;
+                                                };
+                                                reader.readAsDataURL(event.target.files[0]);
+                                            });
+                                        </script>
+
                                         <div class="row">
                                             <div class="col-md-6">
                                                 <div class="form-group">
@@ -204,7 +232,7 @@
                                         <div class="form-group">
                                             <label>Phone Number</label>
                                             <input type="text" class="form-control" name="phone"
-                                                value="{{ $user->phone }}">
+                                                value="{{ $user->personalInformation->phone_number }}">
                                         </div>
                                     </div>
                                     <div class="col-md-12">
@@ -212,17 +240,16 @@
                                             <label>Department <span class="text-danger">*</span></label>
                                             <select class="select" name="department">
                                                 <option>Select Department</option>
-                                                <option value="Web Development"
-                                                    {{ $user->department == 'Web Development' ? 'selected' : '' }}>Web
-                                                    Development</option>
-                                                <option value="IT Management"
-                                                    {{ $user->department == 'IT Management' ? 'selected' : '' }}>IT
-                                                    Management</option>
-                                                <option value="Marketing"
-                                                    {{ $user->department == 'Marketing' ? 'selected' : '' }}>Marketing
-                                                </option>
+                                                @foreach ($departments as $id => $name)
+                                                    <option value="{{ $id }}"
+                                                        {{ $user->department && $user->department->id == $id ? 'selected' : '' }}>
+                                                        {{ $name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                         </div>
+
+
                                     </div>
                                 </div>
                                 <div class="submit-section">

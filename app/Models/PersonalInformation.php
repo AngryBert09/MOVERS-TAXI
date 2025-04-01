@@ -12,6 +12,7 @@ class PersonalInformation extends Model
     protected $table = 'personal_information';
 
     protected $fillable = [
+        'avatar_path',
         'application_id',
         'first_name',
         'last_name',

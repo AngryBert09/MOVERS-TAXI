@@ -5,17 +5,24 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Department;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class ProfileController extends Controller
 {
     public function index()
     {
-        // Get the authenticated user and eager load their personal information
-        $user = User::with('personalInformation')->find(Auth::id());
+        // Get the authenticated user and eager load personal information and department
+        $user = User::with(['personalInformation', 'department'])->find(Auth::id());
 
-        // Pass the user (along with their personal information) to the view
-        return view('profile.index', compact('user'));
+        // Fetch all departments
+        $departments = Department::pluck('department_name', 'id');
+
+        // Pass data to the view
+        return view('profile.index', compact('user', 'departments'));
     }
+
 
 
     public function update(Request $request)
@@ -27,7 +34,7 @@ class ProfileController extends Controller
             $request->validate([
                 'first_name' => 'nullable|string|max:255',
                 'last_name' => 'nullable|string|max:255',
-                'birth_date' => 'nullable|date',
+                'birth_date' => 'nullable|string', // Keep it as a string for now
                 'gender' => 'nullable|in:male,female',
                 'address' => 'nullable|string|max:255',
                 'phone' => 'nullable|string|max:20',
@@ -35,11 +42,21 @@ class ProfileController extends Controller
                 'department' => 'nullable|string|max:255',
             ]);
 
+            // Convert birth_date to proper format (YYYY-MM-DD)
+            $formattedBirthDate = null;
+            if (!empty($request->birth_date)) {
+                try {
+                    $formattedBirthDate = Carbon::createFromFormat('m/d/Y', $request->birth_date)->format('Y-m-d');
+                } catch (\Exception $e) {
+                    return back()->with('error', 'Invalid birth date format. Please use MM/DD/YYYY.');
+                }
+            }
+
             // Update user personal information
             $user->personalInformation()->update([
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
-                'birth_date' => $request->birth_date,
+                'birth_date' => $formattedBirthDate,
                 'gender' => $request->gender,
                 'address' => $request->address,
             ]);
@@ -51,21 +68,18 @@ class ProfileController extends Controller
             ]);
 
             // Handle file upload for avatar if exists
+            // Handle file upload for avatar if exists
             if ($request->hasFile('avatar')) {
                 $avatarPath = $request->file('avatar')->store('avatars', 'public');
-                $user->update(['avatar' => $avatarPath]);
+                $user->personalInformation()->update(['avatar_path' => $avatarPath]);
             }
 
-            // Store success message in session
+
             session()->flash('success', 'Profile updated successfully!');
-
-            return redirect()->back(); // Redirect back to the previous page
-
+            return redirect()->back();
         } catch (\Exception $e) {
-            // Store error message in session
             session()->flash('error', 'An error occurred while updating the profile. Please try again.');
-
-            return redirect()->back(); // Redirect back to the previous page
+            return redirect()->back();
         }
     }
 }
