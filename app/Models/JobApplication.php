@@ -20,4 +20,9 @@ class JobApplication extends Model
     {
         return $this->hasMany(PerformanceEvaluation::class, 'trainee_id');
     }
+
+    public function personalInformation()
+    {
+        return $this->hasOne(PersonalInformation::class, 'application_id');
+    }
 }

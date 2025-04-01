@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\InterviewScheduledMail;
 use App\Mail\ApplicationStatusMail;
 use Illuminate\Validation\ValidationException;
+use App\Models\PersonalInformation;
 
 class ApplicantController extends Controller
 {
@@ -133,6 +134,8 @@ class ApplicantController extends Controller
                 'phone' => 'required|string|max:15',
                 'resume' => 'required|file|mimes:pdf,doc,docx|max:2048',
                 'job_posting_id' => 'required|exists:job_postings,id',
+                'gender' => 'required|in:Male,Female,Other',
+                'birthdate' => 'required|date',
             ]);
 
             // Check if the user is authenticated
@@ -141,6 +144,11 @@ class ApplicantController extends Controller
             // Store resume file
             $resumePath = $request->file('resume')->store('resumes', 'public');
             Log::info('Resume uploaded successfully.', ['resume_path' => $resumePath]);
+
+            // Split full name into first and last name
+            $nameParts = explode(' ', trim($validatedData['name']));
+            $firstName = $nameParts[0] ?? '';
+            $lastName = count($nameParts) > 1 ? implode(' ', array_slice($nameParts, 1)) : '';
 
             // Create job application
             $jobApplication = JobApplication::create([
@@ -151,39 +159,50 @@ class ApplicantController extends Controller
                 'status' => 'Pending',
                 'resume' => $resumePath,
                 'job_posting_id' => $validatedData['job_posting_id'],
-                'user_id' => $userId, // Associate with user if authenticated
                 'application_code' => uniqid('APP-'), // Generate unique application code
             ]);
 
             Log::info('Job application created successfully.', ['job_application' => $jobApplication]);
+
+            // Store gender, birthdate, phone, and application_id in PersonalInformation model
+            $personalInfo = PersonalInformation::create([
+                'first_name' => $firstName,
+                'last_name' => $lastName,
+                'phone_number' => $validatedData['phone'], // Storing phone in personal info
+                'gender' => $validatedData['gender'],
+                'birth_date' => $validatedData['birthdate'],
+                'application_id' => $jobApplication->id, // Storing the job application ID
+            ]);
+
+            Log::info('Personal information saved successfully.', ['personal_info' => $personalInfo]);
 
             return response()->json([
                 'message' => 'Application submitted successfully!',
                 'application_code' => $jobApplication->application_code
             ], 200);
         } catch (ValidationException $e) {
-            // Handle validation errors
             Log::warning('Validation failed.', ['errors' => $e->errors()]);
             return response()->json([
                 'message' => 'Validation failed. Please check the provided details.',
                 'errors' => $e->errors()
             ], 422);
         } catch (\Illuminate\Database\QueryException $e) {
-            // Handle database-related errors
             Log::error('Database error while applying for job.', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'A database error occurred. Please try again later.',
-                'error_details' => $e->getMessage() // Optionally remove this in production for security
+                'error_details' => $e->getMessage()
             ], 500);
         } catch (\Throwable $e) {
-            // Handle unexpected errors
             Log::error('Unexpected error applying for job.', ['error' => $e->getMessage()]);
             return response()->json([
                 'message' => 'Something went wrong! Please check your input and try again.',
-                'error_details' => $e->getMessage() // Optionally remove in production
+                'error_details' => $e->getMessage()
             ], 500);
         }
     }
+
+
+
 
     public function searchApplication(Request $request)
     {

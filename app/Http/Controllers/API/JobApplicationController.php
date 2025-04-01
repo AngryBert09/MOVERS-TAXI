@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\JobApplication;
 use App\Models\JobPosting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class JobApplicationController extends Controller
 {
@@ -14,40 +15,71 @@ class JobApplicationController extends Controller
     {
         $commonLastNames = ['Dela Cruz', 'De la Cruz', 'De los Santos', 'Delos Reyes', 'San Juan']; // Add more as needed
 
+        // Log to check if the query is being executed
+        Log::info('Fetching applications where status is "Hired".');
+
         $applications = JobApplication::where('status', 'Hired')
-            ->with(['jobPosting:id,job_title,department,job_type'])
-            ->get(['id', 'name', 'email', 'phone', 'status', 'resume', 'job_posting_id'])
-            ->map(function ($application) use ($commonLastNames) {
-                $nameParts = explode(' ', $application->name);
-                $nameCount = count($nameParts);
+            ->with(['jobPosting:id,job_title,department,job_type', 'personalInformation:id,application_id,gender,birth_date'])
+            ->get(['id', 'name', 'email', 'phone', 'status', 'resume', 'job_posting_id']);
 
-                if ($nameCount === 1) {
-                    $firstName = $application->name;
-                    $lastName = '';
-                } elseif ($nameCount === 2) {
-                    [$firstName, $lastName] = $nameParts;
+        Log::info('Applications fetched:', ['applications' => $applications->toArray()]);
+
+        $applications = $applications->map(function ($application) use ($commonLastNames) {
+            // Log the original application object to see its details
+            Log::info('Processing application:', ['application' => $application]);
+
+            // Split name to first and last name
+            $nameParts = explode(' ', $application->name);
+            $nameCount = count($nameParts);
+
+            if ($nameCount === 1) {
+                $firstName = $application->name;
+                $lastName = '';
+            } elseif ($nameCount === 2) {
+                [$firstName, $lastName] = $nameParts;
+            } else {
+                $potentialLastName = "{$nameParts[$nameCount - 2]} {$nameParts[$nameCount - 1]}";
+
+                if (in_array($potentialLastName, $commonLastNames)) {
+                    $firstName = implode(' ', array_slice($nameParts, 0, $nameCount - 2));
+                    $lastName = $potentialLastName;
                 } else {
-                    $potentialLastName = "{$nameParts[$nameCount - 2]} {$nameParts[$nameCount - 1]}";
-
-                    if (in_array($potentialLastName, $commonLastNames)) {
-                        $firstName = implode(' ', array_slice($nameParts, 0, $nameCount - 2));
-                        $lastName = $potentialLastName;
-                    } else {
-                        $firstName = implode(' ', array_slice($nameParts, 0, $nameCount - 1));
-                        $lastName = $nameParts[$nameCount - 1];
-                    }
+                    $firstName = implode(' ', array_slice($nameParts, 0, $nameCount - 1));
+                    $lastName = $nameParts[$nameCount - 1];
                 }
+            }
 
-                $application->first_name = $firstName;
-                $application->last_name = $lastName;
-                unset($application->name); // Remove original name field
+            // Log the extracted names
+            Log::info('Extracted names:', ['first_name' => $firstName, 'last_name' => $lastName]);
 
-                // Rename job_posting to job_details
-                $application->job_details = $application->jobPosting;
-                unset($application->jobPosting);
+            $application->first_name = $firstName;
+            $application->last_name = $lastName;
+            unset($application->name); // Remove original name field
 
-                return $application;
-            });
+            // Add gender and birthdate from personal information
+            $application->gender = optional($application->personalInformation)->gender;
+            $application->birth_date = optional($application->personalInformation)->birth_date;
+
+            // Log the gender and birth_date
+            Log::info('Personal information:', [
+                'gender' => $application->gender,
+                'birth_date' => $application->birth_date
+            ]);
+
+            unset($application->personalInformation);
+
+            // Rename job_posting to job_details
+            $application->job_details = $application->jobPosting;
+            unset($application->jobPosting);
+
+            // Log the final transformed application
+            Log::info('Transformed application:', ['application' => $application]);
+
+            return $application;
+        });
+
+        // Log the final result
+        Log::info('Returning applications:', ['applications' => $applications->toArray()]);
 
         return response()->json($applications);
     }

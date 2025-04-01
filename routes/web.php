@@ -54,6 +54,9 @@ Route::middleware('guest')->group(function () {
 });
 
 
+
+
+
 Route::get('/2fa/verify', [AuthController::class, 'show2faForm'])->name('2fa.verify');
 Route::post('/2fa/verify', [AuthController::class, 'verify2fa'])->name('2fa.check');
 Route::get('/2fa/resend', [AuthController::class, 'resend2fa'])->name('2fa.resend');

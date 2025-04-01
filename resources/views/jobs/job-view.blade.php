@@ -169,10 +169,23 @@
                                         title="Please enter a valid phone number">
                                 </div>
                                 <div class="form-group">
+                                    <label>Gender</label>
+                                    <select class="form-control" name="gender" required>
+                                        <option value="">Select Gender</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Birthdate</label>
+                                    <input class="form-control" type="date" name="birthdate" required>
+                                </div>
+                                <div class="form-group">
                                     <label>Upload your CV</label>
                                     <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="cv_upload" name="resume"
-                                            required>
+                                        <input type="file" class="custom-file-input" id="cv_upload"
+                                            name="resume" required>
                                         <label class="custom-file-label" for="cv_upload">Choose file</label>
                                     </div>
                                 </div>
@@ -180,7 +193,6 @@
                                     <button type="submit" class="btn btn-primary submit-btn">Submit</button>
                                 </div>
                             </form>
-
                         </div>
                     </div>
                 </div>

@@ -60,8 +60,6 @@
                                         <th>Job Type</th>
                                         <th class="text-center">Gender</th>
                                         <th class="text-center">Status</th>
-                                        <th>Created At</th>
-
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
@@ -97,7 +95,6 @@
                                                     {{ ucfirst($employee['status']) }}
                                                 </span>
                                             </td>
-                                            <td>{{ \Carbon\Carbon::parse($employee['created_at'])->format('d M Y') }}
                                             </td>
 
                                         </tr>
