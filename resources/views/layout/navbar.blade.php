@@ -153,10 +153,11 @@
         <li class="nav-item dropdown has-arrow main-drop">
             <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
                 <span class="user-img">
-                    <img src="{{ !empty(Auth::user()->personalInformation) && !empty(Auth::user()->personalInformation->avatar_path) ? asset('storage/' . Auth::user()->personalInformation->avatar_path) : asset('assets/img/default.jpg') }}"
+                    <img src="{{ !empty(Auth::user()->personalInformation) && !empty(Auth::user()->personalInformation->avatar_path) ? Storage::disk('public')->url(Auth::user()->personalInformation->avatar_path) : asset('assets/img/default.jpg') }}"
                         alt="User Avatar">
                     <span class="status online"></span>
                 </span>
+
 
 
                 <span>Admin</span>
