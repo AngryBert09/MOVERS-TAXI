@@ -141,6 +141,8 @@
             <!-- /Page Content -->
 
             <!-- Apply Job Modal -->
+            <!-- Apply Job Modal -->
+            <!-- Apply Job Modal -->
             <div class="modal custom-modal fade" id="apply_job" role="dialog">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
@@ -165,11 +167,13 @@
                                     <label>Email Address</label>
                                     <input class="form-control" type="email" name="email" required>
                                 </div>
+
                                 <div class="form-group">
                                     <label>Contact Number</label>
                                     <input class="form-control" type="text" name="phone" required pattern="\d*"
                                         title="Please enter a valid phone number">
                                 </div>
+
                                 <div class="form-group">
                                     <label>Gender</label>
                                     <select class="form-control" name="gender" required>
@@ -179,10 +183,12 @@
                                         <option value="Other">Other</option>
                                     </select>
                                 </div>
+
                                 <div class="form-group">
                                     <label>Birthdate</label>
                                     <input class="form-control" type="date" name="birthdate" required>
                                 </div>
+
                                 <div class="form-group">
                                     <label>Upload your CV</label>
                                     <div class="custom-file">
@@ -191,14 +197,97 @@
                                         <label class="custom-file-label" for="cv_upload">Choose file</label>
                                     </div>
                                 </div>
+
+                                <!-- Terms and Agreement Checkbox -->
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="termsAgreement"
+                                            required>
+                                        <label class="custom-control-label" for="termsAgreement">
+                                            I agree to the <a href="#" id="openTermsModal">terms and
+                                                conditions</a>.
+                                        </label>
+                                    </div>
+                                </div>
+
                                 <div class="submit-section">
-                                    <button type="submit" class="btn btn-primary submit-btn">Submit</button>
+                                    <button type="submit" class="btn btn-primary submit-btn" id="submitBtn"
+                                        disabled>Submit</button>
                                 </div>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Terms and Conditions Modal -->
+            <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>By submitting your application, you acknowledge and agree to the following terms:</p>
+
+                            <ul>
+                                <li>You certify that all information provided in this application is accurate and
+                                    complete to the best of your knowledge.</li>
+                                <li>You consent to the collection, processing, and storage of your personal data in
+                                    accordance with <strong>Republic Act No. 10173 or the Data Privacy Act of
+                                        2012</strong>.</li>
+                                <li>Your personal information will only be used for recruitment and employment purposes
+                                    and will be processed securely.</li>
+                                <li>We will not share your data with third parties without your explicit consent, except
+                                    as required by law or for employment-related processes.</li>
+                                <li>You have the right to access, correct, or request deletion of your personal
+                                    information by contacting our Data Protection Officer.</li>
+                            </ul>
+
+                            <p>For more details on how we handle your personal data, please review our <a
+                                    href="#">Privacy Policy</a>.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- JavaScript to Handle Modal Navigation and Form Submission -->
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js"></script>
+
+            <script>
+                $(document).ready(function() {
+                    // Open Terms Modal and Hide Apply Job Modal
+                    $("#openTermsModal").on("click", function(event) {
+                        event.preventDefault();
+                        $("#apply_job").modal("hide"); // Hide Apply Job Modal
+                        setTimeout(function() {
+                            $("#termsModal").modal("show"); // Show Terms Modal
+                        }, 500); // Delay to ensure smooth transition
+                    });
+
+                    // When Terms Modal Closes, Reopen Apply Job Modal
+                    $("#termsModal").on("hidden.bs.modal", function() {
+                        setTimeout(function() {
+                            $("#apply_job").modal("show"); // Show Apply Job Modal
+                        }, 500);
+                    });
+
+                    // Enable Submit Button When Checkbox is Checked
+                    $("#termsAgreement").on("change", function() {
+                        $("#submitBtn").prop("disabled", !this.checked);
+                    });
+                });
+            </script>
+
+
             <!-- /Apply Job Modal -->
 
         </div>
@@ -242,11 +331,13 @@
                             title: 'Application Submitted!',
                             text: 'Please save this code to track your application.\nApplication Code: ' +
                                 response.application_code,
+                            allowOutsideClick: false, // Prevent accidental modal closing
+                            confirmButtonText: 'OK'
                         }).then(() => {
-                            $('#applyJobForm')[0].reset(); // Reset form after success
-                            $('.custom-file-label').text(
-                                'Choose file'); // Reset file input label
-                            $('#apply_job').modal('hide'); // Close modal after success
+                            resetApplyForm(); // Reset form after success
+                            $('#apply_job').modal('hide'); // Close modal smoothly
+                            $('.modal-backdrop')
+                                .remove(); // Remove modal backdrop to fix black screen
                         });
                     },
                     error: function(xhr) {
@@ -263,8 +354,7 @@
                             text: errorMessage,
                         });
 
-                        // Close modal after error
-                        $('#apply_job').modal('hide');
+                        // Keep modal open for user to fix errors
                     },
                     complete: function() {
                         $('.submit-btn').prop('disabled', false).text('Submit');
@@ -274,17 +364,28 @@
 
             // Update file input label with selected filename
             $('#cv_upload').on('change', function(e) {
-                let fileName = e.target.files[0].name;
+                let fileName = e.target.files[0]?.name || 'Choose file';
                 $(this).next('.custom-file-label').text(fileName);
             });
 
-            // Clear form when modal is closed
+            // Reset form fields properly
+            function resetApplyForm() {
+                $('#applyJobForm')[0].reset(); // Reset form
+                $('.custom-file-label').text('Choose file'); // Reset file input label
+                $('#termsAgreement').prop('checked', false); // Uncheck terms checkbox
+                $('#submitBtn').prop('disabled', true); // Disable submit button
+            }
+
+            // Ensure form resets when modal closes
             $('#apply_job').on('hidden.bs.modal', function() {
-                $('#applyJobForm')[0].reset();
-                $('.custom-file-label').text('Choose file');
+                resetApplyForm();
+                $('.modal-backdrop').remove(); // Ensure backdrop is removed
             });
         });
     </script>
+
+
+
 
 
 
