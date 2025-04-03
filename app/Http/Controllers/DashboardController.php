@@ -25,13 +25,43 @@ class DashboardController extends Controller
         // Get count of active training sessions
         $activeTrainingCount = Training::where('status', 'Active')->count();
 
-        // Get latest job posting
+        // Get latest job postings
         $latestJobPosts = JobPosting::latest('created_at')->take(5)->get();
 
-        $jobs = JobPosting::with('department')->get(); // Eager load departments
-        $departments = Department::select('id', 'department_name')->get(); // Select only needed columns
+        // Group job applications by month
+        $jobApplicationsByMonth = JobApplication::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month');
 
-        // Return view with data
-        return view('dashboard', compact('jobApplicationsCount', 'hiredCount', 'jobPostingsCount', 'latestJobPosts', 'activeTrainingCount', 'jobs', 'departments'));
+        // Group hired candidates by month
+        $hiredByMonth = JobApplication::where('status', 'Hired')
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month');
+
+        // Group active training sessions by month
+        $activeTrainingByMonth = Training::where('status', 'Active')
+            ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->pluck('count', 'month');
+
+        $jobs = JobPosting::with('department')->get();
+        $departments = Department::select('id', 'department_name')->get();
+
+        return view('dashboard', compact(
+            'jobApplicationsCount',
+            'hiredCount',
+            'jobPostingsCount',
+            'latestJobPosts',
+            'activeTrainingCount',
+            'jobs',
+            'departments',
+            'jobApplicationsByMonth',
+            'hiredByMonth',
+            'activeTrainingByMonth'
+        ));
     }
 }

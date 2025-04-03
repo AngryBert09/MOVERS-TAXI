@@ -1,40 +1,90 @@
+var ctx = document.getElementById("lineChart").getContext("2d");
 
-	// Line Chart
-	
-	var ctx = document.getElementById("lineChart").getContext('2d');
-	var lineChart = new Chart(ctx, {
-		type: 'line',
-		data: {
-			labels: ["Jan",	"Feb",	"Mar",	"Apr",	"May"],
-			datasets: [{
-				label: 'UI Developer',
-				data: [20,	10,	5,	5,	20],
-				fill: false,
-				borderColor: '#373651',
-				backgroundColor: '#373651',
-				borderWidth: 1
-			},
-					  {
-				label: 'Android',
-				data: [2,	2,	3,	4,	1],
-				fill: false,
-				borderColor: '#E65A26',
-				backgroundColor: '#E65A26',
-				borderWidth: 1
-			},
-					  {
-				label: 'Web Designing',
-				data: [1,	3,	6,	8,	10],
-				fill: false,
-				borderColor: '#a1a1a1',
-				backgroundColor: '#a1a1a1',
-				borderWidth: 1
-			}]
-		},
-		options: {
-		  responsive: true,
-			legend: {
-				display: false
-			}
-		}
-	});
+// Define months
+var months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+];
+
+// Convert Laravel's PHP array to JavaScript array
+var jobApplicationsData = Array(12).fill(0);
+var hiredData = Array(12).fill(0);
+var activeTrainingData = Array(12).fill(0);
+
+// Fill in actual data from backend
+for (var key in jobApplicationsByMonth) {
+    jobApplicationsData[key - 1] = jobApplicationsByMonth[key];
+}
+for (var key in hiredByMonth) {
+    hiredData[key - 1] = hiredByMonth[key];
+}
+for (var key in activeTrainingByMonth) {
+    activeTrainingData[key - 1] = activeTrainingByMonth[key];
+}
+
+var lineChart = new Chart(ctx, {
+    type: "line",
+    data: {
+        labels: months,
+        datasets: [
+            {
+                label: "Total Job Applications",
+                data: jobApplicationsData,
+                fill: false,
+                borderColor: "#007bff",
+                backgroundColor: "#007bff",
+                borderWidth: 2,
+            },
+            {
+                label: "Hired Candidates",
+                data: hiredData,
+                fill: false,
+                borderColor: "#28a745",
+                backgroundColor: "#28a745",
+                borderWidth: 2,
+            },
+            {
+                label: "Active Training Sessions",
+                data: activeTrainingData,
+                fill: false,
+                borderColor: "#ffcc00",
+                backgroundColor: "#ffcc00",
+                borderWidth: 2,
+            },
+        ],
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: "top",
+            },
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                title: {
+                    display: true,
+                    text: "Count",
+                },
+            },
+            x: {
+                title: {
+                    display: true,
+                    text: "Months",
+                },
+            },
+        },
+    },
+});
