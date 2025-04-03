@@ -34,7 +34,7 @@
                     <a href="#"><i class="la la-files-o"></i> <span> Accounting </span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="{{ route('budgets') }}">Budget Expenses</a></li>
+                        <li><a href="{{ route('budgets') }}">Budget Request</a></li>
                     </ul>
                 </li>
 

@@ -112,7 +112,7 @@
                             <div class="info-list">
                                 <span><i class="fa fa-money"></i></span>
                                 <h5>Salary</h5>
-                                <p>${{ number_format($job->salary_from) }} - ${{ number_format($job->salary_to) }}</p>
+                                <p>₱{{ number_format($job->salary_from) }} - ₱{{ number_format($job->salary_to) }}</p>
                             </div>
                             <div class="info-list">
                                 <span><i class="fa fa-suitcase"></i></span>
