@@ -66,6 +66,9 @@ class ApplicantController extends Controller
             return response()->json(['error' => 'Applicant not found'], 404);
         }
 
+        // Update applicant status to 'Scheduled'
+        $applicant->update(['status' => 'Scheduled']);
+
         // Send email to the applicant
         Mail::to($applicant->email)->send(new InterviewScheduledMail(
             $applicant->name,
@@ -73,8 +76,9 @@ class ApplicantController extends Controller
             $request->interview_time
         ));
 
-        return response()->json(['success' => 'Interview scheduled and email sent successfully.']);
+        return response()->json(['success' => 'Interview scheduled, status updated, and email sent successfully.']);
     }
+
 
     // UPDATE STATUS OF APPLICANT
     public function updateStatus(Request $request)

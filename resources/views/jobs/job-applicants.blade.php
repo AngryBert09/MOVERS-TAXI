@@ -79,16 +79,42 @@
                                                             @if ($applicant->status == 'Pending') text-info
                                                             @elseif ($applicant->status == 'Hired') text-success
                                                             @elseif ($applicant->status == 'Rejected') text-danger
+                                                            @elseif ($applicant->status == 'Scheduled') text-primary
+                                                            @elseif ($applicant->status == 'Interviewed') text-warning
                                                             @else text-warning @endif">
-                                                        </i> <span class="status-text">{{ $applicant->status }}</span>
+                                                        </i>
+                                                        <span class="status-text">{{ $applicant->status }}</span>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         @if ($applicant->status == 'Rejected')
                                                             <a class="dropdown-item disabled" href="#">
-                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                                (Locked)
+                                                                <i class="fa fa-dot-circle-o text-danger"></i>
+                                                                Rejected(Locked)
                                                             </a>
-                                                        @elseif ($applicant->status != 'Hired')
+                                                        @elseif ($applicant->status == 'Hired')
+                                                            <a class="dropdown-item disabled" href="#">
+                                                                <i class="fa fa-dot-circle-o text-success"></i>
+                                                                Hired(Locked)
+                                                            </a>
+                                                        @elseif ($applicant->status == 'Interviewed')
+                                                            <!-- Only Hired and Rejected will be shown if status is Interviewed -->
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Hired">
+                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
+                                                            </a>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
+                                                            </a>
+                                                        @elseif ($applicant->status == 'Scheduled')
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}"
+                                                                data-status="Interviewed">
+                                                                <i class="fa fa-dot-circle-o text-warning"></i>
+                                                                Interviewed
+                                                            </a>
+                                                        @else
+                                                            <!-- Show Pending, Hired, Rejected, and Interviewed if not Interviewed or Rejected -->
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}" data-status="Pending">
                                                                 <i class="fa fa-dot-circle-o text-info"></i> Pending
@@ -107,15 +133,13 @@
                                                                 <i class="fa fa-dot-circle-o text-warning"></i>
                                                                 Interviewed
                                                             </a>
-                                                        @else
-                                                            <a class="dropdown-item disabled" href="#">
-                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
-                                                                (Locked)
-                                                            </a>
                                                         @endif
                                                     </div>
                                                 </div>
                                             </td>
+
+
+
                                             <td>
                                                 <a href="{{ asset('storage/' . $applicant->resume) }}"
                                                     class="btn btn-sm btn-primary" download>
