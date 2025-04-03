@@ -7,15 +7,15 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <meta name="application-name" content="My Website">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="msapplication-TileImage" content="{{ asset('assets/img/moverslogo.png') }}">
-    <meta name="msapplication-TileColor" content="#ffffff">
+
 
     <meta name="robots" content="noindex, nofollow">
     <title>MOVERS</title>
 
     <!-- Favicon -->
-    <!-- Standard favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/moverslogo.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/img/titlelogo.png') }}">
+
+
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
