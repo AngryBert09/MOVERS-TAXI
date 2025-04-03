@@ -11,9 +11,23 @@ class BudgetController extends Controller
 {
     public function index()
     {
+        // Fetch all budget requests
         $requests = DB::table('budget_requests')->get();
-        return view('budgets.expenses', compact('requests'));
+
+        // Get total approved budget
+        $totalApprovedBudget = DB::table('budget_requests')
+            ->where('status', 'Approved')
+            ->sum('amount');
+
+        // Get total expenses from training costs
+        $totalTrainingCost = DB::table('trainings')->sum('training_cost');
+
+        // Calculate remaining budget
+        $remainingBudget = $totalApprovedBudget - $totalTrainingCost;
+
+        return view('budgets.expenses', compact('requests', 'totalApprovedBudget', 'remainingBudget'));
     }
+
 
     public function store(Request $request)
     {

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Carbon;
 use App\Models\TrainingAchievement;
+use Illuminate\Support\Facades\DB;
 
 class TrainingController extends Controller
 {
@@ -41,6 +42,8 @@ class TrainingController extends Controller
         return view('trainings.training-list', compact('trainings', 'trainingTypes', 'trainers', 'employees'));
     }
 
+
+
     public function storeTraining(Request $request)
     {
         Log::info('Store Training Request Received', ['request' => $request->all()]);
@@ -66,10 +69,16 @@ class TrainingController extends Controller
                     'required',
                     function ($attribute, $value, $fail) use ($employeeIds) {
                         if (!in_array($value, $employeeIds)) {
-                            $fail('The selected trainee is not a valid employee.');
+                            session()->flash('error', 'The selected trainee is not a valid employee.');
+                            redirect()->back()->send();
+                            exit;
                         }
-                        if (Training::where('trainee_id', $value)->exists()) {
-                            $fail('The selected trainee is already assigned to a training.');
+
+                        // Check if the trainee is already assigned to an active training
+                        if (Training::where('trainee_id', $value)->where('status', 'Active')->exists()) {
+                            session()->flash('error', 'The selected trainee is already assigned to an active training.');
+                            redirect()->back()->send();
+                            exit;
                         }
                     }
                 ],
@@ -91,20 +100,56 @@ class TrainingController extends Controller
                 'end_date' => $validatedData['end_date']
             ]);
 
+            // **Budget Validation**
+            $totalApprovedBudget = DB::table('budget_requests')
+                ->where('status', 'Approved')
+                ->sum('amount');  // Get the total approved budget
+
+            $totalTrainingCost = Training::sum('training_cost'); // Get the sum of all training costs
+
+            $remainingBudget = $totalApprovedBudget - $totalTrainingCost; // Calculate remaining budget
+
+            if ($remainingBudget < $validatedData['training_cost']) {
+                Log::error('Budget Validation Failed', [
+                    'total_budget' => $totalApprovedBudget,
+                    'total_training_cost' => $totalTrainingCost,
+                    'remaining_budget' => $remainingBudget,
+                    'requested_training_cost' => $validatedData['training_cost']
+                ]);
+
+                session()->flash('error', 'Insufficient approved budget. Remaining budget: ' . number_format($remainingBudget, 2));
+                return redirect()->back();
+            }
+
+            Log::info('Budget Validation Passed', [
+                'total_budget' => $totalApprovedBudget,
+                'total_training_cost' => $totalTrainingCost,
+                'remaining_budget' => $remainingBudget,
+                'training_cost' => $validatedData['training_cost']
+            ]);
+
             // Store the training record
             $training = Training::create($validatedData);
 
             Log::info('Training Record Created', ['training' => $training]);
 
-            return redirect()->back()->with('success', 'Training added successfully!');
+            session()->flash('success', 'Training added successfully!');
+            return redirect()->back();
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::error('Validation Error', ['errors' => $e->errors()]);
             return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             Log::error('Unexpected Error', ['message' => $e->getMessage()]);
-            return redirect()->back()->with('error', 'Something went wrong while adding the training. Please try again.');
+            session()->flash('error', 'Something went wrong while adding the training. Please try again.');
+            return redirect()->back();
         }
     }
+
+
+
+
+
+
 
 
     public function updateTraining(Request $request, $id)

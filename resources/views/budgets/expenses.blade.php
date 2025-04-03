@@ -41,6 +41,16 @@
 
                 <div class="row">
                     <div class="col-md-12">
+                        <!-- Budget Summary Section -->
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <h4 class="card-title">Budget Summary</h4>
+                                <p><strong>Total Approved Budget:</strong> ₱{{ number_format($totalApprovedBudget, 2) }}
+                                </p>
+                                <p><strong>Remaining Budget:</strong> ₱{{ number_format($remainingBudget, 2) }}</p>
+                            </div>
+                        </div>
+
                         <div class="search-container mb-4">
 
                         </div>
