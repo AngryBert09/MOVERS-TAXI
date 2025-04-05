@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Carbon;
 use App\Models\TrainingAchievement;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 
 class TrainingController extends Controller
 {
@@ -50,8 +51,9 @@ class TrainingController extends Controller
         Log::info('Store Training Request Received', ['request' => $request->all()]);
 
         try {
-            // Fetch employees from API
+            // Fetch employees from API with timeout
             $response = Http::withToken(env('HR1_API_KEY'))
+                ->timeout(10)
                 ->get('https://hr1.moverstaxi.com/api/v1/employees');
 
             if ($response->failed()) {
@@ -59,8 +61,7 @@ class TrainingController extends Controller
                 return redirect()->back()->with('error', 'Failed to fetch employees. Please try again.');
             }
 
-            $employees = $response->json();
-            $employeeIds = collect($employees)->pluck('id')->toArray(); // Extract IDs
+            $employeeIds = collect($response->json())->pluck('id')->toArray();
 
             // Validate request
             $validatedData = $request->validate([
@@ -68,18 +69,10 @@ class TrainingController extends Controller
                 'trainer' => 'required|string',
                 'trainee_id' => [
                     'required',
-                    function ($attribute, $value, $fail) use ($employeeIds) {
-                        if (!in_array($value, $employeeIds)) {
-                            session()->flash('error', 'The selected trainee is not a valid employee.');
-                            redirect()->back()->send();
-                            exit;
-                        }
-
-                        // Check if the trainee is already assigned to an active training
+                    Rule::in($employeeIds),
+                    function ($attribute, $value, $fail) {
                         if (Training::where('trainee_id', $value)->where('status', 'Active')->exists()) {
-                            session()->flash('error', 'The selected trainee is already assigned to an active training.');
-                            redirect()->back()->send();
-                            exit;
+                            $fail('The selected trainee is already assigned to an active training.');
                         }
                     }
                 ],
@@ -90,59 +83,36 @@ class TrainingController extends Controller
                 'status' => 'required|in:Active,Inactive',
             ]);
 
-            Log::info('Validation Passed', ['validated_data' => $validatedData]);
-
-            // Convert date format to YYYY-MM-DD
+            // Convert date format
             $validatedData['start_date'] = Carbon::createFromFormat('d/m/Y', $request->start_date)->format('Y-m-d');
             $validatedData['end_date'] = Carbon::createFromFormat('d/m/Y', $request->end_date)->format('Y-m-d');
 
-            Log::info('Date Conversion Completed', [
-                'start_date' => $validatedData['start_date'],
-                'end_date' => $validatedData['end_date']
-            ]);
-
-            // **Budget Validation**
+            // Budget Validation (consider adding fiscal year filtering)
             $totalApprovedBudget = DB::table('budget_requests')
                 ->where('status', 'Approved')
-                ->sum('amount');  // Get the total approved budget
+                ->sum('amount');
 
-            $totalTrainingCost = Training::sum('training_cost'); // Get the sum of all training costs
-
-            $remainingBudget = $totalApprovedBudget - $totalTrainingCost; // Calculate remaining budget
+            $totalTrainingCost = Training::sum('training_cost');
+            $remainingBudget = $totalApprovedBudget - $totalTrainingCost;
 
             if ($remainingBudget < $validatedData['training_cost']) {
-                Log::error('Budget Validation Failed', [
-                    'total_budget' => $totalApprovedBudget,
-                    'total_training_cost' => $totalTrainingCost,
-                    'remaining_budget' => $remainingBudget,
-                    'requested_training_cost' => $validatedData['training_cost']
-                ]);
-
-                session()->flash('error', 'Insufficient approved budget. Remaining budget: ' . number_format($remainingBudget, 2));
-                return redirect()->back();
+                return redirect()->back()
+                    ->with('error', 'Insufficient approved budget. Remaining budget: ' . number_format($remainingBudget, 2))
+                    ->withInput();
             }
 
-            Log::info('Budget Validation Passed', [
-                'total_budget' => $totalApprovedBudget,
-                'total_training_cost' => $totalTrainingCost,
-                'remaining_budget' => $remainingBudget,
-                'training_cost' => $validatedData['training_cost']
-            ]);
-
             // Store the training record
-            $training = Training::create($validatedData);
+            Training::create($validatedData);
 
-            Log::info('Training Record Created', ['training' => $training]);
-
-            session()->flash('success', 'Training added successfully!');
-            return redirect()->back();
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Validation Error', ['errors' => $e->errors()]);
-            return redirect()->back()->withErrors($e->errors())->withInput();
+            return redirect()->back()->with('success', 'Training added successfully!');
         } catch (\Exception $e) {
-            Log::error('Unexpected Error', ['message' => $e->getMessage()]);
-            session()->flash('error', 'Something went wrong while adding the training. Please try again.');
-            return redirect()->back();
+            Log::error('Training Creation Error', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()
+                ->with('error', 'Something went wrong while adding the training.')
+                ->withInput();
         }
     }
 
