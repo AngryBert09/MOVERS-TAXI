@@ -47,7 +47,11 @@
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a href="{{ route('performance.index') }}"> Evaluation </a></li>
+                        <li><a href="{{ route('performance.results') }}"> Results</a></li>
                     </ul>
+
+                <li><a href="{{ route('performance.index') }}"> Results</a></li>
+
                 </li>
 
                 <li class="submenu">

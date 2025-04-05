@@ -109,4 +109,13 @@ class PerformanceController extends Controller
             return redirect()->back()->with('error', 'An error occurred while saving the performance evaluation. Please try again. Error: ' . $e->getMessage());
         }
     }
+
+    public function results()
+    {
+        // Fetch all trainees' results from the PerformanceEvaluation model
+        $trainees = PerformanceEvaluation::all();
+
+        // Pass the retrieved data to the view
+        return view('performance.results', compact('trainees'));
+    }
 }

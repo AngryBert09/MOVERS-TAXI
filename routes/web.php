@@ -123,6 +123,7 @@ Route::middleware('admin')->group(function () {
     //PERFORMANCE
     Route::get('/performance-evaluation', [PerformanceController::class, 'index'])->name('performance.index');
     Route::post('/performance-evaluation/store', [PerformanceController::class, 'store'])->name('performance.store');
+    Route::get('/performance-results', [PerformanceController::class, 'results'])->name('performance.results');
 
     //EMPLOYEES
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
