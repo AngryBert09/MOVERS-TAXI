@@ -81,7 +81,8 @@
                                             <td>{{ $employee['contact'] ?? 'N/A' }}</td>
                                             <td>{{ $employee['department'] ?? 'N/A' }}</td>
                                             <td>{{ $employee['position'] ?? 'N/A' }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($employee['bdate'])->format('d M Y') }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($employee['bdate'])->format('d M Y') }}
+                                            </td>
                                             <td>{{ ucfirst($employee['job_type']) }}</td>
                                             <td class="text-center">{{ ucfirst($employee['gender']) }}</td>
                                             <td>
@@ -116,7 +117,8 @@
                                                         <h5 class="modal-title"
                                                             id="viewAchievementsModalLabel{{ $employee['id'] }}">
                                                             <i class="fa fa-trophy"></i> Training Achievements:
-                                                            {{ $employee['first_name'] }} {{ $employee['last_name'] }}
+                                                            {{ $employee['first_name'] }}
+                                                            {{ $employee['last_name'] }}
                                                         </h5>
                                                         <button type="button" class="close text-white"
                                                             data-dismiss="modal" aria-label="Close">
@@ -139,7 +141,8 @@
                                                                 @endforeach
                                                             </div>
                                                         @else
-                                                            <p class="text-center text-muted">No achievements available.
+                                                            <p class="text-center text-muted">No achievements
+                                                                available.
                                                             </p>
                                                         @endif
                                                     </div>

@@ -86,6 +86,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/applicant/update-status', [ApplicantController::class, 'updateStatus'])->name('update.applicant.status');
     Route::post('/schedule-interview', [ApplicantController::class, 'scheduleInterview'])->name('schedule.interview');
     Route::post('/analyze-resume', [ResumeAnalyzerController::class, 'analyzeResume']);
+    Route::post('/send-message', [ApplicantController::class, 'sendMessage'])->name('applicant.sendMessage');
 
 
     //TRAININGS

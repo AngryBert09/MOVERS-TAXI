@@ -12,6 +12,8 @@ use App\Mail\ApplicationStatusMail;
 use Illuminate\Validation\ValidationException;
 use App\Models\PersonalInformation;
 use Illuminate\Support\Facades\Http;
+use App\Mail\ApplicantCustomMessageMail;
+
 
 class ApplicantController extends Controller
 {
@@ -50,9 +52,12 @@ class ApplicantController extends Controller
         }
     }
 
-    //SCHED APPLICANT INTERVIEW
+
     public function scheduleInterview(Request $request)
     {
+        // Validate incoming request data
+        Log::info('Scheduling Interview Request:', $request->all());
+
         $request->validate([
             'applicant_id' => 'required|integer',
             'interview_date' => 'required|date',
@@ -63,21 +68,101 @@ class ApplicantController extends Controller
         $applicant = JobApplication::find($request->applicant_id);
 
         if (!$applicant) {
+            Log::error('Applicant not found', ['applicant_id' => $request->applicant_id]);
             return response()->json(['error' => 'Applicant not found'], 404);
         }
 
-        // Update applicant status to 'Scheduled'
-        $applicant->update(['status' => 'Scheduled']);
+        // Log current applicant status
+        Log::info('Applicant found, current status:', ['applicant_id' => $applicant->id, 'current_status' => $applicant->status]);
 
-        // Send email to the applicant
-        Mail::to($applicant->email)->send(new InterviewScheduledMail(
-            $applicant->name,
-            $request->interview_date,
-            $request->interview_time
-        ));
+        // Retrieve current status of the applicant (Initial or Final)
+        $currentStatus = $applicant->status;
 
-        return response()->json(['success' => 'Interview scheduled, status updated, and email sent successfully.']);
+        // Check if the status is Pending, set to Initial Interview, and send email
+        if ($currentStatus === 'Pending') {
+            Log::info('Status is Pending, setting to Initial Interview.', ['applicant_id' => $applicant->id]);
+            $applicant->status = 'Initial';
+
+            // Send email for Initial Interview
+            try {
+                Mail::to($applicant->email)->send(new InterviewScheduledMail(
+                    $applicant->name,
+                    $request->interview_date,
+                    $request->interview_time,
+                    'Initial Interview' // Pass the status as 'Initial Interview'
+                ));
+                Log::info('Initial Interview email sent successfully to:', ['email' => $applicant->email, 'status' => 'Initial Interview']);
+            } catch (\Exception $e) {
+                Log::error('Failed to send Initial Interview email', ['error' => $e->getMessage()]);
+                return response()->json(['error' => 'Failed to send email'], 500);
+            }
+        }
+
+        // Check if the status is Initial Interview, set to Final Interview, and send email
+        elseif ($currentStatus === 'Initial') {
+            Log::info('Status is Initial Interview, updating to Final Interview.', ['applicant_id' => $applicant->id]);
+            $applicant->status = 'Final';
+
+            // Send email for Final Interview
+            try {
+                Mail::to($applicant->email)->send(new InterviewScheduledMail(
+                    $applicant->name,
+                    $request->interview_date,
+                    $request->interview_time,
+                    'Final Interview' // Pass the status as 'Final Interview'
+                ));
+                Log::info('Final Interview email sent successfully to:', ['email' => $applicant->email, 'status' => 'Final Interview']);
+            } catch (\Exception $e) {
+                Log::error('Failed to send Final Interview email', ['error' => $e->getMessage()]);
+                return response()->json(['error' => 'Failed to send email'], 500);
+            }
+        }
+
+        // Save the updated status
+        $applicant->save();
+        Log::info('Applicant status updated:', ['applicant_id' => $applicant->id, 'new_status' => $applicant->status]);
+
+        return response()->json(['success' => 'Interview scheduled, status updated to ' . $applicant->status . ', and email sent successfully.']);
     }
+
+    public function sendMessage(Request $request)
+    {
+        Log::debug('sendMessage() called', ['request_data' => $request->all()]);
+
+        $request->validate([
+            'applicant_id' => 'required|exists:job_applications,id',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $applicant = JobApplication::findOrFail($request->applicant_id);
+
+        Log::debug('Applicant retrieved', ['applicant' => $applicant]);
+
+        try {
+            Mail::to($applicant->email)->send(new ApplicantCustomMessageMail(
+                $applicant->name,
+                $request->subject,
+                $request->message
+            ));
+
+            Log::info('Email sent successfully to applicant', [
+                'email' => $applicant->email,
+                'subject' => $request->subject
+            ]);
+
+            return redirect()->back()->with('success', 'Message sent successfully to the applicant!');
+        } catch (\Exception $e) {
+            Log::error('Error sending applicant message email', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to send the message.');
+        }
+    }
+
+
+
+
+
+
 
 
     // UPDATE STATUS OF APPLICANT
@@ -88,7 +173,7 @@ class ApplicantController extends Controller
         // Validate incoming request data
         $request->validate([
             'applicant_id' => 'required|exists:job_applications,id',
-            'status' => 'required|in:Pending,Hired,Rejected,Interviewed',
+            'status' => 'required|in:Pending,Hired,Rejected,Interviewed,Initial Interviewed,Final Interviewed', // Add 'Final Interviewed' to validation
         ]);
 
         try {
@@ -111,8 +196,17 @@ class ApplicantController extends Controller
                 return response()->json(['success' => false, 'message' => 'Job posting not found.'], 404);
             }
 
-            // Update the job application status
-            $applicant->status = $request->status;
+            // Check if the status is 'Initial Interviewed', then update to 'Initial'
+            if ($request->status === 'Initial Interviewed') {
+                $applicant->status = 'Initial'; // Change status to 'Initial' if it is 'Initial Interviewed'
+            }
+            // Check if the status is 'Final Interviewed', then update to 'Final'
+            elseif ($request->status === 'Final Interviewed') {
+                $applicant->status = 'Final'; // Change status to 'Final' if it is 'Final Interviewed'
+            } else {
+                $applicant->status = $request->status; // Otherwise, set the status to the requested one
+            }
+
             $applicant->save();
 
             Log::info('Status updated successfully.', ['id' => $request->applicant_id, 'status' => $request->status]);
@@ -166,6 +260,8 @@ class ApplicantController extends Controller
             return response()->json(['success' => false, 'message' => 'Error updating applicant status.'], 500);
         }
     }
+
+
 
 
 

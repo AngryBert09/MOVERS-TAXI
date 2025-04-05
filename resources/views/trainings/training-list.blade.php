@@ -76,6 +76,7 @@
                                             </td>
                                             <td>
                                                 @php
+
                                                     $trainee = collect($employees)->firstWhere(
                                                         'id',
                                                         $training->trainee_id,
@@ -83,6 +84,8 @@
                                                 @endphp
                                                 {{ $trainee ? $trainee['first_name'] . ' ' . $trainee['last_name'] : 'N/A' }}
                                             </td>
+
+
 
 
                                             <td>{{ date('d M Y', strtotime($training->start_date)) }} -
@@ -359,7 +362,7 @@
                                                 <label class="col-form-label">Training Cost <span
                                                         class="text-danger">*</span></label>
                                                 <input class="form-control" type="number" name="training_cost"
-                                                    value="{{ $training->training_cost }}" required>
+                                                    value="{{ $training->training_cost }}">
                                             </div>
                                         </div>
 
@@ -489,7 +492,7 @@
                                                 <label class="col-form-label">Training Cost <span
                                                         class="text-danger">*</span></label>
                                                 <input class="form-control" type="number" name="training_cost"
-                                                    value="{{ $training->training_cost }}" required>
+                                                    value="{{ $training->training_cost }}" disabled>
                                             </div>
                                         </div>
 

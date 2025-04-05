@@ -21,16 +21,22 @@ class EmployeeController extends Controller
         if ($response->successful()) {
             $employees = $response->json();
 
-            // Fetch training achievements from local database for each employee
-            foreach ($employees as $key => $employee) {
-                // Get achievements from the database using the employee's ID
-                $achievements = TrainingAchievement::where('employee_id', $employee['id'])->get();
+            // Ensure $employees is an array before proceeding
+            if (is_array($employees)) {
+                // Fetch training achievements from local database for each employee
+                foreach ($employees as $key => $employee) {
+                    // Get achievements from the database using the employee's ID
+                    $achievements = TrainingAchievement::where('employee_id', $employee['id'])->get();
 
-                // Add achievements to the employee data
-                $employees[$key]['achievements'] = $achievements;
+                    // Add achievements to the employee data
+                    $employees[$key]['achievements'] = $achievements;
+                }
+
+                return view('employee.index', compact('employees'));
+            } else {
+                // Handle the case where employees are not an array
+                return back()->with('error', 'Unexpected response format.');
             }
-
-            return view('employee.index', compact('employees'));
         }
 
         // Handle API error

@@ -30,6 +30,8 @@ class TrainingController extends Controller
 
             if ($response->successful()) {
                 $employees = $response->json(); // Convert response to an array
+
+
             } else {
                 Log::error('Failed to fetch employees', ['status' => $response->status(), 'body' => $response->body()]);
                 $employees = []; // Fallback to empty if API fails
@@ -41,7 +43,6 @@ class TrainingController extends Controller
 
         return view('trainings.training-list', compact('trainings', 'trainingTypes', 'trainers', 'employees'));
     }
-
 
 
     public function storeTraining(Request $request)

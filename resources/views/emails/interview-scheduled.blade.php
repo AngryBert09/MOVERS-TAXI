@@ -101,15 +101,9 @@
                 <p><strong>📍 Location:</strong>
                     BLOCK 23 LOT 20 BAUTISTA ST. MALIGAYA PARK CAMARIN CALOOCAN CITY
                 </p>
+                <p><strong>Interview Type:</strong> {{ $interviewStatus }}</p>
             </div>
 
-            {{-- <p>Please confirm your availability by clicking the button below. If the proposed time is inconvenient, feel
-                free to request a reschedule.</p>
-
-            <!-- Confirmation Button -->
-            <div class="btn-container">
-                <a href="#" class="btn">Confirm Interview</a>
-            </div> --}}
         </div>
 
         <!-- Footer Section -->

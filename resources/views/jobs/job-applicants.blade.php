@@ -76,13 +76,16 @@
                                                         href="#" data-toggle="dropdown">
                                                         <i
                                                             class="fa fa-dot-circle-o
-                                                            @if ($applicant->status == 'Pending') text-info
-                                                            @elseif ($applicant->status == 'Hired') text-success
-                                                            @elseif ($applicant->status == 'Rejected') text-danger
-                                                            @elseif ($applicant->status == 'Scheduled') text-primary
-                                                            @elseif ($applicant->status == 'Interviewed') text-warning
-                                                            @else text-warning @endif">
+    @if ($applicant->status == 'Pending') text-info
+    @elseif ($applicant->status == 'Hired') text-success
+    @elseif ($applicant->status == 'Rejected') text-danger
+    @elseif ($applicant->status == 'Scheduled') text-primary
+    @elseif ($applicant->status == 'Interviewed') text-warning
+    @elseif ($applicant->status == 'Initial') text-muted  <!-- Added Initial status -->
+    @elseif ($applicant->status == 'Final') text-dark    <!-- Added Final status -->
+    @else text-warning @endif">
                                                         </i>
+
                                                         <span class="status-text">{{ $applicant->status }}</span>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-right">
@@ -107,6 +110,11 @@
                                                                 <i class="fa fa-dot-circle-o text-danger"></i> Rejected
                                                             </a>
                                                         @elseif ($applicant->status == 'Scheduled')
+
+                                                        @elseif ($applicant->status == 'Initial')
+                                                            <!-- Add button for Initial Interviewed -->
+                                                        @elseif ($applicant->status == 'Final')
+                                                            <!-- Add button for Initial Interviewed -->
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}"
                                                                 data-status="Interviewed">
@@ -115,24 +123,25 @@
                                                             </a>
                                                         @else
                                                             <!-- Show Pending, Hired, Rejected, and Interviewed if not Interviewed or Rejected -->
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Pending">
-                                                                <i class="fa fa-dot-circle-o text-info"></i> Pending
-                                                            </a>
-                                                            <a class="dropdown-item update-status" href="#"
+                                                            {{-- <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Pending"
+                                                                disabled>
+                                                                <i class="fa fa-dot-circle-o text-info"></i> Send
+                                                            </a> --}}
+                                                            {{-- <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}" data-status="Hired">
                                                                 <i class="fa fa-dot-circle-o text-success"></i> Hired
                                                             </a>
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}" data-status="Rejected">
                                                                 <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                            </a>
-                                                            <a class="dropdown-item update-status" href="#"
+                                                            </a> --}}
+                                                            {{-- <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}"
                                                                 data-status="Interviewed">
                                                                 <i class="fa fa-dot-circle-o text-warning"></i>
                                                                 Interviewed
-                                                            </a>
+                                                            </a> --}}
                                                         @endif
                                                     </div>
                                                 </div>
@@ -154,7 +163,7 @@
                                                             <i class="material-icons">more_vert</i>
                                                         </a>
                                                         <div class="dropdown-menu dropdown-menu-right">
-                                                            @if ($applicant->status === 'Pending')
+                                                            @if (in_array($applicant->status, ['Pending', 'Scheduled', 'Initial']))
                                                                 <a class="dropdown-item schedule-interview"
                                                                     href="#" data-id="{{ $applicant->id }}"
                                                                     data-toggle="modal"
@@ -163,18 +172,29 @@
                                                                 </a>
                                                             @endif
 
-                                                            @if (in_array($applicant->status, ['Pending', 'Interviewed']))
+                                                            @if (in_array($applicant->status, ['Pending', 'Interviewed', 'Initial', 'Final']))
                                                                 <a class="dropdown-item analyze-resume" href="#"
                                                                     data-id="{{ $applicant->id }}" data-toggle="modal"
                                                                     data-target="#analyzeResumeModal">
                                                                     <i class="fa fa-file-text-o"></i> AI Analyze Resume
                                                                 </a>
                                                             @endif
+
+                                                            @if ($applicant->status === 'Final')
+                                                                <a class="dropdown-item send-message" href="#"
+                                                                    data-id="{{ $applicant->id }}" data-toggle="modal"
+                                                                    data-target="#sendMessageModal"
+                                                                    onclick="setApplicantId({{ $applicant->id }})">
+                                                                    <i class="fa fa-envelope"></i> Send Message
+                                                                </a>
+                                                            @endif
                                                         </div>
                                                     </div>
                                                 @endif
-
                                             </td>
+
+
+
                                         </tr>
                                     @endforeach
                                 </tbody>
@@ -183,6 +203,64 @@
                     </div>
                 </div>
 
+
+                <!-- Single Modal for All Applicants -->
+                <div class="modal fade" id="sendMessageModal" tabindex="-1" role="dialog"
+                    aria-labelledby="sendMessageModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <form method="POST" action="{{ route('applicant.sendMessage') }}">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="sendMessageModalLabel">
+                                        Send Message to Applicant</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+
+                                <div class="modal-body">
+                                    <!-- Hidden input for applicant_id -->
+                                    <input type="hidden" name="applicant_id" id="modalApplicantId" value="">
+
+                                    <!-- Subject input -->
+                                    <div class="form-group">
+                                        <label for="subject">Subject</label>
+                                        <input type="text" name="subject" class="form-control"
+                                            placeholder="Enter email subject..." required>
+                                    </div>
+
+                                    <!-- Message textarea -->
+                                    <div class="form-group">
+                                        <label for="message">Message</label>
+                                        <textarea name="message" class="form-control" rows="5" placeholder="Write your message here..." required></textarea>
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-primary">Send</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    // Set the applicant ID when clicking any modal trigger
+                    function setApplicantId(applicantId) {
+                        document.getElementById('modalApplicantId').value = applicantId;
+                    }
+
+                    // Alternative method using jQuery if preferred
+                    $(document).ready(function() {
+                        // When any modal trigger is clicked
+                        $('[data-target="#sendMessageModal"]').on('click', function() {
+                            var applicantId = $(this).data('id');
+                            $('#modalApplicantId').val(applicantId);
+                        });
+                    });
+                </script>
                 <!-- jQuery Script for Search Functionality -->
                 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

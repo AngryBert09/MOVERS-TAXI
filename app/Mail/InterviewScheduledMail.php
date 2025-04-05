@@ -13,15 +13,17 @@ class InterviewScheduledMail extends Mailable
     public $applicantName;
     public $interviewDate;
     public $interviewTime;
+    public $interviewStatus; // Add this property
 
     /**
      * Create a new message instance.
      */
-    public function __construct($applicantName, $interviewDate, $interviewTime)
+    public function __construct($applicantName, $interviewDate, $interviewTime, $interviewStatus)
     {
         $this->applicantName = $applicantName;
         $this->interviewDate = $interviewDate;
         $this->interviewTime = $interviewTime;
+        $this->interviewStatus = $interviewStatus; // Pass status to the class
     }
 
     /**
@@ -30,6 +32,6 @@ class InterviewScheduledMail extends Mailable
     public function build()
     {
         return $this->subject('Interview Scheduled Successfully')
-                    ->view('emails.interview-scheduled');
+            ->view('emails.interview-scheduled');
     }
 }
