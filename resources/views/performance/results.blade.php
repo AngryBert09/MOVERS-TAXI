@@ -46,6 +46,7 @@
                                 <thead class="thead-dark">
                                     <tr>
                                         <th>Trainee ID</th>
+                                        <th>Trainee Name</th>
                                         <th>Evaluation Date</th>
                                         <th>Customer Exp</th>
                                         <th>Marketing</th>
@@ -69,6 +70,8 @@
                                     @forelse($trainees as $trainee)
                                         <tr>
                                             <td>{{ $trainee->trainee_id }}</td>
+                                            <td>{{ $trainee->full_name }}</td>
+
                                             <td>{{ \Carbon\Carbon::parse($trainee->evaluation_date)->format('M d, Y') }}
                                             </td>
                                             <td>{{ $trainee->customer_experience }}</td>

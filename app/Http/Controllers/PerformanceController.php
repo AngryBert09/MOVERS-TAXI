@@ -112,10 +112,32 @@ class PerformanceController extends Controller
 
     public function results()
     {
-        // Fetch all trainees' results from the PerformanceEvaluation model
         $trainees = PerformanceEvaluation::all();
+        $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
+        $apiToken = env('HR1_API_KEY');
 
-        // Pass the retrieved data to the view
+        try {
+            $response = Http::withToken($apiToken)->get($apiUrl);
+
+            if ($response->successful()) {
+                $employees = collect($response->json()); // Make it a Laravel collection for easier mapping
+
+                // Attach full name to each trainee using trainee_id
+                $trainees->transform(function ($trainee) use ($employees) {
+                    $employee = $employees->firstWhere('id', $trainee->trainee_id);
+                    $trainee->full_name = $employee
+                        ? $employee['first_name'] . ' ' . $employee['last_name']
+                        : 'Unknown Trainee';
+
+                    return $trainee;
+                });
+            } else {
+                Log::error('Failed to fetch employees', ['status' => $response->status(), 'body' => $response->body()]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error fetching employees from API', ['message' => $e->getMessage()]);
+        }
+
         return view('performance.results', compact('trainees'));
     }
 }
