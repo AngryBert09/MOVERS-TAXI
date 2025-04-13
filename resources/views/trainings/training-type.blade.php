@@ -91,10 +91,10 @@
                                                             <i class="fa fa-pencil m-r-5"></i> Edit
                                                         </a>
 
-                                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                                        {{-- <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#delete_type_{{ $trainingType->id }}">
                                                             <i class="fa fa-trash-o m-r-5"></i> Delete
-                                                        </a>
+                                                        </a> --}}
 
                                                     </div>
                                                 </div>

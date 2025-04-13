@@ -108,7 +108,7 @@
                             </div>
 
                             <div class="account-footer">
-                                <p>Check your application here! <a href="{{ route('search') }}">Application Status</a>
+                                <p>Don't have an account yet? <a href="{{ route('auth.register') }}">Register</a>
                                 </p>
                             </div>
                         </form>

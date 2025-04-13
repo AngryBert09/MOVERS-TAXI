@@ -22,10 +22,6 @@
                     </ul>
                 </li>
 
-
-                <li>
-                    <a href="{{ route('inquiries') }}"><i class="la la-ticket"></i> <span>Inquiries</span></a>
-                </li>
                 <li class="menu-title">
                     <span>HR</span>
                 </li>
@@ -63,13 +59,9 @@
                         <li><a href="{{ route('training.types') }}"> Training Type </a></li>
                     </ul>
                 </li>
-                {{-- <li><a href="promotion.html"><i class="la la-bullhorn"></i> <span>Promotion</span></a></li>
-                <li><a href="resignation.html"><i class="la la-external-link-square"></i>
-                        <span>Resignation</span></a></li>
-                <li><a href="termination.html"><i class="la la-times-circle"></i> <span>Termination</span></a>
-                </li> --}}
+
                 <li class="menu-title">
-                    <span>Administration</span>
+                    <span>Recruitment / Onboarding</span>
                 </li>
 
                 <li class="submenu">
@@ -78,6 +70,7 @@
                     <ul style="display: none;">
                         <li><a href="{{ route('jobs.manage') }}"> Manage Jobs </a></li>
                         <li><a href="{{ route('applicants') }}"> Applicants </a></li>
+                        <li><a href="{{ route('applicants.onboarding') }}"> Onboarding </a></li>
                     </ul>
                 </li>
 
@@ -85,6 +78,9 @@
                 <li>
                     <a href="users.html"><i class="la la-user-plus"></i> <span>Users</span></a>
                 </li> --}}
+                <li>
+                    <a href="{{ route('inquiries') }}"><i class="la la-ticket"></i> <span>Inquiries</span></a>
+                </li>
                 <li>
                     <a href="{{ route('company.index') }}"><i class="la la-cog"></i> <span>Settings</span></a>
                 </li>

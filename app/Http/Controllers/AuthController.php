@@ -73,7 +73,7 @@ class AuthController extends Controller
         $twoFactorCode = rand(1000, 9999); // Generate a 4-digit code
         Session::put('2fa_user_id', $user->id);
         Session::put('2fa_code', $twoFactorCode);
-        Session::put('2fa_expiry', now()->addMinutes(10)); // Code expires in 10 minutes
+        Session::put('2fa_expiry', now()->addMinutes(3)); // Code expires in 3 minutes
 
         // Send email with 2FA code
         Mail::to($user->email)->send(new TwoFactorCodeMail($twoFactorCode));
@@ -196,14 +196,20 @@ class AuthController extends Controller
             'two_factor_code' => 'required|digits:4'
         ]);
 
-        if (!Session::has('2fa_user_id') || !Session::has('2fa_code')) {
+        if (!Session::has('2fa_user_id') || !Session::has('2fa_code') || !Session::has('2fa_expiry')) {
             return redirect()->route('login')->with('error', 'Session expired. Please login again.');
+        }
+
+        // Check if the code has expired
+        if (now()->greaterThan(Session::get('2fa_expiry'))) {
+            Session::forget(['2fa_user_id', '2fa_code', '2fa_expiry']);
+            return redirect()->route('auth.login')->with('error', 'Verification code expired. Please login again.');
         }
 
         $user = \App\Models\User::find(Session::get('2fa_user_id'));
 
         if (!$user) {
-            return redirect()->route('login')->with('error', 'Invalid session. Please login again.');
+            return redirect()->route('auth.login')->with('error', 'Invalid session. Please login again.');
         }
 
         if ($request->two_factor_code != Session::get('2fa_code')) {
@@ -222,6 +228,7 @@ class AuthController extends Controller
         return redirect()->route('dashboard')->with('success', 'Welcome back!');
     }
 
+
     public function resend2fa()
     {
         if (!Session::has('2fa_user_id')) {
@@ -237,7 +244,7 @@ class AuthController extends Controller
         // Generate a new 4-digit OTP
         $newOtp = rand(1000, 9999);
         Session::put('2fa_code', $newOtp);
-        Session::put('2fa_expiry', now()->addMinutes(10)); // Reset expiration time
+        Session::put('2fa_expiry', now()->addMinutes(3)); // Reset expiration time
 
         // Send new OTP via email
         Mail::to($user->email)->send(new TwoFactorCodeMail($newOtp));

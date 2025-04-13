@@ -25,10 +25,10 @@
                 <div class="page-header">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h3 class="page-title">Job Applicants</h3>
+                            <h3 class="page-title">Onboarding Applicants</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Job Applicants</li>
+                                <li class="breadcrumb-item active">Onboarding Applicants</li>
                             </ul>
                         </div>
                     </div>
@@ -53,11 +53,10 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Name</th>
-                                        <th>Email</th>
-                                        <th>Phone</th>
-                                        <th>Apply Date</th>
+                                        <th> Applied Position</th>
+                                        <th>Department</th>
+                                        <th>Progress</th>
                                         <th class="text-center">Status</th>
-                                        <th>Resume</th>
                                         <th class="text-right">Actions</th>
                                     </tr>
                                 </thead>
@@ -66,10 +65,8 @@
                                         <tr>
                                             <td>{{ $index + 1 }}</td>
                                             <td>{{ $applicant->name }}</td>
-                                            <td>{{ $applicant->email }}</td>
-                                            <td>{{ $applicant->phone }}</td>
-                                            <td>{{ \Carbon\Carbon::parse($applicant->apply_date)->format('d M Y') }}
-                                            </td>
+                                            <td>{{ $applicant->jobPosting->job_title }}</td>
+                                            <td>{{ $applicant->jobPosting->department }}</td>
                                             <td class="text-center">
                                                 <div class="dropdown action-label">
                                                     <a class="btn btn-white btn-sm btn-rounded dropdown-toggle"

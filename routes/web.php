@@ -41,10 +41,6 @@ Route::middleware('guest')->group(function () {
         ->name('auth.verify');
     Route::get('/email/verify', [AuthController::class, 'showVerificationNotice'])->name('verification.notice');
 
-    //JOBS
-    Route::get('/job-vacancies', [JobController::class, 'getJobVacancies'])->name('jobs.vacancies');
-    Route::get('/job-details/{id}', [JobController::class, 'showJobDetails'])->name('jobs.details');
-    Route::post('/apply-job', [ApplicantController::class, 'applyJob'])->name('apply.job');
 
     //INQUIRIES
     Route::post('/inquiries/store', [InquiriesController::class, 'store'])->name('inquiries.store');
@@ -54,6 +50,10 @@ Route::middleware('guest')->group(function () {
 });
 
 
+//JOBS
+Route::get('/job-vacancies', [JobController::class, 'getJobVacancies'])->name('jobs.vacancies');
+Route::get('/job-details/{id}', [JobController::class, 'showJobDetails'])->name('jobs.details');
+Route::post('/apply-job', [ApplicantController::class, 'applyJob'])->name('apply.job');
 
 
 
@@ -87,6 +87,8 @@ Route::middleware('admin')->group(function () {
     Route::post('/schedule-interview', [ApplicantController::class, 'scheduleInterview'])->name('schedule.interview');
     Route::post('/analyze-resume', [ResumeAnalyzerController::class, 'analyzeResume']);
     Route::post('/send-message', [ApplicantController::class, 'sendMessage'])->name('applicant.sendMessage');
+    Route::get('/onboarding-applicants', [ApplicantController::class, 'onboarding'])
+        ->name('applicants.onboarding');
 
 
     //TRAININGS

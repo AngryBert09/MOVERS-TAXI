@@ -141,8 +141,6 @@
             <!-- /Page Content -->
 
             <!-- Apply Job Modal -->
-            <!-- Apply Job Modal -->
-            <!-- Apply Job Modal -->
             <div class="modal custom-modal fade" id="apply_job" role="dialog">
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
@@ -153,68 +151,75 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form id="applyJobForm" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="job_posting_id" value="{{ $job->id }}">
+                            @auth
+                                <form id="applyJobForm" enctype="multipart/form-data" method="POST"
+                                    action="{{ route('apply.job') }}">
+                                    @csrf
+                                    <input type="hidden" name="job_posting_id" value="{{ $job->id }}">
 
-                                <div class="form-group">
-                                    <label>Name <span style="font-size: 0.75rem; color: #000000;">(e.g., Richmon D.
-                                            Salarda)</span></label>
-                                    <input class="form-control" type="text" name="name" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Email Address</label>
-                                    <input class="form-control" type="email" name="email" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Contact Number</label>
-                                    <input class="form-control" type="text" name="phone" required pattern="\d*"
-                                        title="Please enter a valid phone number">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Gender</label>
-                                    <select class="form-control" name="gender" required>
-                                        <option value="">Select Gender</option>
-                                        <option value="Male">Male</option>
-                                        <option value="Female">Female</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Birthdate</label>
-                                    <input class="form-control" type="date" name="birthdate" required>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Upload your CV</label>
-                                    <div class="custom-file">
-                                        <input type="file" class="custom-file-input" id="cv_upload" name="resume"
-                                            required>
-                                        <label class="custom-file-label" for="cv_upload">Choose file</label>
+                                    <div class="form-group">
+                                        <label>Name <span style="font-size: 0.75rem; color: #000000;">(e.g., Richmon D.
+                                                Salarda)</span></label>
+                                        <input class="form-control" type="text" name="name" required>
                                     </div>
-                                </div>
 
-                                <!-- Terms and Agreement Checkbox -->
-                                <div class="form-group">
-                                    <div class="custom-control custom-checkbox">
-                                        <input type="checkbox" class="custom-control-input" id="termsAgreement"
-                                            required>
-                                        <label class="custom-control-label" for="termsAgreement">
-                                            I agree to the <a href="#" id="openTermsModal">terms and
-                                                conditions</a>.
-                                        </label>
+                                    <div class="form-group">
+                                        <label>Email Address</label>
+                                        <input class="form-control" type="email" name="email" required>
                                     </div>
-                                </div>
 
-                                <div class="submit-section">
-                                    <button type="submit" class="btn btn-primary submit-btn" id="submitBtn"
-                                        disabled>Submit</button>
+                                    <div class="form-group">
+                                        <label>Contact Number</label>
+                                        <input class="form-control" type="text" name="phone" required pattern="\d*"
+                                            title="Please enter a valid phone number">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Gender</label>
+                                        <select class="form-control" name="gender" required>
+                                            <option value="">Select Gender</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Birthdate</label>
+                                        <input class="form-control" type="date" name="birthdate" required>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Upload your CV</label>
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="cv_upload" name="resume"
+                                                required>
+                                            <label class="custom-file-label" for="cv_upload">Choose file</label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Terms and Agreement Checkbox -->
+                                    <div class="form-group">
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="termsAgreement"
+                                                required>
+                                            <label class="custom-control-label" for="termsAgreement">
+                                                I agree to the <a href="#" id="openTermsModal">terms and
+                                                    conditions</a>.
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <div class="submit-section">
+                                        <button type="submit" class="btn btn-primary submit-btn">Submit</button>
+                                    </div>
+                                </form>
+                            @else
+                                <div class="alert alert-warning text-center">
+                                    ⚠️ Please <a href="{{ route('auth.login') }}">log in</a> to apply for this job.
                                 </div>
-                            </form>
+                            @endauth
+
                         </div>
                     </div>
                 </div>

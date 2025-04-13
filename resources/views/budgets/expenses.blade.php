@@ -63,7 +63,7 @@
                                         <th>Amount</th>
                                         <th>Request Date</th>
                                         <th>Status</th>
-                                        <th class="text-right">Action</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -84,7 +84,7 @@
                                                     <span class="badge badge-secondary">{{ $request->status }}</span>
                                                 @endif
                                             </td>
-                                            <td class="text-right">
+                                            {{-- <td class="text-right">
                                                 <div class="dropdown dropdown-action">
                                                     <a href="#" class="action-icon dropdown-toggle"
                                                         data-toggle="dropdown" aria-expanded="false">
@@ -97,7 +97,7 @@
                                                         </a>
                                                     </div>
                                                 </div>
-                                            </td>
+                                            </td> --}}
 
 
                                             <!-- Delete Budget Request Modal -->

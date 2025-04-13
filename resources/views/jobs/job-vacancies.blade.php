@@ -73,6 +73,10 @@
                 </div>
                 <!-- /Page Header -->
 
+                @php
+                    use Illuminate\Support\Str;
+                @endphp
+
                 <div class="row">
                     <div class="col-md-6">
                         @if ($jobs->isEmpty())
@@ -86,6 +90,9 @@
                                         <div class="job-list-desc">
                                             <h3 class="job-list-title">{{ $job->job_title }}</h3>
                                             <h4 class="job-department">{{ $job->department }}</h4>
+                                            <p class="text-muted mt-3">
+                                                {{ Str::limit(strip_tags($job->description), 100) }}
+                                            </p>
                                         </div>
                                         <div class="job-type-info">
                                             <span class="job-types">{{ $job->job_type }}</span>
@@ -105,6 +112,7 @@
                         @endif
                     </div>
                 </div>
+
 
             </div>
 

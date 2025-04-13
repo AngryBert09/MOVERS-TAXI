@@ -13,7 +13,8 @@ use Illuminate\Validation\ValidationException;
 use App\Models\PersonalInformation;
 use Illuminate\Support\Facades\Http;
 use App\Mail\ApplicantCustomMessageMail;
-
+use Smalot\PdfParser\Parser as PdfParser;
+use PhpOffice\PhpWord\IOFactory;
 
 class ApplicantController extends Controller
 {
@@ -22,6 +23,7 @@ class ApplicantController extends Controller
         try {
             // Retrieve all job applications
             $jobApplications = JobApplication::with('jobPosting')
+                ->whereIn('status', ['Qualified', 'Not Qualified', 'Pending'])
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -31,6 +33,24 @@ class ApplicantController extends Controller
             return redirect()->route('dashboard')->with('error', 'Unable to fetch job applicants.');
         }
     }
+
+    public function onboarding()
+    {
+        try {
+            // Retrieve job applications with status 'Initial' or 'Final'
+            $jobApplications = JobApplication::with('jobPosting')
+                ->whereIn('status', ['Initial', 'Final'])
+                ->orderBy('apply_date', 'desc')
+                ->get();
+
+            return view('jobs.onboarding', compact('jobApplications'));
+        } catch (\Exception $e) {
+            Log::error('Error fetching job applicants with Initial or Final status.', ['error' => $e->getMessage()]);
+            return redirect()->route('dashboard')->with('error', 'Unable to fetch filtered job applicants.');
+        }
+    }
+
+
 
 
     public function getApplicants($jobPostingId)
@@ -160,11 +180,6 @@ class ApplicantController extends Controller
 
 
 
-
-
-
-
-
     // UPDATE STATUS OF APPLICANT
     public function updateStatus(Request $request)
     {
@@ -179,45 +194,59 @@ class ApplicantController extends Controller
         try {
             // Find the job application
             $applicant = JobApplication::findOrFail($request->applicant_id);
+            Log::debug('Applicant retrieved successfully.', ['applicant' => $applicant]);
 
             // Get associated personal information
             $personalInfo = $applicant->personalInformation;
+            Log::debug('Personal information retrieved.', ['personal_info' => $personalInfo]);
 
             // If personal information is not found, return error
             if (!$personalInfo) {
+                Log::warning('Personal information not found.', ['applicant_id' => $request->applicant_id]);
                 return response()->json(['success' => false, 'message' => 'Personal information not found.'], 404);
             }
 
             // Get the job posting (to fetch job_title)
             $jobPosting = $applicant->jobPosting; // Assuming JobApplication has a relationship with JobPosting
+            Log::debug('Job posting retrieved.', ['job_posting' => $jobPosting]);
 
             // If job posting is not found, return error
             if (!$jobPosting) {
+                Log::warning('Job posting not found.', ['applicant_id' => $request->applicant_id]);
                 return response()->json(['success' => false, 'message' => 'Job posting not found.'], 404);
             }
 
             // Check if the status is 'Initial Interviewed', then update to 'Initial'
             if ($request->status === 'Initial Interviewed') {
                 $applicant->status = 'Initial'; // Change status to 'Initial' if it is 'Initial Interviewed'
+                Log::debug('Status updated to Initial.', ['applicant_id' => $request->applicant_id]);
             }
             // Check if the status is 'Final Interviewed', then update to 'Final'
             elseif ($request->status === 'Final Interviewed') {
-                $applicant->status = 'Final'; // Change status to 'Final' if it is 'Final Interviewed'
+                $applicant->status = 'Final';
+                Log::debug('Status updated to Final.', ['applicant_id' => $request->applicant_id]);
+            } elseif ($request->status === 'Pending') {
+                $applicant->status = 'Pending';
+                Log::debug('Status updated to Pending.', ['applicant_id' => $request->applicant_id]);
             } else {
                 $applicant->status = $request->status; // Otherwise, set the status to the requested one
+                Log::debug('Status updated to custom value.', ['applicant_id' => $request->applicant_id, 'status' => $request->status]);
             }
 
             $applicant->save();
-
-            Log::info('Status updated successfully.', ['id' => $request->applicant_id, 'status' => $request->status]);
+            Log::info('Status saved successfully.', ['applicant_id' => $request->applicant_id, 'status' => $applicant->status]);
 
             // Send email notification for Hired or Rejected status
             if (in_array($request->status, ['Hired', 'Rejected'])) {
-                Mail::to($applicant->email)->send(new ApplicationStatusMail(
-                    $applicant->name,
-                    $request->status
-                ));
-                Log::info('Status email sent successfully.', ['email' => $applicant->email, 'status' => $request->status]);
+                try {
+                    Mail::to($applicant->email)->send(new ApplicationStatusMail(
+                        $applicant->name,
+                        $request->status
+                    ));
+                    Log::info('Status email sent successfully.', ['email' => $applicant->email, 'status' => $request->status]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send status email.', ['error' => $e->getMessage()]);
+                }
             }
 
             // If applicant is Hired, send data to external API
@@ -240,29 +269,30 @@ class ApplicantController extends Controller
                 Log::info('Sending employee data to external API:', ['employee_data' => $employeeData]);
 
                 // Send a POST request to the external API
-                $response = Http::withHeaders([
-                    'Authorization' => 'Bearer ' . env('HR1_API_KEY'), // Retrieve HR1 API Key from .env file
-                ])->post('https://hr1.moverstaxi.com/api/v1/employees', $employeeData);
+                try {
+                    $response = Http::withHeaders([
+                        'Authorization' => 'Bearer ' . env('HR1_API_KEY'), // Retrieve HR1 API Key from .env file
+                    ])->post('https://hr1.moverstaxi.com/api/v1/employees', $employeeData);
 
-                // Log the response from the external API
-                Log::info('External API response:', ['response' => $response->body()]);
+                    // Log the response from the external API
+                    Log::info('External API response:', ['response' => $response->body()]);
 
-                if ($response->successful()) {
-                    Log::info('Employee data successfully sent to external API.');
-                } else {
-                    Log::error('Failed to send employee data to external API.', ['response' => $response->body()]);
+                    if ($response->successful()) {
+                        Log::info('Employee data successfully sent to external API.');
+                    } else {
+                        Log::error('Failed to send employee data to external API.', ['response' => $response->body()]);
+                    }
+                } catch (\Exception $e) {
+                    Log::error('Error sending data to external API.', ['error' => $e->getMessage()]);
                 }
             }
 
             return response()->json(['success' => true, 'message' => 'Status updated successfully!']);
         } catch (\Exception $e) {
-            Log::error('Error updating applicant status', ['error' => $e->getMessage()]);
+            Log::error('Error updating applicant status.', ['error' => $e->getMessage()]);
             return response()->json(['success' => false, 'message' => 'Error updating applicant status.'], 500);
         }
     }
-
-
-
 
 
 
@@ -272,7 +302,7 @@ class ApplicantController extends Controller
         try {
             Log::info('Job application request received.', ['request' => $request->all()]);
 
-            // Validate request, ensuring the same email cannot be used for the same job posting
+            // Step 1: Validate input
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => [
@@ -295,21 +325,18 @@ class ApplicantController extends Controller
                 'birthdate' => 'required|date',
             ]);
 
-            // Check if the user is authenticated
             $userId = auth()->check() ? auth()->id() : null;
 
-            // Store resume file
+            // Step 2: Upload resume
             $resumePath = $request->file('resume')->store('resumes', 'public');
             Log::info('Resume uploaded successfully.', ['resume_path' => $resumePath]);
 
-            // Split full name into first and last name
-
+            // Step 3: Split name
             $nameParts = explode(' ', trim($validatedData['name']));
             $firstName = $nameParts[0] ?? '';
             $lastName = count($nameParts) > 2 ? array_pop($nameParts) : '';
 
-
-            // Create job application
+            // Step 4: Create job application (initially Pending)
             $jobApplication = JobApplication::create([
                 'name' => $validatedData['name'],
                 'email' => $validatedData['email'],
@@ -318,22 +345,40 @@ class ApplicantController extends Controller
                 'status' => 'Pending',
                 'resume' => $resumePath,
                 'job_posting_id' => $validatedData['job_posting_id'],
-                'application_code' => uniqid('APP-'), // Generate unique application code
+                'application_code' => uniqid('APP-'),
             ]);
 
             Log::info('Job application created successfully.', ['job_application' => $jobApplication]);
 
-            // Store gender, birthdate, phone, and application_id in PersonalInformation model
+            // Step 5: Save personal info
             $personalInfo = PersonalInformation::create([
                 'first_name' => $firstName,
                 'last_name' => $lastName,
-                'phone_number' => $validatedData['phone'], // Storing phone in personal info
+                'phone_number' => $validatedData['phone'],
                 'gender' => $validatedData['gender'],
                 'birth_date' => $validatedData['birthdate'],
-                'application_id' => $jobApplication->id, // Storing the job application ID
+                'application_id' => $jobApplication->id,
             ]);
 
             Log::info('Personal information saved successfully.', ['personal_info' => $personalInfo]);
+
+            // Step 6: Extract text from resume
+            $fullResumePath = storage_path("app/public/{$resumePath}");
+            $resumeText = $this->extractTextFromResume($fullResumePath);
+
+            // Step 7: Get job description
+            $jobDescription = JobPosting::find($validatedData['job_posting_id'])->description ?? '';
+
+            // Step 8: Send to AI and update status
+            $aiResult = $this->sendToGeminiAI($resumeText, $jobDescription, $jobApplication->id);
+
+            if (is_array($aiResult) && isset($aiResult['suitability_score'])) {
+                $score = $aiResult['suitability_score'];
+                $jobApplication->status = $score > 1 ? 'Qualified' : 'Not Qualified';
+                $jobApplication->save();
+
+                Log::info("AI score evaluated. Status updated to: {$jobApplication->status}", ['score' => $score]);
+            }
 
             return response()->json([
                 'message' => 'Application submitted successfully!',
@@ -359,6 +404,102 @@ class ApplicantController extends Controller
             ], 500);
         }
     }
+
+
+    private function extractTextFromResume($filePath)
+    {
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
+        Log::debug("Extracting text from resume. File path: {$filePath}, Extension: {$extension}");
+
+        try {
+            if ($extension === 'pdf') {
+                Log::debug("Processing PDF file.");
+                $parser = new PdfParser();
+                $pdf = $parser->parseFile($filePath);
+                $text = $pdf->getText();
+                Log::debug("Extracted text from PDF: " . substr($text, 0, 500) . "...");
+                return $text ?? 'Could not extract text from PDF.';
+            } elseif (in_array($extension, ['doc', 'docx'])) {
+                Log::debug("Processing Word document.");
+                $phpWord = IOFactory::load($filePath);
+                $text = '';
+                foreach ($phpWord->getSections() as $section) {
+                    foreach ($section->getElements() as $element) {
+                        if (method_exists($element, 'getText')) {
+                            $text .= $element->getText() . " ";
+                        }
+                    }
+                }
+                Log::debug("Extracted text from Word document: " . substr($text, 0, 500) . "...");
+                return trim($text) ?: 'Could not extract text from Word document.';
+            }
+        } catch (\Exception $e) {
+            Log::error("Error processing file: " . $e->getMessage());
+            return "Error processing file: " . $e->getMessage();
+        }
+
+        Log::warning("Unsupported file format: {$extension}");
+        return 'Unsupported file format.';
+    }
+
+
+
+    private function sendToGeminiAI($resumeText, $jobDescription)
+    {
+        $geminiApiKey = env('GEMINI_API_KEY');
+
+        $prompt = <<<EOD
+    Analyze the following resume against the job description and respond ONLY with a JSON object between 1 to 10 suitability score. Do not include any explanation, markdown, or formatting.
+
+    {
+      "matched_skills": ["..."],
+      "missing_qualifications": ["..."],
+      "suitability_score": 1
+    }
+
+    **Resume:**
+    {$resumeText}
+
+    **Job Description:**
+    {$jobDescription}
+    EOD;
+
+        $client = new \GuzzleHttp\Client();
+
+        try {
+            $response = $client->post("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent", [
+                'query' => ['key' => $geminiApiKey],
+                'json' => [
+                    'contents' => [['parts' => [['text' => $prompt]]]]
+                ],
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
+
+            $responseData = json_decode($response->getBody(), true);
+            Log::debug('AI Raw Response:', $responseData);
+
+            $rawText = $responseData['candidates'][0]['content']['parts'][0]['text'] ?? '';
+
+            // Clean up response if wrapped in markdown
+            $cleanedText = trim(preg_replace('/^```json|```$/m', '', $rawText));
+            $parsedJson = json_decode(trim($cleanedText), true);
+
+            if (json_last_error() !== JSON_ERROR_NONE) {
+                Log::error('Invalid JSON from AI:', ['raw' => $cleanedText]);
+                return ['suitability_score' => 0]; // fallback to "not qualified"
+            }
+
+            Log::info('AI Screening Results:', $parsedJson);
+
+            return $parsedJson;
+        } catch (\Exception $e) {
+            Log::error('Failed to connect to Gemini AI', ['error' => $e->getMessage()]);
+            return ['suitability_score' => 0]; // default to "not qualified" on failure
+        }
+    }
+
 
 
 

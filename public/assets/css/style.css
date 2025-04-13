@@ -1785,7 +1785,7 @@ table.dataTable thead>tr>td.sorting {
 -----------------------*/
 
 .sidebar {
-    background-color: #34444c;
+    background-color: white;
     border-right    : 1px solid transparent;
     bottom          : 0;
     left            : 0;
@@ -1821,7 +1821,7 @@ table.dataTable thead>tr>td.sorting {
 }
 
 .sidebar-menu li a {
-    color    : #b7c0cd;
+    color    : black;
     display  : block;
     font-size: 15px;
     height   : auto;
@@ -1829,16 +1829,16 @@ table.dataTable thead>tr>td.sorting {
 }
 
 .sidebar-menu li a:hover {
-    color: #fff;
+    color: #7a6f6f;
 }
 
 .sidebar-menu li.active a {
-    color           : #fff;
+    color           : 7a6f6f;
     background-color: rgba(0, 0, 0, 0.2);
 }
 
 .menu-title {
-    color      : #ebecf1;
+    color      : black;
     display    : flex;
     font-size  : 14px;
     opacity    : 1;

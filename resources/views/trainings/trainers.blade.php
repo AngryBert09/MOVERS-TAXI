@@ -96,13 +96,13 @@
                                                             data-target="#edit_trainer_{{ $trainer->id }}">
                                                             <i class="fa fa-pencil m-r-5"></i> Edit
                                                         </a>
-
+                                                        {{--
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#delete_trainer_{{ $trainer->id }}"
                                                             data-id="{{ $trainer->id }}"
                                                             data-name="{{ $trainer->first_name }} {{ $trainer->last_name }}">
                                                             <i class="fa fa-trash-o m-r-5"></i> Delete
-                                                        </a>
+                                                        </a> --}}
 
 
                                                     </div>
