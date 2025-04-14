@@ -7,41 +7,47 @@ use App\Models\JobApplication;
 use App\Models\JobPosting;
 use App\Models\Training;
 use App\Models\Department;
-
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class DashboardController extends Controller
 {
+
+
     public function index()
     {
-        // Get total count of job applications
+        // Fetch employee count from external API
+        $employeeCount = 0;
+        try {
+            $response = Http::withToken(env('HR1_API_KEY'))
+                ->get('https://hr1.moverstaxi.com/api/v1/employees');
+
+            if ($response->successful()) {
+                $employeeData = $response->json();
+                $employeeCount = is_array($employeeData) ? count($employeeData) : 0;
+            }
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch employee data: ' . $e->getMessage());
+        }
+
+        // Continue with other counts
         $jobApplicationsCount = JobApplication::count();
-
-        // Get count of hired candidates
         $hiredCount = JobApplication::where('status', 'Hired')->count();
-
-        // Get total count of job postings
         $jobPostingsCount = JobPosting::count();
-
-        // Get count of active training sessions
         $activeTrainingCount = Training::where('status', 'Active')->count();
-
-        // Get latest job postings
         $latestJobPosts = JobPosting::latest('created_at')->take(5)->get();
 
-        // Group job applications by month
         $jobApplicationsByMonth = JobApplication::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('count', 'month');
 
-        // Group hired candidates by month
         $hiredByMonth = JobApplication::where('status', 'Hired')
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
             ->orderBy('month')
             ->pluck('count', 'month');
 
-        // Group active training sessions by month
         $activeTrainingByMonth = Training::where('status', 'Active')
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
@@ -52,6 +58,7 @@ class DashboardController extends Controller
         $departments = Department::select('id', 'department_name')->get();
 
         return view('dashboard', compact(
+            'employeeCount',
             'jobApplicationsCount',
             'hiredCount',
             'jobPostingsCount',

@@ -42,7 +42,7 @@
                             <div class="card-body">
                                 <span class="dash-widget-icon"><i class="fa fa-briefcase"></i></span>
                                 <div class="dash-widget-info">
-                                    <h3>{{ $hiredCount }}</h3>
+                                    <h3>{{ $jobPostingsCount }}</h3>
                                     <span>Jobs</span>
                                 </div>
                             </div>
@@ -64,7 +64,7 @@
                             <div class="card-body">
                                 <span class="dash-widget-icon"><i class="fa fa-user"></i></span>
                                 <div class="dash-widget-info">
-                                    <h3>{{ $hiredCount }}</h3>
+                                    <h3>{{ $employeeCount }}</h3>
                                     <span>Employees</span>
                                 </div>
                             </div>
