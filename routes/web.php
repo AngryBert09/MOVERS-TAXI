@@ -141,7 +141,7 @@ Route::middleware('admin')->group(function () {
 });
 
 
-Route::get('/create-symlink', function () {
-    symlink(storage_path('/app/public'), public_path('storage'));
-    echo "Symlink Created. Thanks";
-});
+// Route::get('/create-symlink', function () {
+//     symlink(storage_path('/app/public'), public_path('storage'));
+//     echo "Symlink Created. Thanks";
+// });
