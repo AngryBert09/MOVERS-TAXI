@@ -139,3 +139,9 @@ Route::middleware('admin')->group(function () {
     Route::get('/my-profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
+
+Route::get('/create-symlink', function () {
+    symlink(storage_path('/app/public'), public_path('storage'));
+    echo "Symlink Created. Thanks";
+});
