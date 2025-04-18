@@ -132,6 +132,7 @@ class AuthController extends Controller
             $user = User::create([
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
+                'role' => 'Applicant',
             ]);
 
             Log::info("New user registered: {$user->email}", ['user_id' => $user->id, 'ip' => $request->ip()]);

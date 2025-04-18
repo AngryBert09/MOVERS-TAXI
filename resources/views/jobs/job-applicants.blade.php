@@ -162,11 +162,17 @@
 
 
                                             <td>
+                                                <button type="button" class="btn btn-sm btn-primary viewFileBtn"
+                                                    data-file="{{ asset('storage/' . $applicant->resume) }}"
+                                                    data-toggle="modal" data-target="#fileViewModal">
+                                                    <i class="fa fa-eye"></i> View
+                                                </button>
                                                 <a href="{{ asset('storage/' . $applicant->resume) }}"
-                                                    class="btn btn-sm btn-primary" download>
+                                                    class="btn btn-sm btn-secondary" download>
                                                     <i class="fa fa-download"></i> Download
                                                 </a>
                                             </td>
+
                                             <td class="text-right">
                                                 @if (!in_array($applicant->status, ['Hired', 'Rejected']))
                                                     <div class="dropdown dropdown-action">
@@ -348,6 +354,56 @@
     <!-- /Page Wrapper -->
 
     </div>
+
+
+    <!-- File View Modal -->
+    <div class="modal fade" id="fileViewModal" tabindex="-1" role="dialog" aria-labelledby="fileViewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">File Preview</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="filePreviewContainer" style="height: 80vh;">
+                        <!-- File preview will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewButtons = document.querySelectorAll('.viewFileBtn');
+            const previewContainer = document.getElementById('filePreviewContainer');
+
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const fileUrl = this.getAttribute('data-file');
+                    const fileExt = fileUrl.split('.').pop().toLowerCase();
+
+                    let content = '';
+
+                    if (['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExt)) {
+                        content =
+                            `<iframe src="${fileUrl}" style="width:100%; height:100%;" frameborder="0"></iframe>`;
+                    } else if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(fileExt)) {
+                        content =
+                            `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}" style="width:100%; height:100%;" frameborder="0"></iframe>`;
+                    } else {
+                        content =
+                            `<p class="text-danger">File preview not supported for this file type. Please download to view.</p>`;
+                    }
+
+                    previewContainer.innerHTML = content;
+                });
+            });
+        });
+    </script>
+
 
 
     <!-- Schedule Interview Modal -->

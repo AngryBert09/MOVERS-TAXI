@@ -89,6 +89,8 @@ Route::middleware('admin')->group(function () {
     Route::post('/send-message', [ApplicantController::class, 'sendMessage'])->name('applicant.sendMessage');
     Route::get('/onboarding-applicants', [ApplicantController::class, 'onboarding'])
         ->name('applicants.onboarding');
+    Route::get('/applicant-files', [ApplicantController::class, 'applicantFiles'])
+        ->name('applicant.files');
 
 
     //TRAININGS
@@ -111,6 +113,8 @@ Route::middleware('admin')->group(function () {
     Route::post('/departments/store', [DepartmentController::class, 'store'])->name('departments.store');
     Route::put('/departments/update/{id}', [DepartmentController::class, 'update'])->name('departments.update');
     Route::delete('/departments/{id}', [DepartmentController::class, 'destroy'])->name('departments.destroy');
+    Route::get('/departments/api/{name}', [DepartmentController::class, 'show'])->name('departments.employees');
+
 
     //BUDGET
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets');

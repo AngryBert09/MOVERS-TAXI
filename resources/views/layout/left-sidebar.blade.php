@@ -31,6 +31,7 @@
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a href="{{ route('budgets') }}">Budget Request</a></li>
+                        <li><a href="">Used Budget</a></li>
                     </ul>
                 </li>
 
@@ -44,6 +45,7 @@
                     <ul style="display: none;">
                         <li><a href="{{ route('performance.index') }}"> Evaluation </a></li>
                         <li><a href="{{ route('performance.results') }}"> Results</a></li>
+                        <li><a href=""> Attendance Record</a></li>
                     </ul>
 
                 <li><a href="{{ route('performance.index') }}"> Results</a></li>
@@ -54,9 +56,10 @@
                     <a href="#"><i class="la la-edit"></i> <span> Training </span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="{{ route('training.list') }}"> Training List </a></li>
+                        <li><a href="{{ route('training.list') }}"> On Training</a></li>
                         <li><a href="{{ route('training.trainers') }}"> Trainers</a></li>
                         <li><a href="{{ route('training.types') }}"> Training Type </a></li>
+                        <li><a href=""> For Training </a></li>
                     </ul>
                 </li>
 
@@ -71,6 +74,7 @@
                         <li><a href="{{ route('jobs.manage') }}"> Manage Jobs </a></li>
                         <li><a href="{{ route('applicants') }}"> Applicants </a></li>
                         <li><a href="{{ route('applicants.onboarding') }}"> Onboarding </a></li>
+                        <li><a href="{{ route('applicant.files') }}"> Applicant Files </a></li>
                     </ul>
                 </li>
 

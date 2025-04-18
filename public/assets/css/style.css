@@ -867,11 +867,11 @@ table.dataTable thead>tr>td.sorting {
 .btn-custom.focus,
 .btn-custom:focus,
 .btn-custom:hover {
-    background: #f43b48;
-    background: -moz-linear-gradient(left, #f43b48 0%, #453a94 100%);
-    background: -webkit-linear-gradient(left, #f43b48 0%, #453a94 100%);
-    background: -ms-linear-gradient(left, #f43b48 0%, #453a94 100%);
-    background: linear-gradient(to right, #f43b48 0%, #453a94 100%);
+    background: #1273EB;
+    background: -moz-linear-gradient(left, #1273EB 0%, #453a94 100%);
+    background: -webkit-linear-gradient(left, #1273EB 0%, #453a94 100%);
+    background: -ms-linear-gradient(left, #1273EB 0%, #453a94 100%);
+    background: linear-gradient(to right, #1273EB 0%, #453a94 100%);
     color     : #fff;
 }
 
@@ -881,17 +881,17 @@ table.dataTable thead>tr>td.sorting {
 .pagination>.active>span,
 .pagination>.active>span:focus,
 .pagination>.active>span:hover {
-    background-color: #f43b48;
-    border-color    : #f43b48;
+    background-color: #1273EB;
+    border-color    : #1273EB;
 }
 
 .pagination>li>a,
 .pagination>li>span {
-    color: #f43b48;
+    color: #1273EB;
 }
 
 .page-link:hover {
-    color: #f43b48;
+    color: #1273EB;
 }
 
 .page-link:focus {

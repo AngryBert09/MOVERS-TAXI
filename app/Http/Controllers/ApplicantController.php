@@ -39,7 +39,7 @@ class ApplicantController extends Controller
         try {
             // Retrieve job applications with status 'Initial' or 'Final'
             $jobApplications = JobApplication::with('jobPosting')
-                ->whereIn('status', ['Initial', 'Final'])
+                ->whereIn('status', ['Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding'])
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -188,8 +188,9 @@ class ApplicantController extends Controller
         // Validate incoming request data
         $request->validate([
             'applicant_id' => 'required|exists:job_applications,id',
-            'status' => 'required|in:Pending,Hired,Rejected,Interviewed,Initial Interviewed,Final Interviewed', // Add 'Final Interviewed' to validation
+            'status' => 'required|in:Pending,Hired,Rejected,Interviewed,Initial Interviewed,Final Interviewed,Examination,Requirements,Onboarding',
         ]);
+
 
         try {
             // Find the job application
@@ -220,9 +221,7 @@ class ApplicantController extends Controller
             if ($request->status === 'Initial Interviewed') {
                 $applicant->status = 'Initial'; // Change status to 'Initial' if it is 'Initial Interviewed'
                 Log::debug('Status updated to Initial.', ['applicant_id' => $request->applicant_id]);
-            }
-            // Check if the status is 'Final Interviewed', then update to 'Final'
-            elseif ($request->status === 'Final Interviewed') {
+            } elseif ($request->status === 'Final Interviewed') {
                 $applicant->status = 'Final';
                 Log::debug('Status updated to Final.', ['applicant_id' => $request->applicant_id]);
             } elseif ($request->status === 'Pending') {
@@ -293,7 +292,6 @@ class ApplicantController extends Controller
             return response()->json(['success' => false, 'message' => 'Error updating applicant status.'], 500);
         }
     }
-
 
 
     //FUNCTION FOR APPLICANTS {START HERE}
@@ -403,6 +401,11 @@ class ApplicantController extends Controller
                 'error_details' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function applicantFiles()
+    {
+        return view('jobs.applicant-files');
     }
 
 

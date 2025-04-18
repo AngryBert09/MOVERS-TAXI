@@ -51,10 +51,18 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        @foreach ($departments as $department)
+                                    @foreach ($departments as $department)
+                                        <tr>
                                             <td>{{ $department->id }}</td>
-                                            <td>{{ $department->department_name }}</td>
+                                            <td>
+                                                <a
+                                                    href="{{ route('departments.employees', $department->department_name) }}">
+                                                    {{ $department->department_name }}
+                                                </a>
+
+
+                                            </td>
+
                                             <td class="text-right">
                                                 <div class="dropdown dropdown-action">
                                                     <a href="#" class="action-icon dropdown-toggle"
@@ -138,7 +146,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                    </tr>
+                                        </tr>
                                     @endforeach
 
                                 </tbody>

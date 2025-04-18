@@ -25,10 +25,10 @@
                 <div class="page-header">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h3 class="page-title">Onboarding Applicants</h3>
+                            <h3 class="page-title">Applicant Files</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Onboarding Applicants</li>
+                                <li class="breadcrumb-item active">Applicant Files</li>
                             </ul>
                         </div>
                     </div>
@@ -53,182 +53,53 @@
                                     <tr>
                                         <th>#</th>
                                         <th>Name</th>
-                                        <th> Applied Position</th>
-                                        <th>Department</th>
-                                        <th class="text-center">Status</th>
-                                        <th>Resume</th>
+                                        <th>Files</th>
+                                        <th>Date Submitted</th>
                                         <th class="text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
-                                    @foreach ($jobApplications as $index => $applicant)
-                                        <tr>
-                                            <td>{{ $index + 1 }}</td>
-                                            <td>{{ $applicant->name }}</td>
-                                            <td>{{ $applicant->jobPosting->job_title }}</td>
-                                            <td>{{ $applicant->jobPosting->department }}</td>
-                                            <td class="text-center">
-                                                <div class="dropdown action-label">
-                                                    <a class="btn btn-white btn-sm btn-rounded dropdown-toggle"
-                                                        href="#" data-toggle="dropdown">
-                                                        <i
-                                                            class="fa fa-dot-circle-o
-    @if ($applicant->status == 'Pending') text-info
-    @elseif ($applicant->status == 'Qualified') text-success
-@elseif ($applicant->status == 'Not Qualified') text-danger
-    @elseif ($applicant->status == 'Hired') text-success
-    @elseif ($applicant->status == 'Rejected') text-danger
-    @elseif ($applicant->status == 'Scheduled') text-primary
-    @elseif ($applicant->status == 'Interviewed') text-warning
-    @elseif ($applicant->status == 'Initial') text-muted  <!-- Added Initial status -->
-    @elseif ($applicant->status == 'Final') text-dark    <!-- Added Final status -->
-    @else text-warning @endif">
-                                                        </i>
-
-                                                        <span class="status-text">{{ $applicant->status }}</span>
-                                                    </a>
-                                                    <div class="dropdown-menu dropdown-menu-right">
-                                                        @if ($applicant->status === 'Rejected')
-                                                            <a class="dropdown-item disabled" href="#">
-                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                                (Locked)
-                                                            </a>
-                                                        @elseif ($applicant->status === 'Hired')
-                                                            <a class="dropdown-item disabled" href="#">
-                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
-                                                                (Locked)
-                                                            </a>
-                                                        @elseif ($applicant->status === 'Interviewed')
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}"
-                                                                data-status="Requirements">
-                                                                <i class="fa fa-dot-circle-o text-success"></i> Passed
-                                                            </a>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
-                                                                <i class="fa fa-dot-circle-o text-danger"></i> Failed
-                                                            </a>
-                                                            {{-- <div class="dropdown-divider"></div>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Hired">
-                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
-                                                            </a>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
-                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                            </a> --}}
-                                                        @elseif ($applicant->status === 'Scheduled')
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Initial">
-                                                                <i class="fa fa-dot-circle-o text-info"></i> Move to
-                                                                Initial Interview
-                                                            </a>
-                                                        @elseif ($applicant->status === 'Examination')
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}"
-                                                                data-status="Final Interviewed">
-                                                                <i class="fa fa-dot-circle-o text-info"></i> Move to
-                                                                Final Interview
-                                                            </a>
-                                                        @elseif ($applicant->status === 'Initial')
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}"
-                                                                data-status="Final Interviewed">
-                                                                <i class="fa fa-dot-circle-o text-info"></i> Move to
-                                                                Final Interview
-                                                            </a>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}"
-                                                                data-status="Examination">
-                                                                <i class="fa fa-dot-circle-o text-dark"></i> Move to
-                                                                Examination
-                                                            </a>
-                                                        @elseif ($applicant->status === 'Final')
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}"
-                                                                data-status="Interviewed">
-                                                                <i class="fa fa-dot-circle-o text-warning"></i> Mark as
-                                                                Interviewed
-                                                            </a>
-                                                        @elseif (in_array($applicant->status, ['Qualified', 'Not Qualified']))
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Pending">
-                                                                <i class="fa fa-dot-circle-o text-success"></i> Accept
-                                                                (For Scheduling)
-                                                            </a>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
-                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                            </a>
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            </td>
-
-
-                                            <td>
-                                                <button type="button" class="btn btn-sm btn-primary viewFileBtn"
-                                                    data-file="{{ asset('storage/' . $applicant->resume) }}"
-                                                    data-toggle="modal" data-target="#fileViewModal">
-                                                    <i class="fa fa-eye"></i> View
-                                                </button>
-                                                <a href="{{ asset('storage/' . $applicant->resume) }}"
-                                                    class="btn btn-sm btn-secondary" download>
-                                                    <i class="fa fa-download"></i> Download
+                                    <tr>
+                                        <td>1</td>
+                                        <td>John Doe</td>
+                                        <td>Software Engineer</td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-primary viewFileBtn"
+                                                data-file="{{ asset('storage/sample-resume.pdf') }}" data-toggle="modal"
+                                                data-target="#fileViewModal">
+                                                <i class="fa fa-eye"></i> View
+                                            </button>
+                                            <a href="{{ asset('storage/sample-resume.pdf') }}"
+                                                class="btn btn-sm btn-secondary" download>
+                                                <i class="fa fa-download"></i> Download
+                                            </a>
+                                        </td>
+                                        <td class="text-right">
+                                            <div class="dropdown dropdown-action">
+                                                <a href="#" class="action-icon dropdown-toggle"
+                                                    data-toggle="dropdown">
+                                                    <i class="material-icons">more_vert</i>
                                                 </a>
-                                            </td>
-                                            <td class="text-right">
-                                                @if (!in_array($applicant->status, ['Hired', 'Rejected']))
-                                                    <div class="dropdown dropdown-action">
-                                                        <a href="#" class="action-icon dropdown-toggle"
-                                                            data-toggle="dropdown">
-                                                            <i class="material-icons">more_vert</i>
-                                                        </a>
-                                                        <div class="dropdown-menu dropdown-menu-right">
-                                                            {{-- Send Interview Schedule --}}
-                                                            @if (in_array($applicant->status, ['Pending', 'Scheduled', 'Initial']))
-                                                                <a class="dropdown-item schedule-interview"
-                                                                    href="#" data-id="{{ $applicant->id }}"
-                                                                    data-toggle="modal"
-                                                                    data-target="#scheduleInterviewModal">
-                                                                    <i class="fa fa-clock-o"></i> Send Interview Sched
-                                                                </a>
-                                                            @endif
-
-                                                            {{-- AI Analyze Resume --}}
-                                                            @if (in_array($applicant->status, ['Pending', 'Interviewed', 'Initial', 'Final']))
-                                                                <a class="dropdown-item analyze-resume" href="#"
-                                                                    data-id="{{ $applicant->id }}"
-                                                                    data-toggle="modal"
-                                                                    data-target="#analyzeResumeModal">
-                                                                    <i class="fa fa-file-text-o"></i> View Results (AI
-                                                                    Analyzer)
-                                                                </a>
-                                                            @endif
-
-                                                            {{-- Send Message --}}
-                                                            @if ($applicant->status === 'Final')
-                                                                <a class="dropdown-item send-message" href="#"
-                                                                    data-id="{{ $applicant->id }}"
-                                                                    data-toggle="modal"
-                                                                    data-target="#sendMessageModal"
-                                                                    onclick="setApplicantId({{ $applicant->id }})">
-                                                                    <i class="fa fa-envelope"></i> Send Message
-                                                                </a>
-                                                            @endif
-
-
-                                                        </div>
-
-
-                                                    </div>
-                                                @endif
-                                            </td>
-
-
-
-                                        </tr>
-                                    @endforeach
+                                                <div class="dropdown-menu dropdown-menu-right">
+                                                    <a class="dropdown-item schedule-interview" href="#"
+                                                        data-id="1" data-toggle="modal"
+                                                        data-target="#scheduleInterviewModal">
+                                                        <i class="fa fa-clock-o"></i> Send Interview Sched
+                                                    </a>
+                                                    <a class="dropdown-item analyze-resume" href="#"
+                                                        data-id="1" data-toggle="modal"
+                                                        data-target="#analyzeResumeModal">
+                                                        <i class="fa fa-file-text-o"></i> View Results (AI Analyzer)
+                                                    </a>
+                                                    <a class="dropdown-item send-message" href="#" data-id="1"
+                                                        data-toggle="modal" data-target="#sendMessageModal"
+                                                        onclick="setApplicantId(1)">
+                                                        <i class="fa fa-envelope"></i> Send Message
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
                                 </tbody>
                             </table>
                         </div>
