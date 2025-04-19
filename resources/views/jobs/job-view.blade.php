@@ -141,17 +141,18 @@
             <!-- /Page Content -->
 
             <!-- Apply Job Modal -->
-            <div class="modal custom-modal fade" id="apply_job" role="dialog">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Add Your Details</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            @auth
+            <!-- AUTHENTICATED MODAL -->
+            @auth
+                <div class="modal custom-modal fade" id="apply_job" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Add Your Details</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
                                 <form id="applyJobForm" enctype="multipart/form-data" method="POST"
                                     action="{{ route('apply.job') }}">
                                     @csrf
@@ -198,7 +199,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Terms and Agreement Checkbox -->
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="termsAgreement"
@@ -214,16 +214,33 @@
                                         <button type="submit" class="btn btn-primary submit-btn">Submit</button>
                                     </div>
                                 </form>
-                            @else
-                                <div class="alert alert-warning text-center">
-                                    ⚠️ Please <a href="{{ route('auth.login') }}">log in</a> to apply for this job.
-                                </div>
-                            @endauth
-
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endauth
+
+            <!-- GUEST MODAL -->
+            @guest
+                <div class="modal custom-modal fade" id="apply_job" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Login Required</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="alert alert-warning text-center">
+                                    ⚠️ Please <a href="{{ route('auth.login') }}">log in</a> to apply for this job.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endguest
+
 
             <!-- Terms and Conditions Modal -->
             <div class="modal fade" id="termsModal" tabindex="-1" role="dialog" aria-labelledby="termsModalLabel"
