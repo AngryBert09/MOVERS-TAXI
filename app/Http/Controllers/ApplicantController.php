@@ -39,7 +39,7 @@ class ApplicantController extends Controller
         try {
             // Retrieve job applications with status 'Initial' or 'Final'
             $jobApplications = JobApplication::with('jobPosting')
-                ->whereIn('status', ['Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding'])
+                ->whereIn('status', ['Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding', 'Failed'])
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -49,8 +49,6 @@ class ApplicantController extends Controller
             return redirect()->route('dashboard')->with('error', 'Unable to fetch filtered job applicants.');
         }
     }
-
-
 
 
     public function getApplicants($jobPostingId)
@@ -188,7 +186,7 @@ class ApplicantController extends Controller
         // Validate incoming request data
         $request->validate([
             'applicant_id' => 'required|exists:job_applications,id',
-            'status' => 'required|in:Pending,Hired,Rejected,Interviewed,Initial Interviewed,Final Interviewed,Examination,Requirements,Onboarding',
+            'status' => 'required|in:Pending,Hired,Rejected,Interviewed,Initial Interviewed,Final Interviewed,Examination,Requirements,Onboarding,Failed,Passed',
         ]);
 
 
@@ -227,6 +225,9 @@ class ApplicantController extends Controller
             } elseif ($request->status === 'Pending') {
                 $applicant->status = 'Pending';
                 Log::debug('Status updated to Pending.', ['applicant_id' => $request->applicant_id]);
+            } elseif ($request->status === 'Failed') {
+                $applicant->status = 'Failed';
+                Log::debug('Status updated to Failed.', ['applicant_id' => $request->applicant_id]);
             } else {
                 $applicant->status = $request->status; // Otherwise, set the status to the requested one
                 Log::debug('Status updated to custom value.', ['applicant_id' => $request->applicant_id, 'status' => $request->status]);

@@ -6630,6 +6630,7 @@ table.table-inbox tbody tr.checked {
 
 .job-list .job-list-desc {
     flex: 1 1 0;
+
 }
 
 .job-list h4.job-department {
@@ -6643,6 +6644,7 @@ table.table-inbox tbody tr.checked {
     font-size  : 18px;
     font-weight: 600;
     line-height: 18px;
+
 }
 
 .job-list .job-list-footer {

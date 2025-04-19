@@ -31,7 +31,7 @@
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
                         <li><a href="{{ route('budgets') }}">Budget Request</a></li>
-                        <li><a href="">Used Budget</a></li>
+                        <li><a href="{{ route('budget.used') }}">Used Budget</a></li>
                     </ul>
                 </li>
 
@@ -59,7 +59,7 @@
                         <li><a href="{{ route('training.list') }}"> On Training</a></li>
                         <li><a href="{{ route('training.trainers') }}"> Trainers</a></li>
                         <li><a href="{{ route('training.types') }}"> Training Type </a></li>
-                        <li><a href=""> For Training </a></li>
+                        <li><a href="{{ route('training.for-training') }}"> For Training </a></li>
                     </ul>
                 </li>
 

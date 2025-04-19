@@ -77,20 +77,38 @@
                     use Illuminate\Support\Str;
                 @endphp
 
-                <div class="row">
-                    <div class="col-md-6">
-                        @if ($jobs->isEmpty())
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="text" id="jobSearch" class="form-control"
+                                    placeholder="Search jobs by title, department, or location...">
+                                <div class="input-group-append">
+                                    <button class="btn btn-primary" type="button" id="searchButton">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row" id="jobListingsContainer">
+                    @if ($jobs->isEmpty())
+                        <div class="col-12">
                             <div class="alert alert-info text-center">
                                 No job postings available at the moment.
                             </div>
-                        @else
-                            @foreach ($jobs as $job)
+                        </div>
+                    @else
+                        @foreach ($jobs as $job)
+                            <div class="col-md-6 mb-4 job-listing">
                                 <a class="job-list" href="{{ route('jobs.details', $job->id) }}">
-                                    <div class="job-list-det">
+                                    <div class="job-list-det flex-grow-1">
                                         <div class="job-list-desc">
                                             <h3 class="job-list-title">{{ $job->job_title }}</h3>
                                             <h4 class="job-department">{{ $job->department }}</h4>
-                                            <p class="text-muted mt-3">
+                                            <p class="text-muted mt-3 flex-grow-1">
                                                 {{ Str::limit(strip_tags($job->description), 100) }}
                                             </p>
                                         </div>
@@ -108,10 +126,65 @@
                                         </ul>
                                     </div>
                                 </a>
-                            @endforeach
-                        @endif
-                    </div>
+                            </div>
+                        @endforeach
+                    @endif
                 </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const searchInput = document.getElementById('jobSearch');
+                        const searchButton = document.getElementById('searchButton');
+                        const jobListings = document.querySelectorAll('.job-listing');
+
+                        function performSearch() {
+                            const searchTerm = searchInput.value.toLowerCase();
+
+                            jobListings.forEach(job => {
+                                const title = job.querySelector('.job-list-title').textContent.toLowerCase();
+                                const department = job.querySelector('.job-department').textContent.toLowerCase();
+                                const location = job.querySelector('.job-list-footer li:first-child').textContent
+                                    .toLowerCase();
+                                const description = job.querySelector('.text-muted').textContent.toLowerCase();
+
+                                if (title.includes(searchTerm) ||
+                                    department.includes(searchTerm) ||
+                                    location.includes(searchTerm) ||
+                                    description.includes(searchTerm)) {
+                                    job.style.display = 'block';
+                                } else {
+                                    job.style.display = 'none';
+                                }
+                            });
+
+                            // Show message if no results found
+                            const visibleJobs = document.querySelectorAll('.job-listing[style="display: block;"]');
+                            const noResultsMsg = document.querySelector('.no-results-message');
+
+                            if (visibleJobs.length === 0) {
+                                if (!noResultsMsg) {
+                                    const container = document.getElementById('jobListingsContainer');
+                                    const msgDiv = document.createElement('div');
+                                    msgDiv.className = 'col-12 no-results-message';
+                                    msgDiv.innerHTML = `
+                    <div class="alert alert-warning text-center">
+                        No jobs found matching your search criteria.
+                    </div>
+                `;
+                                    container.appendChild(msgDiv);
+                                }
+                            } else {
+                                if (noResultsMsg) {
+                                    noResultsMsg.remove();
+                                }
+                            }
+                        }
+
+                        // Event listeners
+                        searchInput.addEventListener('keyup', performSearch);
+                        searchButton.addEventListener('click', performSearch);
+                    });
+                </script>
 
 
             </div>

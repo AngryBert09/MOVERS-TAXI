@@ -80,6 +80,7 @@
     @elseif ($applicant->status == 'Rejected') text-danger
     @elseif ($applicant->status == 'Scheduled') text-primary
     @elseif ($applicant->status == 'Interviewed') text-warning
+    @elseif ($applicant->status == 'Failed') text-danger
     @elseif ($applicant->status == 'Initial') text-muted  <!-- Added Initial status -->
     @elseif ($applicant->status == 'Final') text-dark    <!-- Added Final status -->
     @else text-warning @endif">
@@ -130,6 +131,10 @@
                                                                 <i class="fa fa-dot-circle-o text-info"></i> Move to
                                                                 Final Interview
                                                             </a>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Failed
+                                                            </a>
                                                         @elseif ($applicant->status === 'Initial')
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}"
@@ -143,6 +148,11 @@
                                                                 <i class="fa fa-dot-circle-o text-dark"></i> Move to
                                                                 Examination
                                                             </a>
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#failReasonModal"
+                                                                data-id="{{ $applicant->id }}">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Failed
+                                                            </a>
                                                         @elseif ($applicant->status === 'Final')
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}"
@@ -150,16 +160,46 @@
                                                                 <i class="fa fa-dot-circle-o text-warning"></i> Mark as
                                                                 Interviewed
                                                             </a>
-                                                        @elseif (in_array($applicant->status, ['Qualified', 'Not Qualified']))
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#failReasonModal"
+                                                                data-id="{{ $applicant->id }}">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Failed
+                                                            </a>
+                                                        @elseif ($applicant->status === 'Final')
                                                             <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Pending">
-                                                                <i class="fa fa-dot-circle-o text-success"></i> Accept
-                                                                (For Scheduling)
+                                                                data-id="{{ $applicant->id }}"
+                                                                data-status="Interviewed">
+                                                                <i class="fa fa-dot-circle-o text-warning"></i> Mark as
+                                                                Interviewed
+                                                            </a>
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#failReasonModal"
+                                                                data-id="{{ $applicant->id }}">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Failed
+                                                            </a>
+                                                        @elseif ($applicant->status === 'Onboarding')
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Hired">
+                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
                                                             </a>
                                                             <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
+                                                                data-id="{{ $applicant->id }}"
+                                                                data-status="Rejected">
                                                                 <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                            </a>
+                                                            @elseif (in_array($applicant->status, ['Qualified', 'Not Qualified']))
+                                                                <a class="dropdown-item update-status" href="#"
+                                                                    data-id="{{ $applicant->id }}"
+                                                                    data-status="Pending">
+                                                                    <i class="fa fa-dot-circle-o text-success"></i>
+                                                                    Accept
+                                                                    (For Scheduling)
+                                                                </a>
+                                                                <a class="dropdown-item update-status" href="#"
+                                                                    data-id="{{ $applicant->id }}"
+                                                                    data-status="Rejected">
+                                                                    <i class="fa fa-dot-circle-o text-danger"></i>
+                                                                    Rejected
+                                                                </a>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -232,6 +272,39 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
+                </div>
+
+
+                <!-- Modal for Failure Reason -->
+                <div class="modal fade" id="failReasonModal" tabindex="-1" role="dialog"
+                    aria-labelledby="failReasonModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <form id="failReasonForm" method="POST" action="">
+                            @csrf
+                            <input type="hidden" name="applicant_id" id="failApplicantId">
+                            <div class="modal-content">
+                                <div class="modal-header bg-danger text-white">
+                                    <h5 class="modal-title" id="failReasonModalLabel">Reason for Failing Applicant
+                                    </h5>
+                                    <button type="button" class="close text-white" data-dismiss="modal"
+                                        aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="fail_reason">Reason</label>
+                                        <textarea class="form-control" id="fail_reason" name="reason" rows="3" required></textarea>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-danger">Submit Reason</button>
+                                    <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Cancel</button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
 

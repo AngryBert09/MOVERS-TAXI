@@ -19,12 +19,13 @@ class PerformanceController extends Controller
 
         $response = Http::withToken($apiToken)->get($apiUrl);
         if ($response->successful()) {
-            $trainees = $response->json(); // Convert response to an array
+            $trainees = collect($response->json())->filter(function ($employee) {
+                return isset($employee['department']) && $employee['department'] === 'HR';
+            })->values()->toArray(); // Filter employees with department 'HR'
         }
 
         // Fetch existing evaluations
         $evaluations = PerformanceEvaluation::pluck('trainee_id')->toArray();
-
 
         return view('performance.appraisal', compact('trainees', 'evaluations'));
     }

@@ -106,6 +106,8 @@ Route::middleware('admin')->group(function () {
     Route::post('/trainings', [TrainingController::class, 'storeTraining'])->name('trainings.store');
     Route::put('/trainings/update/{id}', [TrainingController::class, 'updateTraining'])->name('trainings.update');
     Route::delete('/training/{id}', [TrainingController::class, 'destroyTraining'])->name('trainings.destroy');
+    Route::get('/for-training', [TrainingController::class, 'getEmployees'])->name('training.for-training');
+
 
 
     //DEPARTMENTS
@@ -120,6 +122,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets');
     Route::post('/budgets/request', [BudgetController::class, 'store'])->name('budget.store');
     Route::delete('/budgets/{id}', [BudgetController::class, 'destroy'])->name('budget.destroy');
+    Route::get('/used-budget', [BudgetController::class, 'getUsedBudget'])->name('budget.used');
 
 
     //INQUIRIES

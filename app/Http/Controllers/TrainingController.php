@@ -117,12 +117,6 @@ class TrainingController extends Controller
     }
 
 
-
-
-
-
-
-
     public function updateTraining(Request $request, $id)
     {
         Log::info('Update Training Request Received', ['training_id' => $id, 'request' => $request->all()]);
@@ -228,7 +222,11 @@ class TrainingController extends Controller
 
 
 
-
+    // FUNCTION FOR TRAINING EMPLOYEE
+    public function getEmployees()
+    {
+        return view('trainings.for-training');
+    }
 
 
 

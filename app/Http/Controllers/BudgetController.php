@@ -28,6 +28,11 @@ class BudgetController extends Controller
         return view('budgets.expenses', compact('requests', 'totalApprovedBudget', 'remainingBudget'));
     }
 
+    public function getUsedBudget()
+    {
+        return view('budgets.used-budget');
+    }
+
 
     public function store(Request $request)
     {
