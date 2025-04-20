@@ -14,6 +14,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ResumeAnalyzerController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ApplicantUserController;
 
 
 
@@ -62,7 +63,7 @@ Route::post('/2fa/verify', [AuthController::class, 'verify2fa'])->name('2fa.chec
 Route::get('/2fa/resend', [AuthController::class, 'resend2fa'])->name('2fa.resend');
 
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('admin');;
+Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout')->middleware('auth');
 
 
 Route::get('/job-view', function () {
@@ -91,6 +92,8 @@ Route::middleware('admin')->group(function () {
         ->name('applicants.onboarding');
     Route::get('/applicant-files', [ApplicantController::class, 'applicantFiles'])
         ->name('applicant.files');
+    Route::post('/applications/fail', [ApplicantController::class, 'failApplicant'])->name('applications.fail');
+
 
 
     //TRAININGS
@@ -146,6 +149,12 @@ Route::middleware('admin')->group(function () {
     Route::get('/my-profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 });
+
+
+
+Route::get('/applicant/dashboard', [ApplicantUserController::class, 'index'])->name('applicant.dashboard');
+Route::delete('/application/{id}/withdraw', [ApplicantUserController::class, 'withdraw'])->name('application.withdraw');
+
 
 
 // Route::get('/create-symlink', function () {

@@ -14,7 +14,7 @@ class PerformanceEvaluation extends Model
      *
      * @var string
      */
-    protected $table = 'trainee_competencies';
+
 
     /**
      * The attributes that are mass assignable.
@@ -23,24 +23,10 @@ class PerformanceEvaluation extends Model
      */
     protected $fillable = [
         'trainee_id',
-        'evaluation_date',
-        'customer_experience',
-        'marketing',
-        'management',
-        'administration',
-        'presentation_skill',
-        'quality_of_work',
-        'efficiency',
-        'integrity',
-        'professionalism',
-        'team_work',
-        'critical_thinking',
-        'conflict_management',
-        'attendance',
-        'ability_to_meet_deadline',
-        'status',
+        'category',
+        'criteria',
+        'rating',
     ];
-
     /**
      * The attributes that should be cast.
      *

@@ -136,9 +136,16 @@ class ApplicantController extends Controller
             }
         }
 
-        // Save the updated status
+        // Save the updated status and comply_date
+        $applicant->status = $currentStatus === 'Pending' ? 'Initial' : 'Final';
+        $applicant->comply_date = $request->interview_date . ' ' . $request->interview_time; // Store the interview date and time in comply_date
         $applicant->save();
-        Log::info('Applicant status updated:', ['applicant_id' => $applicant->id, 'new_status' => $applicant->status]);
+
+        Log::info('Applicant status and comply_date updated:', [
+            'applicant_id' => $applicant->id,
+            'new_status' => $applicant->status,
+            'comply_date' => $applicant->comply_date,
+        ]);
 
         return response()->json(['success' => 'Interview scheduled, status updated to ' . $applicant->status . ', and email sent successfully.']);
     }
@@ -295,6 +302,37 @@ class ApplicantController extends Controller
     }
 
 
+    public function failApplicant(Request $request)
+    {
+        Log::info('Fail Applicant Request Received:', $request->all());
+
+        $request->validate([
+            'applicant_id' => 'required|exists:job_applications,id',
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        try {
+            $application = JobApplication::findOrFail($request->applicant_id);
+            Log::debug('Applicant retrieved successfully.', ['applicant_id' => $application->id]);
+
+            $application->status = 'Failed';
+            $application->note = $request->reason;
+            $application->save();
+
+            Log::info('Applicant status updated to Failed.', [
+                'applicant_id' => $application->id,
+                'reason' => $request->reason
+            ]);
+
+            return redirect()->back()->with('success', 'Applicant has been marked as failed and reason added.');
+        } catch (\Exception $e) {
+            Log::error('Error marking applicant as failed.', ['error' => $e->getMessage()]);
+            return redirect()->back()->with('error', 'Failed to mark applicant as failed.');
+        }
+    }
+
+
+
     //FUNCTION FOR APPLICANTS {START HERE}
     public function applyJob(Request $request)
     {
@@ -304,19 +342,6 @@ class ApplicantController extends Controller
             // Step 1: Validate input
             $validatedData = $request->validate([
                 'name' => 'required|string|max:255',
-                'email' => [
-                    'required',
-                    'email',
-                    'max:255',
-                    function ($attribute, $value, $fail) use ($request) {
-                        if (JobApplication::where('email', $value)
-                            ->where('job_posting_id', $request->job_posting_id)
-                            ->exists()
-                        ) {
-                            $fail('You have already applied for this job.');
-                        }
-                    }
-                ],
                 'phone' => 'required|string|max:15',
                 'resume' => 'required|file|mimes:pdf,doc,docx|max:2048',
                 'job_posting_id' => 'required|exists:job_postings,id',
@@ -324,21 +349,36 @@ class ApplicantController extends Controller
                 'birthdate' => 'required|date',
             ]);
 
+            // Use authenticated email
+            $validatedData['email'] = auth()->user()->email;
+
             $userId = auth()->check() ? auth()->id() : null;
 
-            // Step 2: Upload resume
+            // Step 2: Check if email already exists for the job posting
+            $existingApplication = JobApplication::where('email', $validatedData['email'])
+                ->where('job_posting_id', $validatedData['job_posting_id'])
+                ->first();
+
+            if ($existingApplication) {
+                Log::warning('Duplicate application attempt detected.', ['email' => $validatedData['email'], 'job_posting_id' => $validatedData['job_posting_id']]);
+                return response()->json([
+                    'message' => 'You have already applied for this job. You can only apply once.',
+                ], 400);
+            }
+
+            // Step 3: Upload resume
             $resumePath = $request->file('resume')->store('resumes', 'public');
             Log::info('Resume uploaded successfully.', ['resume_path' => $resumePath]);
 
-            // Step 3: Split name
+            // Step 4: Split name
             $nameParts = explode(' ', trim($validatedData['name']));
             $firstName = $nameParts[0] ?? '';
             $lastName = count($nameParts) > 2 ? array_pop($nameParts) : '';
 
-            // Step 4: Create job application (initially Pending)
+            // Step 5: Create job application (initially Pending)
             $jobApplication = JobApplication::create([
                 'name' => $validatedData['name'],
-                'email' => $validatedData['email'],
+                'email' => $userId ? auth()->user()->email : $validatedData['email'],
                 'phone' => $validatedData['phone'],
                 'apply_date' => now(),
                 'status' => 'Pending',
@@ -349,7 +389,7 @@ class ApplicantController extends Controller
 
             Log::info('Job application created successfully.', ['job_application' => $jobApplication]);
 
-            // Step 5: Save personal info
+            // Step 6: Save personal info
             $personalInfo = PersonalInformation::create([
                 'first_name' => $firstName,
                 'last_name' => $lastName,
@@ -361,14 +401,14 @@ class ApplicantController extends Controller
 
             Log::info('Personal information saved successfully.', ['personal_info' => $personalInfo]);
 
-            // Step 6: Extract text from resume
+            // Step 7: Extract text from resume
             $fullResumePath = storage_path("app/public/{$resumePath}");
             $resumeText = $this->extractTextFromResume($fullResumePath);
 
-            // Step 7: Get job description
+            // Step 8: Get job description
             $jobDescription = JobPosting::find($validatedData['job_posting_id'])->description ?? '';
 
-            // Step 8: Send to AI and update status
+            // Step 9: Send to AI and update status
             $aiResult = $this->sendToGeminiAI($resumeText, $jobDescription, $jobApplication->id);
 
             if (is_array($aiResult) && isset($aiResult['suitability_score'])) {
@@ -408,6 +448,7 @@ class ApplicantController extends Controller
     {
         return view('jobs.applicant-files');
     }
+
 
 
     private function extractTextFromResume($filePath)

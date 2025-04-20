@@ -80,7 +80,6 @@ class TrainingController extends Controller
                 'start_date' => 'required|date_format:d/m/Y',
                 'end_date' => 'required|date_format:d/m/Y|after_or_equal:start_date',
                 'description' => 'required|string',
-                'status' => 'required|in:Active,Inactive',
             ]);
 
             // Convert date format
@@ -157,7 +156,7 @@ class TrainingController extends Controller
                 'start_date' => 'required|date_format:Y-m-d',
                 'end_date' => 'required|date_format:Y-m-d|after_or_equal:start_date',
                 'description' => 'sometimes|required|string',
-                'status' => 'sometimes|required|in:Active,Inactive,Completed',
+                'status' => 'sometimes|required|in:Pending,Ongoing,Completed',
             ]);
 
             Log::info('Validation Passed', ['validated_data' => $validatedData]);

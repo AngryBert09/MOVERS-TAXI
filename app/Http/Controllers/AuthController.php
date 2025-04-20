@@ -80,6 +80,11 @@ class AuthController extends Controller
 
         Log::info("2FA code sent to: {$user->email}", ['ip' => $request->ip()]);
 
+        // Redirect based on role
+        if ($user->role === 'Applicant') {
+            return redirect()->route('applicant.dashboard')->with('success', 'A verification code has been sent to your email.');
+        }
+
         // Redirect to 2FA verification page
         return redirect()->route('2fa.verify')->with('success', 'A verification code has been sent to your email.');
     }

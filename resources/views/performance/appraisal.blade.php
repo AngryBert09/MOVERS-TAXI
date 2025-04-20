@@ -97,6 +97,7 @@
                                                     </div>
                                                 </td>
 
+
                                             </tr>
                                         @endforeach
                                     @endif
@@ -137,44 +138,8 @@
                                         </div>
 
                                         <div class="row">
-                                            <!-- A. Evaluation of Company Facilities (Left Side) -->
-                                            <div class="col-md-6 border-right pr-4">
-                                                <h5 class="text-primary mb-3">A. Evaluation of Company Facilities</h5>
-                                                @foreach ([
-        'cleanliness' => 'Cleanliness of the work environment',
-        'equipment' => 'Availability of necessary equipment and tools',
-        'machines' => 'Functionality of machines and technology',
-        'workspace_comfort' => 'Workspace comfort (lighting, ventilation, noise)',
-        'safety' => 'Safety and emergency preparedness',
-        'restrooms' => 'Accessibility of restrooms and hygiene supplies',
-        'internet' => 'Internet and connectivity reliability',
-        'break_areas' => 'Availability of break/lunch areas',
-        'storage' => 'Storage and organization of work materials',
-        'appearance' => 'General appearance and upkeep of facilities',
-    ] as $name => $label)
-                                                    <div class="mb-3">
-                                                        <label>{{ $label }}</label>
-                                                        <div class="d-flex gap-2">
-                                                            @for ($i = 1; $i <= 5; $i++)
-                                                                <div class="form-check form-check-inline">
-                                                                    <input
-                                                                        class="form-check-input checkbox-group-{{ $name }}"
-                                                                        type="checkbox"
-                                                                        name="facilities[{{ $name }}]"
-                                                                        value="{{ $i }}"
-                                                                        onclick="checkOnlyOne(this, 'checkbox-group-{{ $name }}')">
-                                                                    <label
-                                                                        class="form-check-label">{{ $i }}</label>
-                                                                </div>
-                                                            @endfor
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            </div>
-
-                                            <!-- B. Employee Performance Evaluation (Right Side) -->
                                             <div class="col-md-6 pl-4">
-                                                <h5 class="text-primary mb-3">B. Employee Performance Evaluation</h5>
+                                                <h5 class="text-primary mb-3">Employee Performance Evaluation</h5>
                                                 @foreach ([
         'punctuality' => 'Punctuality and attendance consistency',
         'quality' => 'Quality and accuracy of work',
@@ -207,18 +172,8 @@
                                                 @endforeach
                                             </div>
                                         </div>
-
-                                        <div class="form-group mt-4">
-                                            <label>Status</label>
-                                            <select name="status" class="form-control">
-                                                <option selected disabled>Select</option>
-                                                <option>Active</option>
-                                                <option>Inactive</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="submit-section text-right mt-3">
-                                            <button type="submit" class="btn btn-success px-4">Save</button>
+                                        <div class="submit-section text-right mt-4">
+                                            <button type="submit" class="btn btn-primary px-4 w-100">Save</button>
                                         </div>
                                     </form>
                                 </div>

@@ -8,54 +8,48 @@
     <div class="main-wrapper">
 
         <!-- Header -->
-        <div class="header">
+        @if (Auth::guest())
+            <div class="header">
 
-
-            <!-- Header Title -->
-            <div class="page-title-box float-left">
-                <h3>Movers</h3>
-            </div>
-            <!-- /Header Title -->
-
-            <!-- Header Menu -->
-            <ul class="nav user-menu">
-
-                <!-- Search -->
-                {{-- <li class="nav-item">
-                    <div class="top-nav-search">
-                        <a href="javascript:void(0);" class="responsive-search">
-                            <i class="fa fa-search"></i>
-                        </a>
-                        <form action="search.html">
-                            <input class="form-control" type="text" placeholder="Search here">
-                            <button class="btn" type="submit"><i class="fa fa-search"></i></button>
-                        </form>
-                    </div>
-                </li> --}}
-                <!-- /Search -->
-
-
-
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ route('auth.login') }}">Login</a>
-                </li>
-
-            </ul>
-            <!-- /Header Menu -->
-
-            <!-- Mobile Menu -->
-            {{-- <div class="dropdown mobile-user-menu">
-                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
-                        class="fa fa-ellipsis-v"></i></a>
-                <div class="dropdown-menu dropdown-menu-right">
-                    <a class="dropdown-item" href="login.html">Login</a>
-                    <a class="dropdown-item" href="register.html">Register</a>
+                <!-- Header Title -->
+                <div class="page-title-box float-left">
+                    <h3>Movers</h3>
                 </div>
-            </div> --}}
-            <!-- /Mobile Menu -->
+                <!-- /Header Title -->
 
-        </div>
+                <!-- Header Menu -->
+                <ul class="nav user-menu">
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('auth.login') }}">Login</a>
+                    </li>
+
+                </ul>
+                <!-- /Header Menu -->
+
+                <!-- Mobile Menu -->
+                <div class="dropdown mobile-user-menu">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" aria-expanded="false"><i
+                            class="fa fa-ellipsis-v"></i></a>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item" href="{{ route('auth.login') }}">Login</a>
+                        <a class="dropdown-item" href="{{ route('auth.register') }}">Register</a>
+                    </div>
+                </div>
+                <!-- /Mobile Menu -->
+
+            </div>
+        @else
+            @include('portal.layout.navbar')
+        @endif
         <!-- /Header -->
+
+
+        @if (!Auth::guest())
+            <!-- Sidebar -->
+            @include('portal.layout.left-sidebar')
+            <!-- /Sidebar -->
+        @endif
 
         <!-- Page Wrapper -->
         <div class="page-wrapper job-wrapper">
@@ -165,11 +159,6 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Email Address</label>
-                                        <input class="form-control" type="email" name="email" required>
-                                    </div>
-
-                                    <div class="form-group">
                                         <label>Contact Number</label>
                                         <input class="form-control" type="text" name="phone" required pattern="\d*"
                                             title="Please enter a valid phone number">
@@ -193,8 +182,8 @@
                                     <div class="form-group">
                                         <label>Upload your CV</label>
                                         <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="cv_upload" name="resume"
-                                                required>
+                                            <input type="file" class="custom-file-input" id="cv_upload"
+                                                name="resume" required>
                                             <label class="custom-file-label" for="cv_upload">Choose file</label>
                                         </div>
                                     </div>

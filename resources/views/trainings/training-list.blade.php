@@ -84,21 +84,19 @@
                                                 @endphp
                                                 {{ $trainee ? $trainee['first_name'] . ' ' . $trainee['last_name'] : 'N/A' }}
                                             </td>
-
-
-
-
                                             <td>{{ date('d M Y', strtotime($training->start_date)) }} -
                                                 {{ date('d M Y', strtotime($training->end_date)) }}</td>
                                             <td>{{ $training->description }}</td>
                                             <td>₱{{ number_format($training->training_cost, 2) }}</td>
                                             <td>
-                                                @if ($training->status == 'Active')
-                                                    <i class="fa fa-dot-circle-o text-success"></i> Active
+                                                @if ($training->status == 'Pending')
+                                                    <i class="fa fa-dot-circle-o text-warning"></i> Pending
+                                                @elseif ($training->status == 'Ongoing')
+                                                    <i class="fa fa-dot-circle-o text-success"></i> Ongoing
                                                 @elseif ($training->status == 'Completed')
                                                     <i class="fa fa-dot-circle-o text-blue"></i> Completed
                                                 @else
-                                                    <i class="fa fa-dot-circle-o text-danger"></i> Inactive
+                                                    <i class="fa fa-dot-circle-o text-danger"></i> Unknown
                                                 @endif
                                             </td>
                                             <td class="text-right">
@@ -113,10 +111,10 @@
                                                             <i class="fa fa-pencil m-r-5"></i> Edit
                                                         </a>
 
-                                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                                        {{-- <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#deleteBudgetModal">
                                                             <i class="fa fa-trash-o m-r-5"></i> Delete
-                                                        </a>
+                                                        </a> --}}
                                                     </div>
                                                 </div>
                                             </td>
@@ -268,22 +266,11 @@
                                             <textarea class="form-control" rows="4" name="description" required></textarea>
                                         </div>
                                     </div>
-
-                                    <!-- Status -->
-                                    <div class="col-sm-12">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Status</label>
-                                            <select class="form-control" name="status">
-                                                <option value="Active">Active</option>
-                                                <option value="Inactive">Inactive</option>
-                                            </select>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <!-- Submit Button -->
                                 <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Submit</button>
+                                    <button class="btn btn-primary submit-btn px-4 w-100">Submit</button>
                                 </div>
                             </form>
                         </div>
@@ -314,7 +301,8 @@
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label class="col-form-label">Training Type</label>
-                                                <select class="form-control" name="training_type">
+                                                <select class="form-control" name="training_type"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }}>
                                                     @foreach ($trainingTypes as $type)
                                                         <option value="{{ $type->type_name }}"
                                                             {{ $type->type_name == $training->training_type ? 'selected' : '' }}>
@@ -329,7 +317,8 @@
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label class="col-form-label">Trainer</label>
-                                                <select class="form-control" name="trainer">
+                                                <select class="form-control" name="trainer"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }}>
                                                     @foreach ($trainers as $trainer)
                                                         <option
                                                             value="{{ $trainer->first_name }} {{ $trainer->last_name }}"
@@ -345,7 +334,8 @@
                                         <div class="col-sm-6">
                                             <div class="form-group">
                                                 <label class="col-form-label">Trainees</label>
-                                                <select class="form-control select" name="trainee_id">
+                                                <select class="form-control select" name="trainee_id"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }}>
                                                     @foreach ($employees as $employee)
                                                         <option value="{{ $employee['id'] }}"
                                                             {{ $employee['id'] == $training->trainee_id ? 'selected' : '' }}>
@@ -362,7 +352,8 @@
                                                 <label class="col-form-label">Training Cost <span
                                                         class="text-danger">*</span></label>
                                                 <input class="form-control" type="number" name="training_cost"
-                                                    value="{{ $training->training_cost }}">
+                                                    value="{{ $training->training_cost }}"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }}>
                                             </div>
                                         </div>
 
@@ -371,7 +362,8 @@
                                             <div class="form-group">
                                                 <label>Start Date <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="date" name="start_date"
-                                                    value="{{ $training->start_date->format('Y-m-d') }}" required>
+                                                    value="{{ $training->start_date->format('Y-m-d') }}"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }} required>
                                             </div>
                                         </div>
 
@@ -380,7 +372,8 @@
                                             <div class="form-group">
                                                 <label>End Date <span class="text-danger">*</span></label>
                                                 <input class="form-control" type="date" name="end_date"
-                                                    value="{{ $training->end_date->format('Y-m-d') }}" required>
+                                                    value="{{ $training->end_date->format('Y-m-d') }}"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }} required>
                                             </div>
                                         </div>
 
@@ -388,7 +381,8 @@
                                         <div class="col-sm-12">
                                             <div class="form-group">
                                                 <label>Description <span class="text-danger">*</span></label>
-                                                <textarea class="form-control" rows="4" name="description" required>{{ $training->description }}</textarea>
+                                                <textarea class="form-control" rows="4" name="description"
+                                                    {{ $training->status == 'Completed' ? 'disabled' : '' }} required>{{ $training->description }}</textarea>
                                             </div>
                                         </div>
 
@@ -398,15 +392,16 @@
                                                 <label class="col-form-label">Status</label>
                                                 <select class="form-control" name="status"
                                                     {{ $training->status == 'Completed' ? 'disabled' : '' }}>
-                                                    <option value="Active"
-                                                        {{ $training->status == 'Active' ? 'selected' : '' }}>Active
-                                                    </option>
-                                                    <option value="Inactive"
-                                                        {{ $training->status == 'Inactive' ? 'selected' : '' }}>
-                                                        Inactive</option>
-                                                    <option value="Completed"
-                                                        {{ $training->status == 'Completed' ? 'selected' : '' }}>
-                                                        Completed</option>
+                                                    @if ($training->status == 'Pending')
+                                                        <option value="Ongoing"
+                                                            {{ $training->status == 'Ongoing' ? 'selected' : '' }}>
+                                                            Ongoing
+                                                        </option>
+                                                    @elseif ($training->status == 'Ongoing')
+                                                        <option value="Completed"
+                                                            {{ $training->status == 'Completed' ? 'selected' : '' }}>
+                                                            Completed</option>
+                                                    @endif
                                                 </select>
                                             </div>
                                         </div>

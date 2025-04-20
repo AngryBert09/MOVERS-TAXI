@@ -40,15 +40,17 @@
                     <span>Performance</span>
                 </li>
                 <li class="submenu">
-                    <a href="#"><i class="la la-graduation-cap"></i> <span> Performance </span> <span
+                    <a href="#"><i class="la la-graduation-cap"></i> <span> Evaluations</span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="{{ route('performance.index') }}"> Evaluation </a></li>
-                        <li><a href="{{ route('performance.results') }}"> Results</a></li>
+                        <li><a href="{{ route('performance.index') }}">Performance Evaluation</a></li>
+                        <li><a href="{{ route('performance.index') }}">Facilities Evaluation</a></li>
+                        <li><a href="{{ route('performance.results') }}">Performance Results</a></li>
+                        <li><a href="{{ route('performance.index') }}">Facilities Results</a></li>
                         <li><a href=""> Attendance Record</a></li>
                     </ul>
 
-                <li><a href="{{ route('performance.index') }}"> Results</a></li>
+
 
                 </li>
 
@@ -78,10 +80,10 @@
                     </ul>
                 </li>
 
-                {{--
+
                 <li>
                     <a href="users.html"><i class="la la-user-plus"></i> <span>Users</span></a>
-                </li> --}}
+                </li>
                 <li>
                     <a href="{{ route('inquiries') }}"><i class="la la-ticket"></i> <span>Inquiries</span></a>
                 </li>

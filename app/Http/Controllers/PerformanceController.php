@@ -33,105 +33,46 @@ class PerformanceController extends Controller
 
     public function store(Request $request)
     {
-        try {
-            // Debugging: Log the incoming request data
-            Log::info('Store Performance Evaluation Request:', $request->all());
+        $request->validate([
+            'trainee_id' => 'required', // validate ID exists in trainees table
+            'performance' => 'required|array',
+        ]);
 
-            // Fetch employees from API
-            $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
-            $apiToken = env('HR1_API_KEY');
+        $traineeId = $request->input('trainee_id');
+        $performance = $request->input('performance');
 
-            $response = Http::withToken($apiToken)->get($apiUrl);
+        // Optional: delete previous performance records if you want to overwrite them
+        PerformanceEvaluation::where('trainee_id', $traineeId)
+            ->where('category', 'performance')
+            ->delete();
 
-            if ($response->successful()) {
-                $employees = collect($response->json()); // Convert response to collection
-            } else {
-                Log::error('Failed to fetch employees from API');
-                return redirect()->back()->with('error', 'Failed to retrieve employees. Please try again.');
-            }
-
-            // Validate request
-            $request->validate([
-                'trainee_id' => [
-                    'required',
-                    function ($attribute, $value, $fail) use ($employees) {
-                        if (!$employees->contains('id', $value)) {
-                            $fail('The selected trainee does not exist.');
-                        }
-                    }
-                ],
-                'customer_experience' => 'required|string|max:255',
-                'marketing' => 'required|string|max:255',
-                'management' => 'required|string|max:255',
-                'administration' => 'required|string|max:255',
-                'presentation_skill' => 'required|string|max:255',
-                'quality_of_work' => 'required|string|max:255',
-                'efficiency' => 'required|string|max:255',
-                'integrity' => 'required|string|max:255',
-                'professionalism' => 'required|string|max:255',
-                'team_work' => 'required|string|max:255',
-                'critical_thinking' => 'required|string|max:255',
-                'conflict_management' => 'required|string|max:255',
-                'attendance' => 'required|string|max:255',
-                'ability_to_meet_deadline' => 'required|string|max:255',
-                'status' => 'required|in:Active,Inactive',
-            ]);
-
-            // Check if a performance evaluation already exists for the trainee
-            $existingEvaluation = PerformanceEvaluation::where('trainee_id', $request->trainee_id)->first();
-            if ($existingEvaluation) {
-                return redirect()->back()->with('error', 'A performance evaluation already exists for this trainee.');
-            }
-
-            // Create a new Performance Evaluation record
+        // Save new performance ratings
+        foreach ($performance as $criteria => $rating) {
             PerformanceEvaluation::create([
-                'trainee_id' => $request->trainee_id,
-                'evaluation_date' => Carbon::now()->startOfDay(),
-                'customer_experience' => $request->customer_experience,
-                'marketing' => $request->marketing,
-                'management' => $request->management,
-                'administration' => $request->administration,
-                'presentation_skill' => $request->presentation_skill,
-                'quality_of_work' => $request->quality_of_work,
-                'efficiency' => $request->efficiency,
-                'integrity' => $request->integrity,
-                'professionalism' => $request->professionalism,
-                'team_work' => $request->team_work,
-                'critical_thinking' => $request->critical_thinking,
-                'conflict_management' => $request->conflict_management,
-                'attendance' => $request->attendance,
-                'ability_to_meet_deadline' => $request->ability_to_meet_deadline,
-                'status' => $request->status,
+                'trainee_id' => $traineeId,
+                'category' => 'performance',
+                'criteria' => $criteria,
+                'rating' => $rating,
             ]);
-
-            return redirect()->back()->with('success', 'Evaluation saved successfully!');
-        } catch (\Exception $e) {
-            Log::error('Error storing performance evaluation: ' . $e->getMessage());
-            return redirect()->back()->with('error', 'An error occurred while saving the performance evaluation. Please try again. Error: ' . $e->getMessage());
         }
+
+        return redirect()->back()->with('success', 'Performance evaluation saved successfully.');
     }
+
 
     public function results()
     {
-        $trainees = PerformanceEvaluation::all();
+        $evaluations = PerformanceEvaluation::all();
         $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
         $apiToken = env('HR1_API_KEY');
+
+        $employees = collect();
 
         try {
             $response = Http::withToken($apiToken)->get($apiUrl);
 
             if ($response->successful()) {
-                $employees = collect($response->json()); // Make it a Laravel collection for easier mapping
-
-                // Attach full name to each trainee using trainee_id
-                $trainees->transform(function ($trainee) use ($employees) {
-                    $employee = $employees->firstWhere('id', $trainee->trainee_id);
-                    $trainee->full_name = $employee
-                        ? $employee['first_name'] . ' ' . $employee['last_name']
-                        : 'Unknown Trainee';
-
-                    return $trainee;
-                });
+                $employees = collect($response->json());
             } else {
                 Log::error('Failed to fetch employees', ['status' => $response->status(), 'body' => $response->body()]);
             }
@@ -139,6 +80,25 @@ class PerformanceController extends Controller
             Log::error('Error fetching employees from API', ['message' => $e->getMessage()]);
         }
 
-        return view('performance.results', compact('trainees'));
+        // Group evaluations by trainee_id and pivot
+        $trainees = $evaluations->groupBy('trainee_id')->map(function ($group, $traineeId) use ($employees) {
+            $employee = $employees->firstWhere('id', $traineeId);
+            $fullName = $employee
+                ? $employee['first_name'] . ' ' . $employee['last_name']
+                : 'Unknown Trainee';
+
+            $ratings = $group->mapWithKeys(function ($item) {
+                return [$item->criteria => $item->rating];
+            });
+
+            return [
+                'trainee_id' => $traineeId,
+                'full_name' => $fullName,
+                'evaluation_date' => optional($group->first()->created_at)->toDateString(),
+                'status' => $group->avg('rating') >= 3 ? 'passed' : 'failed',
+            ] + $ratings->toArray(); // merge ratings into result
+        });
+
+        return view('performance.results', ['trainees' => $trainees]);
     }
 }
