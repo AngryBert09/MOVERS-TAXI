@@ -15,6 +15,7 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ResumeAnalyzerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicantUserController;
+use App\Http\Controllers\UserController;
 
 
 
@@ -140,6 +141,8 @@ Route::middleware('admin')->group(function () {
     //EMPLOYEES
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
     Route::get('/new-hired', [EmployeeController::class, 'getNewHired'])->name('employee.new-hired');
+    Route::get('/employee-attendance', [EmployeeController::class, 'getAttendance'])->name('employees.attendance');
+
 
     //COMPANY SETTINGS
     Route::get('/company-settings', [CompanyController::class, 'index'])->name('company.index');
@@ -148,6 +151,9 @@ Route::middleware('admin')->group(function () {
     //PROFILE
     Route::get('/my-profile', [ProfileController::class, 'index'])->name('profile.index');
     Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
+    //USERS
+    Route::get('/users', [UserController::class, 'index'])->name('users');
 });
 
 

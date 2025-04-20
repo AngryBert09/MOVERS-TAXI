@@ -47,7 +47,7 @@
                         <li><a href="{{ route('performance.index') }}">Facilities Evaluation</a></li>
                         <li><a href="{{ route('performance.results') }}">Performance Results</a></li>
                         <li><a href="{{ route('performance.index') }}">Facilities Results</a></li>
-                        <li><a href=""> Attendance Record</a></li>
+                        <li><a href="{{ route('employees.attendance') }}"> Attendance Record</a></li>
                     </ul>
 
 
@@ -82,7 +82,7 @@
 
 
                 <li>
-                    <a href="users.html"><i class="la la-user-plus"></i> <span>Users</span></a>
+                    <a href="{{ route('users') }}"><i class="la la-user-plus"></i> <span>Users</span></a>
                 </li>
                 <li>
                     <a href="{{ route('inquiries') }}"><i class="la la-ticket"></i> <span>Inquiries</span></a>

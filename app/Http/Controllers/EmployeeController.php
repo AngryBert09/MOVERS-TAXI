@@ -50,4 +50,9 @@ class EmployeeController extends Controller
         $employees = JobApplication::where('status', 'Hired')->with('jobPosting')->get();
         return view('employee.new-hired', compact('employees'));
     }
+
+    public function getAttendance()
+    {
+        return view('employee.attendance');
+    }
 }
