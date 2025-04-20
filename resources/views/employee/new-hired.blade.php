@@ -96,7 +96,7 @@
                                                     <a href="#" class="action-icon dropdown-toggle"
                                                         data-toggle="dropdown" aria-expanded="false"><i
                                                             class="material-icons">more_vert</i></a>
-                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                    {{-- <div class="dropdown-menu dropdown-menu-right">
                                                         @if ($employee->performanceEvaluations->isEmpty())
                                                             <!-- Display the Evaluate link -->
                                                             <a class="dropdown-item" href="#" data-toggle="modal"
@@ -109,7 +109,7 @@
                                                                 <i class="fa fa-check m-r-5"></i> Evaluated
                                                             </span>
                                                         @endif
-                                                    </div>
+                                                    </div> --}}
                                                 </div>
                                             </td>
                                         </tr>
@@ -610,8 +610,8 @@
                         );
                     });
                 });
-            });
-    </>
+            }); <
+        />
     </script>
     <!-- jQuery -->
     <script src="assets/js/jquery-3.5.1.min.js"></script>
