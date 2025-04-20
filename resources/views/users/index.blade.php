@@ -47,16 +47,7 @@
                             <label class="focus-label">Name</label>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-3">
-                        <div class="form-group form-focus select-focus">
-                            <select class="select floating">
-                                <option>Select Company</option>
-                                <option>Global Technologies</option>
-                                <option>Delta Infotech</option>
-                            </select>
-                            <label class="focus-label">Company</label>
-                        </div>
-                    </div>
+
                     <div class="col-sm-6 col-md-3">
                         <div class="form-group form-focus select-focus">
                             <select class="select floating">
