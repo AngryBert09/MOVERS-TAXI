@@ -55,7 +55,7 @@
                                         <th>Name</th>
                                         <th>Files</th>
                                         <th>Date Submitted</th>
-                                        <th class="text-right">Actions</th>
+                                        {{-- <th class="text-right">Actions</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
@@ -107,7 +107,7 @@
                                             </td>
 
                                             <td>{{ $file->created_at->format('M d, Y h:i A') }}</td>
-                                            <td class="text-right">
+                                            {{-- <td class="text-right">
                                                 <div class="dropdown dropdown-action">
                                                     <a href="#" class="action-icon dropdown-toggle"
                                                         data-toggle="dropdown">
@@ -132,7 +132,7 @@
                                                         </a>
                                                     </div>
                                                 </div>
-                                            </td>
+                                            </td> --}}
                                         </tr>
                                     @empty
                                         <tr>

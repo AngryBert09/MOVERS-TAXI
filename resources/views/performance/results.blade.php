@@ -46,7 +46,7 @@
                                 <thead class="thead-dark">
                                     <tr>
                                         <th>Trainee ID</th>
-                                        <th>Trainee Name</th>
+                                        <th>Employee Name</th>
                                         <th>Evaluation Date</th>
                                         <th>Performance Rating (Avg)</th>
                                         <th>Status</th>
@@ -100,6 +100,10 @@
                                                     data-target="#detailsModal{{ $trainee['trainee_id'] }}">
                                                     View Details
                                                 </a>
+                                                <a href="#" class="btn btn-sm btn-warning" data-toggle="modal"
+                                                    data-target="#feedbackModal{{ $trainee['trainee_id'] }}">
+                                                    Feedback
+                                                </a>
                                             </td>
                                         </tr>
 
@@ -118,7 +122,8 @@
                                                             <span>&times;</span>
                                                         </button>
                                                     </div>
-                                                    <div class="modal-body">
+                                                    <div class="modal-body px-4 py-3"
+                                                        style="max-height: calc(100vh - 200px); overflow-y: auto;">
                                                         <h6><strong>Performance Evaluation</strong></h6>
                                                         <ul class="list-unstyled">
                                                             @php
@@ -137,7 +142,7 @@
                                                             @endphp
 
                                                             @foreach ($criteria as $key => $label)
-                                                                <li class="mb-2">
+                                                                <li class="mb-3">
                                                                     <strong>{{ $label }}:</strong>
                                                                     @php
                                                                         $rating = $trainee[$key] ?? 0;
@@ -155,6 +160,46 @@
                                                 </div>
                                             </div>
                                         </div>
+
+                                        <!-- Modal for feedback -->
+                                        <div class="modal fade" id="feedbackModal{{ $trainee['trainee_id'] }}"
+                                            tabindex="-1" role="dialog"
+                                            aria-labelledby="feedbackModalLabel{{ $trainee['trainee_id'] }}"
+                                            aria-hidden="true">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content shadow-lg rounded-lg">
+                                                    <div class="modal-header border-0">
+                                                        <h5 class="modal-title text-dark font-weight-bold"
+                                                            style="font-size: 1.25rem;">Supervisor Feedback for:
+                                                            {{ $trainee['full_name'] }}</h5>
+                                                        <button type="button" class="close text-dark"
+                                                            data-dismiss="modal" aria-label="Close">
+                                                            <span>&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body px-4 py-3">
+                                                        <div class="form-group">
+                                                            <label for="feedback" class="text-muted font-weight-bold"
+                                                                style="font-size: 1rem;">Supervisor Feedback</label>
+                                                            <div id="feedback"
+                                                                class="form-control-plaintext p-4 bg-white rounded-lg shadow-sm"
+                                                                style="white-space: pre-wrap; overflow-y: auto; max-height: 400px; font-size: 1rem; line-height: 1.6;">
+                                                                {{ $trainee['supervisor_feedback'] ?? 'No feedback available' }}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer border-0 d-flex justify-content-end">
+                                                        <button type="button"
+                                                            class="btn btn-secondary btn-sm rounded-pill text-uppercase"
+                                                            data-dismiss="modal">
+                                                            Close
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
 
 
                                     @empty

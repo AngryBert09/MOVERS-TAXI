@@ -162,19 +162,36 @@
                                                                         type="checkbox"
                                                                         name="performance[{{ $name }}]"
                                                                         value="{{ $i }}"
-                                                                        onclick="checkOnlyOne(this, 'checkbox-group-{{ $name }}')">
-                                                                    <label
-                                                                        class="form-check-label">{{ $i }}</label>
+                                                                        onclick="checkOnlyOne(this, 'checkbox-group-{{ $name }}')"
+                                                                        id="checkbox-{{ $name }}-{{ $i }}">
+                                                                    <label class="form-check-label"
+                                                                        for="checkbox-{{ $name }}-{{ $i }}">{{ $i }}</label>
                                                                 </div>
                                                             @endfor
                                                         </div>
+
+
                                                     </div>
                                                 @endforeach
+
+                                                {{-- Supervisor Feedback --}}
+                                            </div> <!-- closes the col-md-6 -->
+
+                                        </div> <!-- close col-md-6 -->
+
+                                        <div class="col-12 mt-3">
+                                            <div class="mb-3">
+                                                <label for="supervisor_feedback"><strong>Supervisor
+                                                        Feedback</strong></label>
+                                                <textarea name="supervisor_feedback" id="supervisor_feedback" rows="4" class="form-control w-100"
+                                                    placeholder="Provide additional comments or recommendations here..."></textarea>
+                                            </div>
+
+                                            <div class="submit-section text-right mt-4">
+                                                <button type="submit" class="btn btn-primary px-4 w-100">Save</button>
                                             </div>
                                         </div>
-                                        <div class="submit-section text-right mt-4">
-                                            <button type="submit" class="btn btn-primary px-4 w-100">Save</button>
-                                        </div>
+
                                     </form>
                                 </div>
                             </div>
@@ -185,12 +202,36 @@
 
             <!-- JavaScript to allow only one checkbox per group -->
             <script>
-                function checkOnlyOne(clickedBox, groupClass) {
-                    const checkboxes = document.querySelectorAll('.' + groupClass);
-                    checkboxes.forEach(box => {
-                        if (box !== clickedBox) box.checked = false;
+                // JavaScript function to ensure only one checkbox is selected
+                function checkOnlyOne(checkbox, group) {
+                    const checkboxes = document.querySelectorAll(`.${group}`);
+                    checkboxes.forEach((cb) => {
+                        if (cb !== checkbox) cb.checked = false;
                     });
                 }
+
+                // Validate checkbox group before form submission
+                function validateCheckboxGroup(name) {
+                    const checkboxes = document.getElementsByName(`performance[${name}]`);
+                    const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+
+                    if (!isChecked) {
+                        alert('Please select a rating for ' + name);
+                        return false;
+                    }
+                    return true;
+                }
+
+                // Attach the validation to form submit (you can adjust based on how you're submitting the form)
+                document.querySelector('form').onsubmit = function() {
+                    const checkboxNames = ['{{ $name }}']; // Add more names as needed
+                    for (let name of checkboxNames) {
+                        if (!validateCheckboxGroup(name)) {
+                            return false; // Stop form submission if validation fails
+                        }
+                    }
+                    return true; // Allow form submission if validation passes
+                };
             </script>
 
 

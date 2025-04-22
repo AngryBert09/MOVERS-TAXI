@@ -22,10 +22,11 @@ class PerformanceEvaluation extends Model
      * @var array
      */
     protected $fillable = [
-        'trainee_id',
+        'employee_id',
         'category',
         'criteria',
         'rating',
+        'supervisor_feedback',
     ];
     /**
      * The attributes that should be cast.

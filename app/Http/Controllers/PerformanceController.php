@@ -8,6 +8,8 @@ use App\Models\PerformanceEvaluation;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
+
 
 class PerformanceController extends Controller
 {
@@ -25,7 +27,7 @@ class PerformanceController extends Controller
         }
 
         // Fetch existing evaluations
-        $evaluations = PerformanceEvaluation::pluck('trainee_id')->toArray();
+        $evaluations = PerformanceEvaluation::pluck('employee_id')->toArray();
 
         return view('performance.appraisal', compact('trainees', 'evaluations'));
     }
@@ -33,31 +35,109 @@ class PerformanceController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'trainee_id' => 'required', // validate ID exists in trainees table
-            'performance' => 'required|array',
-        ]);
+        // Define validation rules
+        $rules = [
+            'trainee_id' => 'required',
+            'performance' => [
+                'required',
+                'array',
+                function ($attribute, $value, $fail) {
+                    $requiredCriteria = [
+                        'punctuality',
+                        'quality',
+                        'communication',
+                        'feedback',
+                        'problem_solving',
+                        'teamwork',
+                        'attitude',
+                        'adaptability',
+                        'time_management',
+                        'behavior'
+                    ];
 
-        $traineeId = $request->input('trainee_id');
-        $performance = $request->input('performance');
+                    $missing = array_diff($requiredCriteria, array_keys($value));
 
-        // Optional: delete previous performance records if you want to overwrite them
-        PerformanceEvaluation::where('trainee_id', $traineeId)
-            ->where('category', 'performance')
-            ->delete();
+                    if (!empty($missing)) {
+                        $fail('The following evaluation criteria are missing: ' . implode(', ', $missing));
+                    }
+                }
+            ],
+            'performance.*' => 'required|integer|between:1,5',
+            'supervisor_feedback' => 'nullable|string|max:2000',
+        ];
 
-        // Save new performance ratings
-        foreach ($performance as $criteria => $rating) {
-            PerformanceEvaluation::create([
-                'trainee_id' => $traineeId,
-                'category' => 'performance',
-                'criteria' => $criteria,
-                'rating' => $rating,
-            ]);
+        // Custom validation messages
+        $messages = [
+            'performance.*.required' => 'All performance ratings must be provided.',
+            'performance.*.between' => 'Ratings must be between 1 and 5.',
+        ];
+
+        // Validate the request
+        try {
+            $validated = $request->validate($rules, $messages);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($e->errors())
+                ->with('error', 'Validation failed. Please correct the errors and try again.');
         }
 
-        return redirect()->back()->with('success', 'Performance evaluation saved successfully.');
+        // Additional check for null values (though validation should catch this)
+        if (in_array(null, $validated['performance'], true)) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'All performance ratings must be provided.');
+        }
+
+        // Begin database transaction
+        DB::beginTransaction();
+
+        try {
+
+
+            // Store each performance rating
+            foreach ($validated['performance'] as $criteria => $rating) {
+                PerformanceEvaluation::create([
+                    'employee_id' => $validated['trainee_id'],
+                    'category' => 'performance',
+                    'criteria' => $criteria,
+                    'rating' => $rating,
+                ]);
+            }
+
+            // Store supervisor feedback separately if provided
+            if (!empty($validated['supervisor_feedback'])) {
+                PerformanceEvaluation::updateOrCreate(
+                    [
+                        'employee_id' => $validated['trainee_id'],
+                        'category' => 'feedback',
+                        'criteria' => 'supervisor_feedback',
+                    ],
+                    [
+                        'rating' => 0,
+                        'supervisor_feedback' => $validated['supervisor_feedback'],
+                    ]
+                );
+            }
+
+            // Commit the transaction
+            DB::commit();
+
+            return redirect()->back()
+                ->with('success', 'Performance evaluation saved successfully.');
+        } catch (\Exception $e) {
+            // Rollback transaction on error
+            DB::rollBack();
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to save evaluation. Error: ' . $e->getMessage());
+        }
     }
+
+
+
+
 
 
     public function results()
@@ -74,7 +154,10 @@ class PerformanceController extends Controller
             if ($response->successful()) {
                 $employees = collect($response->json());
             } else {
-                Log::error('Failed to fetch employees', ['status' => $response->status(), 'body' => $response->body()]);
+                Log::error('Failed to fetch employees', [
+                    'status' => $response->status(),
+                    'body' => $response->body()
+                ]);
             }
         } catch (\Exception $e) {
             Log::error('Error fetching employees from API', ['message' => $e->getMessage()]);
@@ -87,15 +170,19 @@ class PerformanceController extends Controller
                 ? $employee['first_name'] . ' ' . $employee['last_name']
                 : 'Unknown Trainee';
 
-            $ratings = $group->mapWithKeys(function ($item) {
+            $ratings = $group->where('criteria', '!=', 'supervisor_feedback')->mapWithKeys(function ($item) {
                 return [$item->criteria => $item->rating];
             });
+
+            $feedbackEntry = $group->firstWhere('criteria', 'supervisor_feedback');
+            $feedback = $feedbackEntry ? $feedbackEntry->supervisor_feedback : null;
 
             return [
                 'trainee_id' => $traineeId,
                 'full_name' => $fullName,
                 'evaluation_date' => optional($group->first()->created_at)->toDateString(),
                 'status' => $group->avg('rating') >= 3 ? 'passed' : 'failed',
+                'supervisor_feedback' => $feedback,
             ] + $ratings->toArray(); // merge ratings into result
         });
 
