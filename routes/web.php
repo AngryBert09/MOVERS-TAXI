@@ -16,6 +16,7 @@ use App\Http\Controllers\ResumeAnalyzerController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicantUserController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ApplicantFileController;
 
 
 
@@ -91,7 +92,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/send-message', [ApplicantController::class, 'sendMessage'])->name('applicant.sendMessage');
     Route::get('/onboarding-applicants', [ApplicantController::class, 'onboarding'])
         ->name('applicants.onboarding');
-    Route::get('/applicant-files', [ApplicantController::class, 'applicantFiles'])
+    Route::get('/applicant-files', [ApplicantFileController::class, 'index'])
         ->name('applicant.files');
     Route::post('/applications/fail', [ApplicantController::class, 'failApplicant'])->name('applications.fail');
 
@@ -160,6 +161,8 @@ Route::middleware('admin')->group(function () {
 
 Route::get('/applicant/dashboard', [ApplicantUserController::class, 'index'])->name('applicant.dashboard');
 Route::delete('/application/{id}/withdraw', [ApplicantUserController::class, 'withdraw'])->name('application.withdraw');
+Route::post('/applications/{application}/requirements', [ApplicantUserController::class, 'uploadRequirements'])->name('applications.requirements.upload');
+
 
 
 

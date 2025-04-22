@@ -76,18 +76,24 @@
                                                             class="fa fa-dot-circle-o
     @if ($applicant->status == 'Pending') text-info
     @elseif ($applicant->status == 'Qualified') text-success
-@elseif ($applicant->status == 'Not Qualified') text-danger
+    @elseif ($applicant->status == 'Not Qualified') text-danger
     @elseif ($applicant->status == 'Hired') text-success
     @elseif ($applicant->status == 'Rejected') text-danger
-    @elseif ($applicant->status == 'Scheduled') text-primary
+    @elseif ($applicant->status == 'Scheduled') text-dark
     @elseif ($applicant->status == 'Interviewed') text-warning
     @elseif ($applicant->status == 'Failed') text-danger
-    @elseif ($applicant->status == 'Initial') text-muted  <!-- Added Initial status -->
-    @elseif ($applicant->status == 'Final') text-dark    <!-- Added Final status -->
+    @elseif ($applicant->status == 'Initial') text-muted
+    @elseif ($applicant->status == 'Final') text-dark
     @else text-warning @endif">
                                                         </i>
 
-                                                        <span class="status-text">{{ $applicant->status }}</span>
+                                                        <span class="status-text">
+                                                            @if ($applicant->status == 'Scheduled')
+                                                                Final
+                                                            @else
+                                                                {{ $applicant->status }}
+                                                            @endif
+                                                        </span>
                                                     </a>
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         @if ($applicant->status === 'Rejected')
@@ -121,9 +127,15 @@
                                                             </a> --}}
                                                         @elseif ($applicant->status === 'Scheduled')
                                                             <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Initial">
-                                                                <i class="fa fa-dot-circle-o text-info"></i> Move to
-                                                                Initial Interview
+                                                                data-id="{{ $applicant->id }}"
+                                                                data-status="Interviewed">
+                                                                <i class="fa fa-dot-circle-o text-warning"></i> Mark as
+                                                                Interviewed
+                                                            </a>
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#failReasonModal"
+                                                                data-id="{{ $applicant->id }}">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i> Failed
                                                             </a>
                                                         @elseif ($applicant->status === 'Examination')
                                                             <a class="dropdown-item update-status" href="#"
@@ -215,7 +227,7 @@
                                                         </a>
                                                         <div class="dropdown-menu dropdown-menu-right">
                                                             {{-- Send Interview Schedule --}}
-                                                            @if (in_array($applicant->status, ['Pending', 'Scheduled', 'Initial']))
+                                                            @if (in_array($applicant->status, ['Pending', 'Initial', 'Final']))
                                                                 <a class="dropdown-item schedule-interview"
                                                                     href="#" data-id="{{ $applicant->id }}"
                                                                     data-toggle="modal"
@@ -235,8 +247,7 @@
                                                                 </a>
                                                             @endif
 
-                                                            {{-- Send Message --}}
-                                                            @if ($applicant->status === 'Final')
+                                                            {{-- @if ($applicant->status === 'Final')
                                                                 <a class="dropdown-item send-message" href="#"
                                                                     data-id="{{ $applicant->id }}"
                                                                     data-toggle="modal"
@@ -244,9 +255,14 @@
                                                                     onclick="setApplicantId({{ $applicant->id }})">
                                                                     <i class="fa fa-envelope"></i> Send Message
                                                                 </a>
+                                                            @endif --}}
+
+                                                            {{-- Show Scheduled (Disabled) --}}
+                                                            @if ($applicant->status === 'Scheduled')
+                                                                <a class="dropdown-item disabled" href="#">
+                                                                    <i class="fa fa-check-circle"></i> Scheduled
+                                                                </a>
                                                             @endif
-
-
                                                         </div>
 
 

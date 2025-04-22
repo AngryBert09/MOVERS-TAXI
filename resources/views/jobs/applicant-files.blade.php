@@ -59,53 +59,142 @@
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
-                                    <tr>
-                                        <td>1</td>
-                                        <td>John Doe</td>
-                                        <td>Software Engineer</td>
-                                        <td>
-                                            <button type="button" class="btn btn-sm btn-primary viewFileBtn"
-                                                data-file="{{ asset('storage/sample-resume.pdf') }}" data-toggle="modal"
-                                                data-target="#fileViewModal">
-                                                <i class="fa fa-eye"></i> View
-                                            </button>
-                                            <a href="{{ asset('storage/sample-resume.pdf') }}"
-                                                class="btn btn-sm btn-secondary" download>
-                                                <i class="fa fa-download"></i> Download
-                                            </a>
-                                        </td>
-                                        <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle"
-                                                    data-toggle="dropdown">
-                                                    <i class="material-icons">more_vert</i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item schedule-interview" href="#"
-                                                        data-id="1" data-toggle="modal"
-                                                        data-target="#scheduleInterviewModal">
-                                                        <i class="fa fa-clock-o"></i> Send Interview Sched
+                                    @forelse ($applicantFiles as $index => $file)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $file->application->name ?? 'N/A' }}</td>
+                                            <td>
+                                                <ul class="list-unstyled mb-0">
+                                                    @if ($file->sss)
+                                                        <li>
+                                                            <a href="#" class="viewFileBtn"
+                                                                data-file="{{ asset('storage/' . $file->sss) }}"
+                                                                data-toggle="modal" data-target="#fileViewModal">SSS</a>
+                                                        </li>
+                                                    @endif
+                                                    @if ($file->pagibig)
+                                                        <li>
+                                                            <a href="#" class="viewFileBtn"
+                                                                data-file="{{ asset('storage/' . $file->pagibig) }}"
+                                                                data-toggle="modal"
+                                                                data-target="#fileViewModal">Pag-IBIG</a>
+                                                        </li>
+                                                    @endif
+                                                    @if ($file->philhealth)
+                                                        <li>
+                                                            <a href="#" class="viewFileBtn"
+                                                                data-file="{{ asset('storage/' . $file->philhealth) }}"
+                                                                data-toggle="modal"
+                                                                data-target="#fileViewModal">PhilHealth</a>
+                                                        </li>
+                                                    @endif
+                                                    @if ($file->barangay_clearance)
+                                                        <li>
+                                                            <a href="#" class="viewFileBtn"
+                                                                data-file="{{ asset('storage/' . $file->barangay_clearance) }}"
+                                                                data-toggle="modal"
+                                                                data-target="#fileViewModal">Barangay Clearance</a>
+                                                        </li>
+                                                    @endif
+                                                    @if ($file->tin)
+                                                        <li>
+                                                            <a href="#" class="viewFileBtn"
+                                                                data-file="{{ asset('storage/' . $file->tin) }}"
+                                                                data-toggle="modal" data-target="#fileViewModal">TIN</a>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </td>
+
+                                            <td>{{ $file->created_at->format('M d, Y h:i A') }}</td>
+                                            <td class="text-right">
+                                                <div class="dropdown dropdown-action">
+                                                    <a href="#" class="action-icon dropdown-toggle"
+                                                        data-toggle="dropdown">
+                                                        <i class="material-icons">more_vert</i>
                                                     </a>
-                                                    <a class="dropdown-item analyze-resume" href="#"
-                                                        data-id="1" data-toggle="modal"
-                                                        data-target="#analyzeResumeModal">
-                                                        <i class="fa fa-file-text-o"></i> View Results (AI Analyzer)
-                                                    </a>
-                                                    <a class="dropdown-item send-message" href="#" data-id="1"
-                                                        data-toggle="modal" data-target="#sendMessageModal"
-                                                        onclick="setApplicantId(1)">
-                                                        <i class="fa fa-envelope"></i> Send Message
-                                                    </a>
+                                                    <div class="dropdown-menu dropdown-menu-right">
+                                                        <a class="dropdown-item schedule-interview" href="#"
+                                                            data-id="{{ $file->id }}" data-toggle="modal"
+                                                            data-target="#scheduleInterviewModal">
+                                                            <i class="fa fa-clock-o"></i> Send Interview Sched
+                                                        </a>
+                                                        <a class="dropdown-item analyze-resume" href="#"
+                                                            data-id="{{ $file->id }}" data-toggle="modal"
+                                                            data-target="#analyzeResumeModal">
+                                                            <i class="fa fa-file-text-o"></i> View Results (AI Analyzer)
+                                                        </a>
+                                                        <a class="dropdown-item send-message" href="#"
+                                                            data-id="{{ $file->id }}" data-toggle="modal"
+                                                            data-target="#sendMessageModal"
+                                                            onclick="setApplicantId({{ $file->id }})">
+                                                            <i class="fa fa-envelope"></i> Send Message
+                                                        </a>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                            </td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No applicant files
+                                                available.</td>
+                                        </tr>
+                                    @endforelse
                                 </tbody>
+
                             </table>
                         </div>
                     </div>
                 </div>
 
+
+                <!-- File View Modal -->
+                <div class="modal fade" id="fileViewModal" tabindex="-1" role="dialog"
+                    aria-labelledby="fileViewModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-xl" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">File Preview</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body text-center">
+                                <div id="filePreviewContainer" style="height: 80vh;">
+                                    <!-- File preview will be injected here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <script>
+                    document.addEventListener('DOMContentLoaded', function() {
+                        const viewButtons = document.querySelectorAll('.viewFileBtn');
+                        const previewContainer = document.getElementById('filePreviewContainer');
+
+                        viewButtons.forEach(button => {
+                            button.addEventListener('click', function() {
+                                const fileUrl = this.getAttribute('data-file');
+                                const fileExt = fileUrl.split('.').pop().toLowerCase();
+
+                                let content = '';
+
+                                if (['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExt)) {
+                                    content =
+                                        `<iframe src="${fileUrl}" style="width:100%; height:100%;" frameborder="0"></iframe>`;
+                                } else if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(fileExt)) {
+                                    content =
+                                        `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}" style="width:100%; height:100%;" frameborder="0"></iframe>`;
+                                } else {
+                                    content =
+                                        `<p class="text-danger">File preview not supported for this file type. Please download to view.</p>`;
+                                }
+
+                                previewContainer.innerHTML = content;
+                            });
+                        });
+                    });
+                </script>
 
                 <!-- Single Modal for All Applicants -->
                 <div class="modal fade" id="sendMessageModal" tabindex="-1" role="dialog"

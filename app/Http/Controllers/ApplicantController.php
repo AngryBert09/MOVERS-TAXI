@@ -23,7 +23,7 @@ class ApplicantController extends Controller
         try {
             // Retrieve all job applications
             $jobApplications = JobApplication::with('jobPosting')
-                ->whereIn('status', ['Qualified', 'Not Qualified', 'Pending'])
+                ->whereIn('status', ['Qualified', 'Not Qualified', 'Pending',])
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -39,7 +39,7 @@ class ApplicantController extends Controller
         try {
             // Retrieve job applications with status 'Initial' or 'Final'
             $jobApplications = JobApplication::with('jobPosting')
-                ->whereIn('status', ['Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding', 'Failed'])
+                ->whereIn('status', ['Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding', 'Failed', 'Scheduled', 'Hired', 'Rejected'])
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -93,7 +93,7 @@ class ApplicantController extends Controller
         // Log current applicant status
         Log::info('Applicant found, current status:', ['applicant_id' => $applicant->id, 'current_status' => $applicant->status]);
 
-        // Retrieve current status of the applicant (Initial or Final)
+        // Retrieve current status of the applicant (Initial, Final, or Pending)
         $currentStatus = $applicant->status;
 
         // Check if the status is Pending, set to Initial Interview, and send email
@@ -136,8 +136,27 @@ class ApplicantController extends Controller
             }
         }
 
+        // Check if the status is Final, set to Scheduled, and send email
+        elseif ($currentStatus === 'Final') {
+            Log::info('Status is Final, updating to Scheduled.', ['applicant_id' => $applicant->id]);
+            $applicant->status = 'Scheduled';
+
+            // Send email for Scheduled Interview
+            try {
+                Mail::to($applicant->email)->send(new InterviewScheduledMail(
+                    $applicant->name,
+                    $request->interview_date,
+                    $request->interview_time,
+                    'Scheduled Interview' // Pass the status as 'Scheduled Interview'
+                ));
+                Log::info('Scheduled Interview email sent successfully to:', ['email' => $applicant->email, 'status' => 'Scheduled Interview']);
+            } catch (\Exception $e) {
+                Log::error('Failed to send Scheduled Interview email', ['error' => $e->getMessage()]);
+                return response()->json(['error' => 'Failed to send email'], 500);
+            }
+        }
+
         // Save the updated status and comply_date
-        $applicant->status = $currentStatus === 'Pending' ? 'Initial' : 'Final';
         $applicant->comply_date = $request->interview_date . ' ' . $request->interview_time; // Store the interview date and time in comply_date
         $applicant->save();
 

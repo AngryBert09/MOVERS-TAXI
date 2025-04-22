@@ -270,8 +270,25 @@
                                                                 <a class="btn btn-white btn-sm btn-rounded"
                                                                     href="#">
                                                                     <i
-                                                                        class="fa fa-dot-circle-o text-{{ $application->status == 'Open' ? 'success' : ($application->status == 'Requirements' ? 'warning' : ($application->status == 'Failed' ? 'danger' : ($application->status == 'Not Qualified' || $application->status == 'Qualified' ? 'secondary' : 'info'))) }}"></i>
-                                                                    {{ $application->status == 'Not Qualified' || $application->status == 'Qualified' ? 'Under Review' : $application->status }}
+                                                                        class="fa fa-dot-circle-o text-{{ match ($application->status) {
+                                                                            'Open' => 'success',
+                                                                            'Requirements' => 'warning',
+                                                                            'Failed' => 'danger',
+                                                                            'Not Qualified', 'Qualified' => 'secondary',
+                                                                            'Scheduled' => 'dark',
+                                                                            'Hired' => 'success',
+                                                                            'Rejected' => 'danger',
+                                                                            'Final' => 'dark',
+                                                                            'Interviewed' => 'warning',
+                                                                            default => 'info',
+                                                                        } }}"></i>
+                                                                    {{ match ($application->status) {
+                                                                        'Scheduled' => 'Final',
+                                                                        'Not Qualified', 'Qualified' => 'Under Review',
+                                                                        'Hired' => 'Hired',
+                                                                        'Rejected' => 'Rejected',
+                                                                        default => $application->status,
+                                                                    } }}
                                                                 </a>
                                                             </div>
                                                         </td>
@@ -295,7 +312,7 @@
                                                                     <i class="material-icons">more_vert</i>
                                                                 </a>
                                                                 <div class="dropdown-menu dropdown-menu-right">
-                                                                    @if (!in_array($application->status, ['Failed', 'Onboarding', 'Not Qualified']))
+                                                                    @if (in_array($application->status, ['Initial', 'Final', 'Pending']))
                                                                         <a class="dropdown-item" href="#"
                                                                             data-toggle="modal"
                                                                             data-target="#delete_application_{{ $application->id }}">
@@ -319,21 +336,163 @@
                                                                             Reason
                                                                         </a>
                                                                     @endif
-                                                                    <a class="dropdown-item" href="#"
-                                                                        data-toggle="modal"
-                                                                        data-target="#view_schedule_modal_{{ $application->id }}">
-                                                                        <i class="fa fa-calendar m-r-5"></i> View
-                                                                        Schedule
-                                                                    </a>
+                                                                    @if (in_array($application->status, ['Initial', 'Final', 'Scheduled']))
+                                                                        <a class="dropdown-item" href="#"
+                                                                            data-toggle="modal"
+                                                                            data-target="#view_schedule_modal_{{ $application->id }}">
+                                                                            <i class="fa fa-calendar m-r-5"></i> View
+                                                                            Schedule
+                                                                        </a>
+                                                                    @endif
+                                                                    @if ($application->status == 'Hired')
+                                                                        <a class="dropdown-item" href="#"
+                                                                            data-toggle="modal"
+                                                                            data-target="#hired_modal_{{ $application->id }}">
+                                                                            <i class="fa fa-check-circle m-r-5"></i>
+                                                                            View
+                                                                            Congratulations
+                                                                        </a>
+                                                                    @endif
+                                                                    @if ($application->status == 'Rejected')
+                                                                        <a class="dropdown-item" href="#"
+                                                                            data-toggle="modal"
+                                                                            data-target="#rejected_modal_{{ $application->id }}">
+                                                                            <i class="fa fa-check-circle m-r-5"></i>
+                                                                            View Message
+                                                                        </a>
+                                                                    @endif
                                                                 </div>
                                                             </div>
                                                         </td>
+
+
+                                                        <!-- For Requirements -->
+                                                        @if ($application->status == 'Requirements')
+                                                            <!-- Requirements Modal -->
+                                                            <div class="modal fade"
+                                                                id="requirements_modal_{{ $application->id }}"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="requirementsModalLabel"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog" role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="requirementsModalLabel">
+                                                                                Submit Requirements
+                                                                            </h5>
+                                                                            <button type="button" class="close"
+                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <div class="alert alert-warning text-wrap text-center"
+                                                                                style="word-break: break-word;">
+                                                                                <strong>Note:</strong> Please upload
+                                                                                clear and readable copies of your
+                                                                                documents.
+                                                                                Blurry or incomplete files may result in
+                                                                                delays during processing.
+                                                                            </div>
+                                                                            <form
+                                                                                action="{{ route('applications.requirements.upload', $application->id) }}"
+                                                                                method="POST"
+                                                                                enctype="multipart/form-data">
+                                                                                @csrf
+                                                                                <div class="form-group">
+                                                                                    <label for="sss">SSS</label>
+                                                                                    <input type="file"
+                                                                                        name="sss" id="sss"
+                                                                                        class="form-control" required>
+                                                                                </div>
+                                                                                <div class="form-group">
+                                                                                    <label
+                                                                                        for="pagibig">Pag-IBIG</label>
+                                                                                    <input type="file"
+                                                                                        name="pagibig" id="pagibig"
+                                                                                        class="form-control" required>
+                                                                                </div>
+                                                                                <div class="form-group">
+                                                                                    <label for="pagibig">Barangay
+                                                                                        Clearance</label>
+                                                                                    <input type="file"
+                                                                                        name="barangay_clearance"
+                                                                                        id="pagibig"
+                                                                                        class="form-control" required>
+                                                                                </div>
+
+                                                                                <div class="form-group">
+                                                                                    <label
+                                                                                        for="philhealth">Philhealth</label>
+                                                                                    <input type="file"
+                                                                                        name="philhealth"
+                                                                                        id="philhealth"
+                                                                                        class="form-control" required>
+                                                                                </div>
+                                                                                <div class="form-group">
+                                                                                    <label for="tin">TIN</label>
+                                                                                    <input type="file"
+                                                                                        name="tin" id="tin"
+                                                                                        class="form-control" required>
+                                                                                </div>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-primary w-100 mt-2">Submit</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+
+                                                        <!-- Failed Modal -->
+                                                        @if ($application->status == 'Failed')
+                                                            <!-- Reason Modal -->
+                                                            <div class="modal fade"
+                                                                id="reason_modal_{{ $application->id }}"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="reasonModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered"
+                                                                    role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header bg-danger text-white">
+                                                                            <h5 class="modal-title"
+                                                                                id="reasonModalLabel">
+                                                                                <i
+                                                                                    class="fa fa-exclamation-circle mr-2"></i>
+                                                                                Reason for Failure
+                                                                            </h5>
+                                                                            <button type="button"
+                                                                                class="close text-white"
+                                                                                data-dismiss="modal"
+                                                                                aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <div class="text-center">
+                                                                                <p class="mb-0 ">
+                                                                                    Reason: {{ $application->note }}
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                data-dismiss="modal">Close</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /Reason Modal -->
+                                                        @endif
 
                                                         <!-- View Schedule Modal -->
                                                         <div class="modal fade"
                                                             id="view_schedule_modal_{{ $application->id }}"
                                                             tabindex="-1" role="dialog"
-                                                            aria-labelledby="viewScheduleModalLabel" aria-hidden="true">
+                                                            aria-labelledby="viewScheduleModalLabel"
+                                                            aria-hidden="true">
                                                             <div class="modal-dialog modal-dialog-centered"
                                                                 role="document">
                                                                 <div class="modal-content">
@@ -371,143 +530,155 @@
                                                                         </ul>
                                                                     </div>
                                                                     <div class="modal-footer">
-                                                                        <button type="button" class="btn btn-secondary"
+                                                                        <button type="button"
+                                                                            class="btn btn-secondary"
                                                                             data-dismiss="modal">Close</button>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
 
-                                                        <!-- /View Schedule Modal -->
-                                                    </tr>
+                                                        <!-- Hired Modal -->
+                                                        @if ($application->status == 'Hired')
+                                                            <div class="modal fade"
+                                                                id="hired_modal_{{ $application->id }}"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="hiredModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered modal-lg"
+                                                                    role="document">
+                                                                    <div class="modal-content text-wrap"
+                                                                        style="word-break: break-word;">
+                                                                        <div
+                                                                            class="modal-header bg-success text-white">
+                                                                            <h5 class="modal-title"
+                                                                                id="hiredModalLabel">
+                                                                                <i class="fa fa-trophy mr-2"></i>
+                                                                                You're
+                                                                                Hired!
+                                                                            </h5>
+                                                                            <button type="button"
+                                                                                class="close text-white"
+                                                                                data-dismiss="modal"
+                                                                                aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
 
-                                                    @if (!in_array($application->status, ['Failed', 'Onboarding', 'Not Qualified']))
-                                                        <!-- Withdraw Application Modal -->
-                                                        <div class="modal fade"
-                                                            id="delete_application_{{ $application->id }}"
-                                                            tabindex="-1" role="dialog"
-                                                            aria-labelledby="withdrawModalLabel" aria-hidden="true">
-                                                            <div class="modal-dialog modal-dialog-centered"
-                                                                role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title"
-                                                                            id="withdrawModalLabel">
-                                                                            Withdraw Application</h5>
-                                                                        <button type="button" class="close"
-                                                                            data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body"
-                                                                        style="white-space: normal; word-wrap: break-word;">
-                                                                        <p>We understand that circumstances change, and
-                                                                            you
-                                                                            may need to withdraw your application. Are
-                                                                            you
-                                                                            sure you want to proceed?</p>
-                                                                    </div>
-                                                                    <div class="modal-footer">
-                                                                        <button type="button"
-                                                                            class="btn btn-secondary"
-                                                                            data-dismiss="modal">Cancel</button>
-                                                                        <form
-                                                                            action="{{ route('application.withdraw', $application->id) }}"
-                                                                            method="POST">
-                                                                            @csrf
-                                                                            @method('DELETE')
-                                                                            <button type="submit"
-                                                                                class="btn btn-danger">Withdraw</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <!-- /Withdraw Application Modal -->
-                                                    @endif
-
-                                                    @if ($application->status == 'Requirements')
-                                                        <!-- Requirements Modal -->
-                                                        <div class="modal fade"
-                                                            id="requirements_modal_{{ $application->id }}"
-                                                            tabindex="-1" role="dialog"
-                                                            aria-labelledby="requirementsModalLabel"
-                                                            aria-hidden="true">
-                                                            <div class="modal-dialog" role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header">
-                                                                        <h5 class="modal-title"
-                                                                            id="requirementsModalLabel">
-                                                                            Submit Requirements</h5>
-                                                                        <button type="button" class="close"
-                                                                            data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        <form action="" method="POST"
-                                                                            enctype="multipart/form-data">
-                                                                            @csrf
-                                                                            <div class="form-group">
-                                                                                <label for="sss">SSS</label>
-                                                                                <input type="file" name="sss"
-                                                                                    id="sss"
-                                                                                    class="form-control" required>
+                                                                        <div class="modal-body px-4 py-4">
+                                                                            <div class="text-break"
+                                                                                style="overflow-wrap: anywhere;">
+                                                                                <p class="mb-3 lead">
+                                                                                    Dear
+                                                                                    <strong>{{ $application->name }}</strong>,
+                                                                                </p>
+                                                                                <p class="mb-3"
+                                                                                    style="line-height: 1.6;">
+                                                                                    Congratulations! We are excited to
+                                                                                    inform you that you have been
+                                                                                    <strong
+                                                                                        class="h5 text-success">HIRED</strong>
+                                                                                    for the role of
+                                                                                    <strong>{{ $application->jobPosting->job_title ?? 'N/A' }}</strong>.
+                                                                                </p>
+                                                                                <p class="mb-3"
+                                                                                    style="line-height: 1.6;">
+                                                                                    Your skills, experience, and
+                                                                                    enthusiasm stood out, and we are
+                                                                                    thrilled to welcome you aboard.
+                                                                                    The next steps of the onboarding
+                                                                                    process will be shared with you
+                                                                                    shortly.
+                                                                                </p>
+                                                                                <p class="mb-0 h5 text-success">
+                                                                                    Welcome to the team — we look
+                                                                                    forward to achieving great things
+                                                                                    together!
+                                                                                </p>
                                                                             </div>
-                                                                            <div class="form-group">
-                                                                                <label for="pagibig">Pag-IBIG</label>
-                                                                                <input type="file" name="pagibig"
-                                                                                    id="pagibig"
-                                                                                    class="form-control" required>
-                                                                            </div>
-                                                                            <button type="submit"
-                                                                                class="btn btn-primary">Submit</button>
-                                                                        </form>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <!-- /Requirements Modal -->
-                                                    @endif
+                                                                        </div>
 
-                                                    @if ($application->status == 'Failed')
-                                                        <!-- Reason Modal -->
-                                                        <div class="modal fade"
-                                                            id="reason_modal_{{ $application->id }}" tabindex="-1"
-                                                            role="dialog" aria-labelledby="reasonModalLabel"
-                                                            aria-hidden="true">
-                                                            <div class="modal-dialog modal-dialog-centered"
-                                                                role="document">
-                                                                <div class="modal-content">
-                                                                    <div class="modal-header bg-danger text-white">
-                                                                        <h5 class="modal-title" id="reasonModalLabel">
-                                                                            <i
-                                                                                class="fa fa-exclamation-circle mr-2"></i>
-                                                                            Reason for Failure
-                                                                        </h5>
-                                                                        <button type="button"
-                                                                            class="close text-white"
-                                                                            data-dismiss="modal" aria-label="Close">
-                                                                            <span aria-hidden="true">&times;</span>
-                                                                        </button>
-                                                                    </div>
-                                                                    <div class="modal-body">
-                                                                        <div class="text-center">
-                                                                            <p class="mb-0 ">
-                                                                                Reason: {{ $application->note }}
-                                                                            </p>
+                                                                        <div class="modal-footer px-4  pt-0">
+                                                                            <button type="button"
+                                                                                class="btn btn-success btn-lg w-100 mt-2"
+                                                                                data-dismiss="modal">
+                                                                                Close
+                                                                            </button>
                                                                         </div>
                                                                     </div>
-                                                                    <div class="modal-footer">
-                                                                        <button type="button"
-                                                                            class="btn btn-secondary"
-                                                                            data-dismiss="modal">Close</button>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                        <!-- /Hired Modal -->
+
+                                                        <!-- Rejected Modal -->
+                                                        @if ($application->status == 'Rejected')
+                                                            <div class="modal fade"
+                                                                id="rejected_modal_{{ $application->id }}"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="rejectedModalLabel"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered modal-lg"
+                                                                    role="document">
+                                                                    <div class="modal-content text-wrap"
+                                                                        style="word-break: break-word;">
+                                                                        <div class="modal-header bg-danger text-white">
+                                                                            <h5 class="modal-title"
+                                                                                id="rejectedModalLabel">
+                                                                                <i class="fa fa-times-circle mr-2"></i>
+                                                                                Application Status Update
+                                                                            </h5>
+                                                                            <button type="button"
+                                                                                class="close text-white"
+                                                                                data-dismiss="modal"
+                                                                                aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+
+                                                                        <div class="modal-body p-4">
+                                                                            <div class="text-break"
+                                                                                style="overflow-wrap: anywhere;">
+                                                                                <p class="mb-3 lead">
+                                                                                    Dear
+                                                                                    <strong>{{ $application->name }}</strong>,
+                                                                                </p>
+                                                                                <p class="mb-3"
+                                                                                    style="line-height: 1.6;">
+                                                                                    After careful consideration, we
+                                                                                    regret to inform you that your
+                                                                                    application for
+                                                                                    <strong>{{ $application->jobPosting->job_title ?? 'the position' }}</strong>
+                                                                                    has not been successful at this
+                                                                                    time.
+                                                                                </p>
+                                                                                <p class="mb-3"
+                                                                                    style="line-height: 1.6;">
+                                                                                    We appreciate the time and effort
+                                                                                    you put into your application and
+                                                                                    encourage you to apply
+                                                                                    for future opportunities that match
+                                                                                    your skills and experience.
+                                                                                </p>
+                                                                                <p class="mb-0 text-muted">
+                                                                                    <small>Thank you for your interest
+                                                                                        in our organization.</small>
+                                                                                </p>
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="modal-footer px-4 pt-0 mt-2">
+                                                                            <button type="button"
+                                                                                class="btn btn-danger btn-lg w-100 mt-2"
+                                                                                data-dismiss="modal">
+                                                                                Close
+                                                                            </button>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                        <!-- /Reason Modal -->
-                                                    @endif
+                                                        @endif
+
+                                                    </tr>
                                                 @endforeach
                                             @endif
                                         </tbody>
@@ -583,6 +754,30 @@
     <!-- jQuery -->
     <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Try Again'
+                });
+            @endif
+        });
+    </script>
     <!-- Bootstrap Core JS -->
     <script src="{{ asset('assets/js/popper.min.js') }}"></script>
     <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
