@@ -44,10 +44,14 @@ class FacilitiesEvaluationController extends Controller
         ]);
 
         try {
+            // Determine the facility based on the user's role
+            $role = Auth::user()->role; // Assuming the 'role' field exists in the users table
+            $facility = $role === 'admin' ? 'HR Facility' : 'Training Facility';
+
             // Insert the evaluation data into the 'facility_evaluations' table
             DB::table('facility_evaluations')->insert([
                 'employee_id' => Auth::id(),  // Add the authenticated user's ID
-                'facility' => 'HR Facility',
+                'facility' => $facility,
                 'question1_cleanliness' => $request->input('question1'),
                 'question2_equipment_availability' => $request->input('question2'),
                 'question3_technology_functionality' => $request->input('question3'),

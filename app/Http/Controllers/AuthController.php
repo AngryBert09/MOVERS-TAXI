@@ -69,7 +69,13 @@ class AuthController extends Controller
             return back()->with('error', 'Invalid credentials. Please check your password.');
         }
 
-        // Generate and store 2FA code
+        // Skip 2FA for Applicant
+        if ($user->role === 'Applicant') {
+            Log::info("Applicant login bypassed 2FA: {$user->email}", ['ip' => $request->ip()]);
+            return redirect()->route('applicant.dashboard')->with('success', 'Welcome back!');
+        }
+
+        // Apply 2FA for other roles
         $twoFactorCode = rand(1000, 9999); // Generate a 4-digit code
         Session::put('2fa_user_id', $user->id);
         Session::put('2fa_code', $twoFactorCode);
@@ -77,17 +83,12 @@ class AuthController extends Controller
 
         // Send email with 2FA code
         Mail::to($user->email)->send(new TwoFactorCodeMail($twoFactorCode));
-
         Log::info("2FA code sent to: {$user->email}", ['ip' => $request->ip()]);
-
-        // Redirect based on role
-        if ($user->role === 'Applicant') {
-            return redirect()->route('applicant.dashboard')->with('success', 'A verification code has been sent to your email.');
-        }
 
         // Redirect to 2FA verification page
         return redirect()->route('2fa.verify')->with('success', 'A verification code has been sent to your email.');
     }
+
 
 
 

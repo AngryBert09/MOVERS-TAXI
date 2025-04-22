@@ -7,6 +7,7 @@ use App\Models\JobApplication;
 use Illuminate\Support\Facades\Auth;
 use App\Models\ApplicantFile;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ApplicantUserController extends Controller
 {
@@ -106,4 +107,21 @@ class ApplicantUserController extends Controller
             return back()->with('error', 'An error occurred while uploading requirements. Please try again.');
         }
     }
+
+    public function evaluate()
+    {
+        $userId = Auth::id();
+
+        // Check if an evaluation already exists for this user
+        $hasSubmitted = DB::table('facility_evaluations')
+            ->where('employee_id', $userId)
+            ->exists();
+
+        return view('portal.evaluation.facilities', [
+            'hasSubmitted' => $hasSubmitted,
+            'employeeId' => $userId, // Pass the current user ID
+        ]);
+    }
+
+    
 }

@@ -18,7 +18,7 @@
                     <a href="#"><i class="la la-graduation-cap"></i> <span> Evaluations</span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="{{ route('performance.index') }}">Facilities Evaluation</a></li>
+                        <li><a href="{{ route('applicant.facility') }}">Facilities Evaluation</a></li>
                     </ul>
                 </li>
 

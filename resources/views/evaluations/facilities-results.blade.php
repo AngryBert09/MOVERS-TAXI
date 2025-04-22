@@ -50,7 +50,6 @@
                             <table class="table table-striped custom-table mb-0 datatable">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th>Employee ID</th>
                                         <th>Evaluation Date</th>
                                         <th>Facility</th>
                                         <th>Facility Rating (Avg)</th>
@@ -61,7 +60,6 @@
                                 <tbody>
                                     @forelse($profilings as $profile)
                                         <tr>
-                                            <td>{{ $profile->employee_id }}</td>
                                             <td>{{ \Carbon\Carbon::parse($profile->created_at)->format('M d, Y') }}</td>
                                             <td>{{ $profile->facility }}</td>
                                             <!-- Calculate Average -->

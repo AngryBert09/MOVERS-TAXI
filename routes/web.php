@@ -98,7 +98,6 @@ Route::middleware('admin')->group(function () {
 
     //FACILITIES EVALUATION
     Route::get('/evaluate/facilities', [FacilitiesEvaluationController::class, 'index'])->name('facilities');
-    Route::post('/facility-evaluation/store', [FacilitiesEvaluationController::class, 'store'])->name('facility-evaluation.store');
     Route::get('/evaluations/facilities/results', [FacilitiesEvaluationController::class, 'results'])->name('facilities.results');
 
     //TRAININGS
@@ -160,11 +159,18 @@ Route::middleware('admin')->group(function () {
     Route::get('/users', [UserController::class, 'index'])->name('users');
 });
 
+//FACILITIES EVALUATION
+Route::middleware('auth')->group(function () {
+    Route::post('/facility-evaluation/store', [FacilitiesEvaluationController::class, 'store'])->name('facility-evaluation.store');
 
+    Route::get('/applicant/dashboard', [ApplicantUserController::class, 'index'])->name('applicant.dashboard');
+    Route::delete('/application/{id}/withdraw', [ApplicantUserController::class, 'withdraw'])->name('application.withdraw');
+    Route::post('/applications/{application}/requirements', [ApplicantUserController::class, 'uploadRequirements'])->name('applications.requirements.upload');
 
-Route::get('/applicant/dashboard', [ApplicantUserController::class, 'index'])->name('applicant.dashboard');
-Route::delete('/application/{id}/withdraw', [ApplicantUserController::class, 'withdraw'])->name('application.withdraw');
-Route::post('/applications/{application}/requirements', [ApplicantUserController::class, 'uploadRequirements'])->name('applications.requirements.upload');
+    //APPLICANT FACILITY EVALUATION
+    Route::get('/evaluate/facility', [ApplicantUserController::class, 'evaluate'])->name('applicant.facility');
+});
+
 
 
 
