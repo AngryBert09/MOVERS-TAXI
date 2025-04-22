@@ -17,10 +17,43 @@ class ApplicantUserController extends Controller
 
         $applications = JobApplication::with('jobPosting')->where('email', $email)->get();
 
-        Log::info('Job applications fetched successfully', ['email' => $email, 'application_count' => $applications->count()]);
+        foreach ($applications as $application) {
+            if ($application->status === 'Requirements' && $application->comply_date) {
+                $now = now();
+                $complyDate = \Carbon\Carbon::parse($application->comply_date);
+
+                // If comply date is in the past
+                if ($now->gt($complyDate)) {
+                    // Check if it already had an extension (note contains failure hint)
+                    if (str_contains(strtolower($application->notes), 'requirements submission failed')) {
+                        continue; // Already marked failed
+                    }
+
+                    $daysLate = $now->diffInDays($complyDate);
+
+                    if ($daysLate > 21) {
+                        // More than 3 weeks passed - mark as failed
+                        $application->status = 'Failed';
+                        $application->notes = 'Requirements submission failed due to non-compliance within the allowed time frame.';
+                        $application->save();
+                    } else {
+                        // Extend comply date by 3 weeks
+                        $application->comply_date = $complyDate->addDays(21);
+                        $application->save();
+                        Log::info('Comply date extended for application', ['id' => $application->id]);
+                    }
+                }
+            }
+        }
+
+        Log::info('Job applications fetched successfully', [
+            'email' => $email,
+            'application_count' => $applications->count()
+        ]);
 
         return view('portal.dashboard', compact('applications'));
     }
+
 
     public function withdraw(Request $request, $id)
     {

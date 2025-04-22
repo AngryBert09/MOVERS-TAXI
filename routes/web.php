@@ -95,6 +95,8 @@ Route::middleware('admin')->group(function () {
     Route::get('/applicant-files', [ApplicantFileController::class, 'index'])
         ->name('applicant.files');
     Route::post('/applications/fail', [ApplicantController::class, 'failApplicant'])->name('applications.fail');
+    Route::post('/applications/{id}/comply-date', [ApplicantController::class, 'submissionRequirements'])->name('applications.submission.requirements');
+
 
 
 

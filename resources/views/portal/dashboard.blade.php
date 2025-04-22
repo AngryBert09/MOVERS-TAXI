@@ -365,6 +365,52 @@
                                                             </div>
                                                         </td>
 
+                                                        @if (!in_array($application->status, ['Failed', 'Onboarding', 'Not Qualified']))
+                                                            <!-- Withdraw Application Modal -->
+                                                            <div class="modal fade"
+                                                                id="delete_application_{{ $application->id }}"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="withdrawModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered"
+                                                                    role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="withdrawModalLabel">
+                                                                                Withdraw Application</h5>
+                                                                            <button type="button" class="close"
+                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body"
+                                                                            style="white-space: normal; word-wrap: break-word;">
+                                                                            <p>We understand that circumstances change,
+                                                                                and
+                                                                                you
+                                                                                may need to withdraw your application.
+                                                                                Are
+                                                                                you
+                                                                                sure you want to proceed?</p>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                data-dismiss="modal">Cancel</button>
+                                                                            <form
+                                                                                action="{{ route('application.withdraw', $application->id) }}"
+                                                                                method="POST">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger">Withdraw</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /Withdraw Application Modal -->
+                                                        @endif
 
                                                         <!-- For Requirements -->
                                                         @if ($application->status == 'Requirements')
@@ -375,37 +421,59 @@
                                                                 aria-labelledby="requirementsModalLabel"
                                                                 aria-hidden="true">
                                                                 <div class="modal-dialog" role="document">
-                                                                    <div class="modal-content">
+                                                                    <div class="modal-content text-wrap"
+                                                                        style="word-break: break-word;">
                                                                         <div class="modal-header">
                                                                             <h5 class="modal-title"
-                                                                                id="requirementsModalLabel">
-                                                                                Submit Requirements
-                                                                            </h5>
+                                                                                id="requirementsModalLabel">Submit
+                                                                                Requirements</h5>
                                                                             <button type="button" class="close"
-                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                data-dismiss="modal"
+                                                                                aria-label="Close">
                                                                                 <span aria-hidden="true">&times;</span>
                                                                             </button>
                                                                         </div>
+
                                                                         <div class="modal-body">
-                                                                            <div class="alert alert-warning text-wrap text-center"
-                                                                                style="word-break: break-word;">
-                                                                                <strong>Note:</strong> Please upload
-                                                                                clear and readable copies of your
-                                                                                documents.
-                                                                                Blurry or incomplete files may result in
-                                                                                delays during processing.
+                                                                            @if ($application->comply_date)
+                                                                                <div
+                                                                                    class="alert alert-info text-center">
+                                                                                    Please submit your requirements on
+                                                                                    or before
+                                                                                    <strong>{{ \Carbon\Carbon::parse($application->comply_date)->format('F d, Y') }}</strong>.
+                                                                                    <span
+                                                                                        class="text-danger font-weight-bold">Late
+                                                                                        submissions may lead to
+                                                                                        application
+                                                                                        disqualification or delay in
+                                                                                        onboarding.</span>
+                                                                                </div>
+                                                                            @endif
+
+
+                                                                            <div
+                                                                                class="alert alert-warning text-center">
+                                                                                <strong>Note:</strong> Upload clear and
+                                                                                readable documents.
+                                                                                Blurry or incomplete files may cause
+                                                                                processing delays.
+                                                                                <br>
+
                                                                             </div>
+
                                                                             <form
                                                                                 action="{{ route('applications.requirements.upload', $application->id) }}"
                                                                                 method="POST"
                                                                                 enctype="multipart/form-data">
                                                                                 @csrf
+
                                                                                 <div class="form-group">
                                                                                     <label for="sss">SSS</label>
                                                                                     <input type="file"
                                                                                         name="sss" id="sss"
                                                                                         class="form-control" required>
                                                                                 </div>
+
                                                                                 <div class="form-group">
                                                                                     <label
                                                                                         for="pagibig">Pag-IBIG</label>
@@ -413,29 +481,33 @@
                                                                                         name="pagibig" id="pagibig"
                                                                                         class="form-control" required>
                                                                                 </div>
+
                                                                                 <div class="form-group">
-                                                                                    <label for="pagibig">Barangay
+                                                                                    <label
+                                                                                        for="barangay_clearance">Barangay
                                                                                         Clearance</label>
                                                                                     <input type="file"
                                                                                         name="barangay_clearance"
-                                                                                        id="pagibig"
+                                                                                        id="barangay_clearance"
                                                                                         class="form-control" required>
                                                                                 </div>
 
                                                                                 <div class="form-group">
                                                                                     <label
-                                                                                        for="philhealth">Philhealth</label>
+                                                                                        for="philhealth">PhilHealth</label>
                                                                                     <input type="file"
                                                                                         name="philhealth"
                                                                                         id="philhealth"
                                                                                         class="form-control" required>
                                                                                 </div>
+
                                                                                 <div class="form-group">
                                                                                     <label for="tin">TIN</label>
                                                                                     <input type="file"
                                                                                         name="tin" id="tin"
                                                                                         class="form-control" required>
                                                                                 </div>
+
                                                                                 <button type="submit"
                                                                                     class="btn btn-primary w-100 mt-2">Submit</button>
                                                                             </form>
@@ -444,6 +516,7 @@
                                                                 </div>
                                                             </div>
                                                         @endif
+
 
                                                         <!-- Failed Modal -->
                                                         @if ($application->status == 'Failed')

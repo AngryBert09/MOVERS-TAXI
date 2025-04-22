@@ -320,6 +320,27 @@ class ApplicantController extends Controller
         }
     }
 
+    public function submissionRequirements(Request $request, $id)
+    {
+        $request->validate([
+            'comply_date' => 'required|date',
+        ]);
+
+        $jobApp = JobApplication::find($id);
+
+        if (!$jobApp) {
+            return redirect()->back()->with('error', 'Application not found.');
+        }
+
+        $jobApp->comply_date = $request->comply_date;
+        $jobApp->status = 'Requirements'; // Update status to Requirements
+        $jobApp->save();
+
+        return redirect()->back()->with('success', 'Compliance date updated successfully.');
+    }
+
+
+
 
     public function failApplicant(Request $request)
     {

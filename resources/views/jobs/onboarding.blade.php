@@ -107,13 +107,15 @@
                                                                 (Locked)
                                                             </a>
                                                         @elseif ($applicant->status === 'Interviewed')
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}"
-                                                                data-status="Requirements">
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#requirementsModal"
+                                                                data-id="{{ $applicant->id }}">
                                                                 <i class="fa fa-dot-circle-o text-success"></i> Passed
                                                             </a>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
+
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#failReasonModal"
+                                                                data-id="{{ $applicant->id }}">
                                                                 <i class="fa fa-dot-circle-o text-danger"></i> Failed
                                                             </a>
                                                             {{-- <div class="dropdown-divider"></div>
@@ -144,8 +146,9 @@
                                                                 <i class="fa fa-dot-circle-o text-info"></i> Move to
                                                                 Final Interview
                                                             </a>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}" data-status="Rejected">
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#failReasonModal"
+                                                                data-id="{{ $applicant->id }}">
                                                                 <i class="fa fa-dot-circle-o text-danger"></i> Failed
                                                             </a>
                                                         @elseif ($applicant->status === 'Initial')
@@ -167,40 +170,48 @@
                                                                 <i class="fa fa-dot-circle-o text-danger"></i> Failed
                                                             </a>
                                                         @elseif ($applicant->status === 'Final')
+                                                            <a class="dropdown-item schedule-interview" href="#"
+                                                                data-id="{{ $applicant->id }}" data-toggle="modal"
+                                                                data-target="#scheduleInterviewModal">
+                                                                <i class="fa fa-clock-o"></i> Send Interview Sched
+                                                            </a>
+                                                        @elseif ($applicant->status === 'Requirements')
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}"
-                                                                data-status="Interviewed">
-                                                                <i class="fa fa-dot-circle-o text-warning"></i> Mark as
-                                                                Interviewed
+                                                                data-status="Onboarding">
+                                                                <i class="fa fa-dot-circle-o text-success"></i> Move to
+                                                                Onboarding
                                                             </a>
-                                                            <a class="dropdown-item" href="#" data-toggle="modal"
-                                                                data-target="#failReasonModal"
+                                                            <a class="dropdown-item" href="#"
+                                                                data-toggle="modal" data-target="#failReasonModal"
                                                                 data-id="{{ $applicant->id }}">
                                                                 <i class="fa fa-dot-circle-o text-danger"></i> Failed
                                                             </a>
                                                         @elseif ($applicant->status === 'Onboarding')
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}" data-status="Hired">
-                                                                <i class="fa fa-dot-circle-o text-success"></i> Hired
+                                                                <i class="fa fa-dot-circle-o text-success"></i>
+                                                                Hired
                                                             </a>
                                                             <a class="dropdown-item update-status" href="#"
                                                                 data-id="{{ $applicant->id }}"
                                                                 data-status="Rejected">
-                                                                <i class="fa fa-dot-circle-o text-danger"></i> Rejected
-                                                            @elseif (in_array($applicant->status, ['Qualified', 'Not Qualified']))
-                                                                <a class="dropdown-item update-status" href="#"
-                                                                    data-id="{{ $applicant->id }}"
-                                                                    data-status="Pending">
-                                                                    <i class="fa fa-dot-circle-o text-success"></i>
-                                                                    Accept
-                                                                    (For Scheduling)
-                                                                </a>
-                                                                <a class="dropdown-item update-status" href="#"
-                                                                    data-id="{{ $applicant->id }}"
-                                                                    data-status="Rejected">
-                                                                    <i class="fa fa-dot-circle-o text-danger"></i>
-                                                                    Rejected
-                                                                </a>
+                                                                <i class="fa fa-dot-circle-o text-danger"></i>
+                                                                Rejected
+                                                            </a>
+                                                        @elseif (in_array($applicant->status, ['Qualified', 'Not Qualified']))
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}" data-status="Pending">
+                                                                <i class="fa fa-dot-circle-o text-success"></i>
+                                                                Accept
+                                                                (For Scheduling)
+                                                            </a>
+                                                            <a class="dropdown-item update-status" href="#"
+                                                                data-id="{{ $applicant->id }}"
+                                                                data-status="Rejected">
+                                                                <i class="fa fa-dot-circle-o text-danger"></i>
+                                                                Rejected
+                                                            </a>
                                                         @endif
                                                     </div>
                                                 </div>
@@ -218,6 +229,7 @@
                                                     <i class="fa fa-download"></i> Download
                                                 </a>
                                             </td>
+
                                             <td class="text-right">
                                                 @if (!in_array($applicant->status, ['Hired', 'Rejected']))
                                                     <div class="dropdown dropdown-action">
@@ -227,7 +239,7 @@
                                                         </a>
                                                         <div class="dropdown-menu dropdown-menu-right">
                                                             {{-- Send Interview Schedule --}}
-                                                            @if (in_array($applicant->status, ['Pending', 'Initial', 'Final']))
+                                                            @if (in_array($applicant->status, ['Pending', 'Initial']))
                                                                 <a class="dropdown-item schedule-interview"
                                                                     href="#" data-id="{{ $applicant->id }}"
                                                                     data-toggle="modal"
@@ -269,6 +281,55 @@
                                                     </div>
                                                 @endif
                                             </td>
+
+
+
+                                            <!-- Requirements Modal -->
+                                            <div class="modal fade" id="requirementsModal" tabindex="-1"
+                                                role="dialog" aria-labelledby="requirementsModalLabel"
+                                                aria-hidden="true">
+                                                <div class="modal-dialog" role="document">
+                                                    <form
+                                                        action="{{ route('applications.submission.requirements', $applicant->id) }}"
+                                                        method="POST">
+                                                        @csrf
+                                                        <div class="modal-content text-wrap"
+                                                            style="word-break: break-word;">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="requirementsModalLabel">
+                                                                    Confirm Requirements Submission
+                                                                </h5>
+                                                                <button type="button" class="close"
+                                                                    data-dismiss="modal" aria-label="Close">
+                                                                    <span aria-hidden="true">&times;</span>
+                                                                </button>
+                                                            </div>
+
+                                                            <div class="modal-body px-4">
+                                                                <p>Are you sure you want to mark this applicant as
+                                                                    having passed the requirements?</p>
+                                                                <div class="form-group mt-3">
+                                                                    <label for="compliance_date"
+                                                                        class="font-weight-bold">Compliance
+                                                                        Date</label>
+                                                                    <input type="date" name="comply_date"
+                                                                        id="compliance_date" class="form-control"
+                                                                        required>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="modal-footer px-4">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Cancel</button>
+                                                                <button type="submit" class="btn btn-success">
+                                                                    Confirm
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+
 
 
                                             <!-- Modal for Failure Reason -->
