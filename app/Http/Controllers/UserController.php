@@ -8,6 +8,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        return view('users.index');
+        $users = \App\Models\User::all();
+        return view('users.index', compact('users'));
     }
 }

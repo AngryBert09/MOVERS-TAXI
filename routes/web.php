@@ -17,8 +17,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicantUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ApplicantFileController;
-
-
+use App\Http\Controllers\FacilitiesEvaluationController;
 
 Route::middleware('guest')->group(function () {
     Route::name('landing.')->group(function () {
@@ -97,8 +96,10 @@ Route::middleware('admin')->group(function () {
     Route::post('/applications/fail', [ApplicantController::class, 'failApplicant'])->name('applications.fail');
     Route::post('/applications/{id}/comply-date', [ApplicantController::class, 'submissionRequirements'])->name('applications.submission.requirements');
 
-
-
+    //FACILITIES EVALUATION
+    Route::get('/evaluate/facilities', [FacilitiesEvaluationController::class, 'index'])->name('facilities');
+    Route::post('/facility-evaluation/store', [FacilitiesEvaluationController::class, 'store'])->name('facility-evaluation.store');
+    Route::get('/evaluations/facilities/results', [FacilitiesEvaluationController::class, 'results'])->name('facilities.results');
 
     //TRAININGS
     Route::get('/training-list', [TrainingController::class, 'getTrainingList'])->name('training.list');

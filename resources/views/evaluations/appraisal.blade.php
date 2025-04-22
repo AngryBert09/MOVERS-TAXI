@@ -25,7 +25,7 @@
                 <div class="page-header">
                     <div class="row align-items-center">
                         <div class="col">
-                            <h3 class="page-title">Performance Evaluation</h3>
+                            <h3 class="page-title">HR Employee Performance Evaluation</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
                                 <li class="breadcrumb-item active">Performance</li>
@@ -40,6 +40,12 @@
 
                 <div class="row">
                     <div class="col-md-12">
+                        <div class="search-container mb-4">
+                            <div class="input-group" style="max-width: 300px; float: right;">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search..."
+                                    aria-label="Search">
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped custom-table mb-0 datatable">
                                 <thead>
@@ -135,6 +141,9 @@
                                                 value="{{ $trainee['first_name'] }} {{ $trainee['last_name'] }}"
                                                 readonly />
                                             <input type="hidden" name="trainee_id" value="{{ $trainee['id'] }}" />
+                                            <input type="hidden" name="department"
+                                                value="{{ $trainee['department'] }}" />
+
                                         </div>
 
                                         <div class="row">
@@ -241,7 +250,20 @@
 
         </div>
         <!-- /Main Wrapper -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+        <script>
+            $(document).ready(function() {
+                $("#searchInput").on("keyup", function() {
+                    var value = $(this).val().toLowerCase();
+                    $("#applicantTableBody tr").filter(function() {
+                        $(this).toggle(
+                            $(this).text().toLowerCase().indexOf(value) > -1
+                        );
+                    });
+                });
+            });
+        </script>
 
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script>

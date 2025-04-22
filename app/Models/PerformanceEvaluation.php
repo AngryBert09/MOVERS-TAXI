@@ -27,6 +27,7 @@ class PerformanceEvaluation extends Model
         'criteria',
         'rating',
         'supervisor_feedback',
+        'department',
     ];
     /**
      * The attributes that should be cast.

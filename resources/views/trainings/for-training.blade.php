@@ -526,7 +526,7 @@
             <!-- /Edit Training List Modal -->
 
             <!-- Delete Training List Modal -->
-            <div class="modal custom-modal fade" id="delete_training" role="dialog">
+            {{-- <div class="modal custom-modal fade" id="delete_training" role="dialog">
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-body">
@@ -548,7 +548,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <!-- /Delete Training List Modal -->
 
         </div>

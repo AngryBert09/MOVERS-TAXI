@@ -64,6 +64,7 @@ class EvaluationController extends Controller
                 'employee_id' => $traineeId,
                 'full_name' => $fullName,
                 'evaluation_date' => optional($group->first()->created_at)->toDateString(),
+                'department' => $group->first()->department,
                 'status' => $group->avg('rating') >= 3 ? 'passed' : 'failed',
                 'supervisor_feedback' => $feedback,
             ] + $ratings->toArray(); // Merge ratings into the response
@@ -128,6 +129,7 @@ class EvaluationController extends Controller
                     }
                 }
             ],
+            'department' => 'required|string|max:255',
             'performance.*' => 'required|integer|between:1,5',
             'supervisor_feedback' => 'nullable|string|max:2000',
         ];
@@ -164,6 +166,7 @@ class EvaluationController extends Controller
             foreach ($validated['performance'] as $criteria => $rating) {
                 PerformanceEvaluation::create([
                     'employee_id' => $validated['employee_id'],
+                    'department' => $validated['department'],
                     'category' => 'performance',
                     'criteria' => $criteria,
                     'rating' => $rating,
@@ -177,6 +180,7 @@ class EvaluationController extends Controller
                         'employee_id' => $validated['employee_id'],
                         'category' => 'feedback',
                         'criteria' => 'supervisor_feedback',
+                        'department' => $validated['department'],
                     ],
                     [
                         'rating' => 0,

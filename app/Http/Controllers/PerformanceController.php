@@ -20,16 +20,24 @@ class PerformanceController extends Controller
         $apiToken = env('HR1_API_KEY'); // Store token in .env
 
         $response = Http::withToken($apiToken)->get($apiUrl);
+
         if ($response->successful()) {
+            // Get Job Applications where status is 'hired'
+            $hiredApplications = JobApplication::where('status', 'hired')->pluck('status', 'id');
+
+            // Filter and append 'hired_status' to each trainee
             $trainees = collect($response->json())->filter(function ($employee) {
                 return isset($employee['department']) && $employee['department'] === 'HR';
-            })->values()->toArray(); // Filter employees with department 'HR'
+            })->map(function ($employee) use ($hiredApplications) {
+                $employee['Hired'] = $hiredApplications[$employee['id']] ?? 'not hired';
+                return $employee;
+            })->values()->toArray();
         }
 
         // Fetch existing evaluations
         $evaluations = PerformanceEvaluation::pluck('employee_id')->toArray();
 
-        return view('performance.appraisal', compact('trainees', 'evaluations'));
+        return view('evaluations.appraisal', compact('trainees', 'evaluations'));
     }
 
 
@@ -62,6 +70,7 @@ class PerformanceController extends Controller
                     }
                 }
             ],
+            'department' => 'required|string|max:255',
             'performance.*' => 'required|integer|between:1,5',
             'supervisor_feedback' => 'nullable|string|max:2000',
         ];
@@ -99,6 +108,7 @@ class PerformanceController extends Controller
             foreach ($validated['performance'] as $criteria => $rating) {
                 PerformanceEvaluation::create([
                     'employee_id' => $validated['trainee_id'],
+                    'department' => $validated['department'],
                     'category' => 'performance',
                     'criteria' => $criteria,
                     'rating' => $rating,
@@ -112,6 +122,7 @@ class PerformanceController extends Controller
                         'employee_id' => $validated['trainee_id'],
                         'category' => 'feedback',
                         'criteria' => 'supervisor_feedback',
+                        'department' => $validated['department'],
                     ],
                     [
                         'rating' => 0,
@@ -134,10 +145,6 @@ class PerformanceController extends Controller
                 ->with('error', 'Failed to save evaluation. Error: ' . $e->getMessage());
         }
     }
-
-
-
-
 
 
     public function results()
@@ -164,7 +171,7 @@ class PerformanceController extends Controller
         }
 
         // Group evaluations by trainee_id and pivot
-        $trainees = $evaluations->groupBy('trainee_id')->map(function ($group, $traineeId) use ($employees) {
+        $trainees = $evaluations->groupBy('employee_id')->map(function ($group, $traineeId) use ($employees) {
             $employee = $employees->firstWhere('id', $traineeId);
             $fullName = $employee
                 ? $employee['first_name'] . ' ' . $employee['last_name']
@@ -182,10 +189,11 @@ class PerformanceController extends Controller
                 'full_name' => $fullName,
                 'evaluation_date' => optional($group->first()->created_at)->toDateString(),
                 'status' => $group->avg('rating') >= 3 ? 'passed' : 'failed',
+                'department' => $group->first()->department,
                 'supervisor_feedback' => $feedback,
             ] + $ratings->toArray(); // merge ratings into result
         });
 
-        return view('performance.results', ['trainees' => $trainees]);
+        return view('evaluations.results', ['trainees' => $trainees]);
     }
 }

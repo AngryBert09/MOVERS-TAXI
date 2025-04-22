@@ -599,19 +599,18 @@
             @endif
         });
     </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        < script >
-            $(document).ready(function() {
-                $("#searchInput").on("keyup", function() {
-                    var value = $(this).val().toLowerCase();
-                    $("#applicantTableBody tr").filter(function() {
-                        $(this).toggle(
-                            $(this).text().toLowerCase().indexOf(value) > -1
-                        );
-                    });
+        $(document).ready(function() {
+            $("#searchInput").on("keyup", function() {
+                var value = $(this).val().toLowerCase();
+                $("#applicantTableBody tr").filter(function() {
+                    $(this).toggle(
+                        $(this).text().toLowerCase().indexOf(value) > -1
+                    );
                 });
-            }); <
-        />
+            });
+        });
     </script>
     <!-- jQuery -->
     <script src="assets/js/jquery-3.5.1.min.js"></script>

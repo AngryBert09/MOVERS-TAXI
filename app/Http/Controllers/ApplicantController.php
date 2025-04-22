@@ -277,19 +277,25 @@ class ApplicantController extends Controller
 
             // If applicant is Hired, send data to external API
             if ($request->status === 'Hired') {
+                // Extract first and last name from full name
+                $nameParts = explode(' ', $applicant->name, 2);
+                $firstName = $nameParts[0] ?? '';
+                $lastName = $nameParts[1] ?? '';
+
                 // Prepare the data to send to the external API using personal information and job title
                 $employeeData = [
-                    'first_name' => $personalInfo->first_name,
-                    'last_name' => $personalInfo->last_name,
+                    'first_name' => $firstName,
+                    'last_name' => $lastName,
                     'email' => $applicant->email,
                     'department' => $jobPosting->department,
-                    'position' => $jobPosting->job_title, // Get job_title from JobPosting model
+                    'position' => $jobPosting->job_title,
                     'bdate' => $personalInfo->birth_date,
-                    'job_type' => $jobPosting->job_type, // Assuming job_type exists in JobApplication model
+                    'job_type' => $jobPosting->job_type,
                     'gender' => $personalInfo->gender,
-                    'status' => 'active', // Assuming "active" status is applicable when hired
-                    'contact' => $applicant->phone, // Assuming phone exists in JobApplication model
+                    'status' => 'active',
+                    'contact' => $applicant->phone,
                 ];
+
 
                 // Log the data that is being sent to the API for debugging purposes
                 Log::info('Sending employee data to external API:', ['employee_data' => $employeeData]);

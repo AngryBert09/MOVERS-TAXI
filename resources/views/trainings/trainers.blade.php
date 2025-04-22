@@ -45,8 +45,9 @@
                         <!-- Stylish Search Bar -->
                         <div class="search-container mb-4">
                             <div class="input-group" style="max-width: 300px; float: right;">
-                                <input type="text" id="searchInput" class="form-control" placeholder="Search..."
-                                    aria-label="Search">
+                                <input type="text" id="searchInput" class="form-control"
+                                    placeholder="Search trainers...">
+
                             </div>
                         </div>
                         <div class="table-responsive">
@@ -323,6 +324,18 @@
     </div>
     <!-- /Main Wrapper -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        let typingTimer;
+        $("#searchInput").on("keyup", function() {
+            clearTimeout(typingTimer);
+            typingTimer = setTimeout(function() {
+                var value = $("#searchInput").val().toLowerCase();
+                $("#applicantTableBody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            }, 200); // delay in ms
+        });
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
@@ -348,18 +361,7 @@
             @endif
         });
     </script>
-    <script>
-        $(document).ready(function() {
-            $("#searchInput").on("keyup", function() {
-                var value = $(this).val().toLowerCase();
-                $("#applicantTableBody tr").filter(function() {
-                    $(this).toggle(
-                        $(this).text().toLowerCase().indexOf(value) > -1
-                    );
-                });
-            });
-        });
-    </script>
+
     <!-- jQuery -->
 
 

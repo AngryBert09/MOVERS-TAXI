@@ -25,7 +25,7 @@
                 <div class="page-header">
                     <div class="row align-items-center">
                         <div class="col">
-                            <h3 class="page-title">Performance Results</h3>
+                            <h3 class="page-title">Employee Performance Evaluation Results</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
                                 <li class="breadcrumb-item active">Performance</li>
@@ -40,14 +40,20 @@
 
                 <div class="row">
                     <div class="col-md-12">
-
+                        <div class="search-container mb-4">
+                            <div class="input-group" style="max-width: 300px; float: right;">
+                                <input type="text" id="searchInput" class="form-control" placeholder="Search..."
+                                    aria-label="Search">
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped custom-table mb-0 datatable">
                                 <thead class="thead-dark">
                                     <tr>
-                                        <th>Trainee ID</th>
+                                        <th>Employee ID</th>
                                         <th>Employee Name</th>
                                         <th>Evaluation Date</th>
+                                        <th>Department</th>
                                         <th>Performance Rating (Avg)</th>
                                         <th>Status</th>
                                         <th class="text-right">Actions</th>
@@ -60,6 +66,7 @@
                                             <td>{{ $trainee['full_name'] }}</td>
                                             <td>{{ \Carbon\Carbon::parse($trainee['evaluation_date'])->format('M d, Y') }}
                                             </td>
+                                            <td>{{ $trainee['department'] }}</td>
 
 
                                             <!-- Performance Rating Average -->
