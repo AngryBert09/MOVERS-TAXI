@@ -312,7 +312,7 @@
                                                                     <i class="material-icons">more_vert</i>
                                                                 </a>
                                                                 <div class="dropdown-menu dropdown-menu-right">
-                                                                    @if (in_array($application->status, ['Initial', 'Final', 'Pending']))
+                                                                    @if (in_array($application->status, ['Initial', 'Final', 'Pending', 'Qualified', 'Not Qualified']))
                                                                         <a class="dropdown-item" href="#"
                                                                             data-toggle="modal"
                                                                             data-target="#delete_application_{{ $application->id }}">
@@ -365,7 +365,7 @@
                                                             </div>
                                                         </td>
 
-                                                        @if (!in_array($application->status, ['Failed', 'Onboarding', 'Not Qualified']))
+                                                        @if (!in_array($application->status, ['Failed', 'Onboarding']))
                                                             <!-- Withdraw Application Modal -->
                                                             <div class="modal fade"
                                                                 id="delete_application_{{ $application->id }}"

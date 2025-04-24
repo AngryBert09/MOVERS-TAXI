@@ -435,15 +435,21 @@ class ApplicantController extends Controller
 
             Log::info('Job application created successfully.', ['job_application' => $jobApplication]);
 
-            // Step 6: Save personal info
-            $personalInfo = PersonalInformation::create([
-                'first_name' => $firstName,
-                'last_name' => $lastName,
-                'phone_number' => $validatedData['phone'],
-                'gender' => $validatedData['gender'],
-                'birth_date' => $validatedData['birthdate'],
-                'application_id' => $jobApplication->id,
-            ]);
+
+            // Step 6: Update personal info for the authenticated user
+            if ($userId) {
+                $personalInfo = PersonalInformation::updateOrCreate(
+                    ['user_id' => $userId],
+                    [
+                        'phone_number' => $validatedData['phone'],
+                        'gender' => $validatedData['gender'],
+                        'birth_date' => $validatedData['birthdate'],
+                    ]
+                );
+
+                Log::info('Personal information updated for user.', ['user_id' => $userId, 'personal_info' => $personalInfo]);
+            }
+
 
             Log::info('Personal information saved successfully.', ['personal_info' => $personalInfo]);
 

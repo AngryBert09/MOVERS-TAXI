@@ -85,8 +85,15 @@
                     <a href="{{ route('company.index') }}"><i class="la la-doc"></i> <span>Documents</span></a>
                 </li> --}}
                 <li>
-                    <a href="{{ route('users') }}"><i class="la la-user-plus"></i> <span>Users</span></a>
+                    <a href="{{ route('users') }}">
+                        <i class="la la-user-plus"></i>
+                        <span>Users</span>
+                        <span style="color: rgb(0, 60, 255); font-size: 0.75rem; margin-left: 5px;">(Under
+                            Development)</span>
+                    </a>
                 </li>
+
+
                 <li>
                     <a href="{{ route('inquiries') }}"><i class="la la-ticket"></i> <span>Inquiries</span></a>
                 </li>
