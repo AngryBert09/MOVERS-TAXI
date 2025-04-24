@@ -97,6 +97,11 @@
                                                             data-target="#edit_trainer_{{ $trainer->id }}">
                                                             <i class="fa fa-pencil m-r-5"></i> Edit
                                                         </a>
+                                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                                            data-target="#evaluateModal{{ $trainer->id }}">
+                                                            <i class="fa fa-check-circle m-r-5"></i> Evaluate
+                                                        </a>
+
                                                         {{--
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#delete_trainer_{{ $trainer->id }}"
@@ -120,6 +125,150 @@
             </div>
             <!-- /Page Content -->
 
+            @foreach ($trainers as $trainer)
+                <div class="modal fade" id="evaluateModal{{ $trainer->id }}" tabindex="-1" role="dialog"
+                    aria-labelledby="evaluateModalLabel{{ $trainer->id }}" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="evaluateModalLabel{{ $trainer->id }}">Evaluate Trainer
+                                </h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span>&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="{{ route('performance.trainer.store') }}" method="POST">
+                                    @csrf
+
+                                    <h6><strong>Evaluation Form for {{ $trainer->first_name }}
+                                            {{ $trainer->last_name }}</strong></h6>
+                                    <input type="hidden" name="trainee_id" value="{{ $trainer->employee_id }}">
+                                    <div class="row">
+                                        <!-- Column 1 -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="q1">1. Knowledge of the subject matter</label>
+                                                <select class="form-control" name="q1" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q2">2. Clarity in explaining the material</label>
+                                                <select class="form-control" name="q2" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q3">3. Engagement and interaction with
+                                                    trainees</label>
+                                                <select class="form-control" name="q3" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q4">4. Effectiveness in answering questions</label>
+                                                <select class="form-control" name="q4" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q5">5. Presentation skills (use of visuals, voice,
+                                                    etc.)</label>
+                                                <select class="form-control" name="q5" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        <!-- Column 2 -->
+                                        <div class="col-md-6">
+                                            <div class="form-group">
+                                                <label for="q6">6. Ability to keep trainees motivated</label>
+                                                <select class="form-control" name="q6" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q7">7. Use of appropriate training methods</label>
+                                                <select class="form-control" name="q7" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q8">8. Time management during the training
+                                                    session</label>
+                                                <select class="form-control" name="q8" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q9">9. Overall communication skills</label>
+                                                <select class="form-control" name="q9" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="q10">10. Ability to address individual needs of
+                                                    trainees</label>
+                                                <select class="form-control" name="q10" required>
+                                                    @for ($i = 1; $i <= 5; $i++)
+                                                        <option value="{{ $i }}">{{ $i }}
+                                                        </option>
+                                                    @endfor
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group mt-3">
+                                        <button type="submit" class="btn btn-primary btn-block">Submit
+                                            Evaluation</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+
+
             <!-- Add Trainers List Modal -->
             <div id="add_trainer" class="modal custom-modal fade" role="dialog">
                 <div class="modal-dialog modal-dialog-centered" role="document">
@@ -134,40 +283,32 @@
                             <form action="{{ route('trainers.store') }}" method="POST">
                                 @csrf
                                 <div class="row">
-                                    <div class="col-sm-6">
+                                    <div class="col-sm-12">
                                         <div class="form-group">
-                                            <label class="col-form-label">First Name <span
+                                            <label class="col-form-label">Select Trainer <span
                                                     class="text-danger">*</span></label>
-                                            <input class="form-control" type="text" name="first_name" required>
+                                            <select class="form-control" name="trainer_id" required>
+                                                <option value="">-- Select Trainer --</option>
+                                                @foreach ($employees as $employee)
+                                                    <option value="{{ $employee['id'] }}">
+                                                        {{ $employee['first_name'] }} {{ $employee['last_name'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Last Name</label>
-                                            <input class="form-control" type="text" name="last_name">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
+
+                                    <!-- Role Field -->
+                                    <div class="col-sm-12">
                                         <div class="form-group">
                                             <label class="col-form-label">Role <span
                                                     class="text-danger">*</span></label>
-                                            <input class="form-control" type="text" name="role" required>
+                                            <input class="form-control" type="text" name="role"
+                                                value="Trainer">
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Email <span
-                                                    class="text-danger">*</span></label>
-                                            <input class="form-control" type="email" name="email" required>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label class="col-form-label">Phone</label>
-                                            <input class="form-control" type="text" name="phone">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
+
+                                    <div class="col-sm-12">
                                         <div class="form-group">
                                             <label class="col-form-label">Status</label>
                                             <select class="form-control" name="status">
@@ -176,6 +317,7 @@
                                             </select>
                                         </div>
                                     </div>
+
                                     <div class="col-sm-12">
                                         <div class="form-group">
                                             <label>Description <span class="text-danger">*</span></label>
@@ -187,11 +329,12 @@
                                     <button type="submit" class="btn btn-primary submit-btn">Submit</button>
                                 </div>
                             </form>
-
                         </div>
                     </div>
                 </div>
             </div>
+
+
             <!-- /Add Trainers List Modal -->
 
             <!-- Edit Trainers List Modal -->

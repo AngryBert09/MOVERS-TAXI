@@ -24,6 +24,7 @@ class EmployeeController extends Controller
             // Ensure $employees is an array before proceeding
             if (is_array($employees)) {
                 // Fetch training achievements from local database for each employee
+
                 foreach ($employees as $key => $employee) {
                     // Get achievements from the database using the employee's ID
                     $achievements = TrainingAchievement::where('employee_id', $employee['id'])->get();

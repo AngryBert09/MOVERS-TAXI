@@ -84,9 +84,6 @@
                                         <tr>
                                             <td>
                                                 <h2 class="table-avatar">
-                                                    <a href="#" class="avatar"><img
-                                                            src="assets/img/profiles/avatar-placeholder.jpg"
-                                                            alt=""></a>
                                                     <a href="#">{{ $user->name }}
                                                         <span>{{ $user->role }}</span></a>
                                                 </h2>

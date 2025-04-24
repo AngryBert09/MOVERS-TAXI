@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Session;
 use App\Mail\TwoFactorCodeMail;
 use Illuminate\Support\Facades\Http;
+use App\Models\PersonalInformation;
 
 
 class AuthController extends Controller
@@ -131,6 +132,8 @@ class AuthController extends Controller
         $request->validate([
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6|confirmed',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
         ]);
 
         try {
@@ -141,28 +144,35 @@ class AuthController extends Controller
                 'role' => 'Applicant',
             ]);
 
+            // Store Personal Information
+            PersonalInformation::create([
+                'user_id' => $user->id,
+                'first_name' => $request->first_name,
+                'last_name' => $request->last_name,
+            ]);
+
             Log::info("New user registered: {$user->email}", ['user_id' => $user->id, 'ip' => $request->ip()]);
 
             // Generate verification URL
             $verificationUrl = URL::signedRoute('auth.verify', [
                 'id' => $user->id,
                 'hash' => sha1($user->email),
-            ], Carbon::now()->addMinutes(60)); // Link expires in 60 minutes
+            ], Carbon::now()->addMinutes(60));
 
-            // Send verification email manually
+            // Send verification email
             Mail::send('emails.verify-email', ['url' => $verificationUrl], function ($message) use ($user) {
                 $message->to($user->email)->subject('Verify Your Email Address');
             });
 
             Log::info("Verification email sent to: {$user->email}");
 
-            // Return to registration page with a success message
             return redirect()->route('auth.login')->with('success', 'Registration successful! Please check your email to verify your account.');
         } catch (\Exception $e) {
             Log::error("Registration failed for {$request->email}: " . $e->getMessage(), ['ip' => $request->ip()]);
             return back()->with('error', 'An error occurred during registration. Please try again.');
         }
     }
+
 
 
     public function showVerificationNotice()

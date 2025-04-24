@@ -59,6 +59,7 @@
                                         <th>Description </th>
                                         <th>Cost </th>
                                         <th>Status </th>
+
                                         <th class="text-right">Action</th>
                                     </tr>
                                 </thead>
@@ -110,14 +111,18 @@
                                                             data-target="#edit_training_{{ $training->id }}">
                                                             <i class="fa fa-pencil m-r-5"></i> Edit
                                                         </a>
+                                                        @if ($training->status == 'Completed')
+                                                            <a class="dropdown-item"
+                                                                href="{{ route('trainings.certificate', $training->id) }}"
+                                                                target="_blank">
+                                                                <i class="fa fa-file-pdf-o m-r-5"></i> View Certificate
+                                                            </a>
+                                                        @endif
 
-                                                        {{-- <a class="dropdown-item" href="#" data-toggle="modal"
-                                                            data-target="#deleteBudgetModal">
-                                                            <i class="fa fa-trash-o m-r-5"></i> Delete
-                                                        </a> --}}
                                                     </div>
                                                 </div>
                                             </td>
+
                                             <!-- Delete Budget Request Modal -->
                                             <div class="modal custom-modal fade" id="deleteBudgetModal" role="dialog">
                                                 <div class="modal-dialog modal-dialog-centered">

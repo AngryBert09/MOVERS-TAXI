@@ -51,4 +51,6 @@ class Training extends Model
     {
         return $this->belongsTo(JobApplication::class, 'trainee_id');
     }
+
+
 }

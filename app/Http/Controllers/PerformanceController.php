@@ -186,6 +186,7 @@ class PerformanceController extends Controller
 
             return [
                 'trainee_id' => $traineeId,
+                'position' => $employee['position'] ?? 'Unknown Position',
                 'full_name' => $fullName,
                 'evaluation_date' => optional($group->first()->created_at)->toDateString(),
                 'status' => $group->avg('rating') >= 3 ? 'passed' : 'failed',
@@ -195,5 +196,150 @@ class PerformanceController extends Controller
         });
 
         return view('evaluations.results', ['trainees' => $trainees]);
+    }
+
+    public function storeTrainerEval(Request $request)
+    {
+        Log::info('storeTrainerEval method called', ['request' => $request->all()]);
+
+        // Define validation rules
+        $rules = [
+            'trainee_id' => 'required',
+            'performance' => [
+                'nullable',
+                'array',
+                function ($attribute, $value, $fail) {
+                    $requiredCriteria = [
+                        'punctuality',
+                        'quality',
+                        'communication',
+                        'feedback',
+                        'problem_solving',
+                        'teamwork',
+                        'attitude',
+                        'adaptability',
+                        'time_management',
+                        'behavior'
+                    ];
+
+                    $missing = array_diff($requiredCriteria, array_keys($value));
+
+                    if (!empty($missing)) {
+                        $fail('The following evaluation criteria are missing: ' . implode(', ', $missing));
+                    }
+                }
+            ],
+            'department' => 'nullable|string|max:255',
+            'performance.*' => 'nullable|integer|between:1,5',
+            'supervisor_feedback' => 'nullable|string|max:2000',
+
+            // Trainer evaluation rules for the 10 questions
+            'trainer_evaluation' => [
+                'nullable',
+                'array',
+                function ($attribute, $value, $fail) {
+                    $trainerCriteria = [
+                        'q1',
+                        'q2',
+                        'q3',
+                        'q4',
+                        'q5',
+                        'q6',
+                        'q7',
+                        'q8',
+                        'q9',
+                        'q10'
+                    ];
+
+                    $missing = array_diff($trainerCriteria, array_keys($value));
+
+                    if (!empty($missing)) {
+                        $fail('The following trainer evaluation criteria are missing: ' . implode(', ', $missing));
+                    }
+                }
+            ],
+            'trainer_evaluation.*' => 'required|integer|between:1,5',
+        ];
+
+        // Custom validation messages
+        $messages = [
+            'performance.*.required' => 'All performance ratings must be provided.',
+            'performance.*.between' => 'Ratings must be between 1 and 5.',
+            'trainer_evaluation.*.required' => 'All trainer evaluation ratings must be provided.',
+            'trainer_evaluation.*.between' => 'Trainer ratings must be between 1 and 5.',
+        ];
+
+        // Validate the request
+        try {
+            Log::info('Validating request data');
+            $validated = $request->validate($rules, $messages);
+            Log::info('Request data validated successfully', ['validated' => $validated]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Validation failed', ['errors' => $e->errors()]);
+            return redirect()->back()
+                ->withInput()
+                ->withErrors($e->errors())
+                ->with('error', 'Validation failed. Please correct the errors and try again.');
+        }
+
+        // Begin database transaction
+        DB::beginTransaction();
+
+        try {
+            Log::info('Storing performance ratings');
+            // Store each performance rating
+            foreach ($validated['performance'] as $criteria => $rating) {
+                PerformanceEvaluation::create([
+                    'employee_id' => $validated['trainee_id'],
+                    'department' => $validated['department'],
+                    'category' => 'performance',
+                    'criteria' => $criteria,
+                    'rating' => $rating,
+                ]);
+            }
+
+            Log::info('Storing trainer evaluation ratings');
+            // Store trainer evaluation for the 10 questions
+            foreach ($validated['trainer_evaluation'] as $question => $rating) {
+                PerformanceEvaluation::create([
+                    'employee_id' => $validated['trainee_id'],
+                    'department' => $validated['department'],
+                    'category' => 'trainer',
+                    'criteria' => $question,
+                    'rating' => $rating,
+                ]);
+            }
+
+            // Store supervisor feedback separately if provided
+            if (!empty($validated['supervisor_feedback'])) {
+                Log::info('Storing supervisor feedback');
+                PerformanceEvaluation::updateOrCreate(
+                    [
+                        'employee_id' => $validated['trainee_id'],
+                        'category' => 'feedback',
+                        'criteria' => 'supervisor_feedback',
+                        'department' => $validated['department'],
+                    ],
+                    [
+                        'rating' => 0,
+                    ]
+                );
+            }
+
+            // Commit the transaction
+            DB::commit();
+            Log::info('Transaction committed successfully');
+
+            return redirect()->back()
+                ->with('success', 'Performance and trainer evaluations saved successfully.');
+        } catch (\Exception $e) {
+            // Rollback transaction on error
+            DB::rollBack();
+            Log::error('Failed to save evaluations', ['error' => $e->getMessage()]);
+
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Failed to save evaluations. Error: ' . $e->getMessage());
+        }
     }
 }

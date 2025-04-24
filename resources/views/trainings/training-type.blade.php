@@ -54,6 +54,7 @@
                                         <th>Type </th>
                                         <th>Description </th>
                                         <th>Status </th>
+                                        <th>Contract </th>
                                         <th class="text-right">Action</th>
                                     </tr>
                                 </thead>
@@ -79,6 +80,12 @@
                                                     </div>
                                                 </div>
                                             </td>
+                                            <td>
+                                                <a href="{{ asset('storage/' . $trainingType->contract) }}"
+                                                    class="btn btn-sm btn-primary" target="_blank">
+                                                    <i class="fa fa-eye"></i> View Contract
+                                                </a>
+                                            </td>
                                             <td class="text-right">
                                                 <div class="dropdown dropdown-action">
                                                     <a href="#" class="action-icon dropdown-toggle"
@@ -90,12 +97,7 @@
                                                             data-target="#edit_type_{{ $trainingType->id }}">
                                                             <i class="fa fa-pencil m-r-5"></i> Edit
                                                         </a>
-
-                                                        {{-- <a class="dropdown-item" href="#" data-toggle="modal"
-                                                            data-target="#delete_type_{{ $trainingType->id }}">
-                                                            <i class="fa fa-trash-o m-r-5"></i> Delete
-                                                        </a> --}}
-
+                                                       
                                                     </div>
                                                 </div>
                                             </td>
@@ -121,7 +123,8 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ route('training-types.store') }}" method="POST">
+                            <form action="{{ route('training-types.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
                                 <div class="form-group">
                                     <label>Type <span class="text-danger">*</span></label>
@@ -138,6 +141,10 @@
                                         <option value="Inactive">Inactive</option>
                                     </select>
                                 </div>
+                                <div class="form-group">
+                                    <label>Contract Attachment</label>
+                                    <input class="form-control" type="file" name="contract_attachment">
+                                </div>
                                 <div class="submit-section">
                                     <button type="submit" class="btn btn-primary submit-btn">Submit</button>
                                 </div>
@@ -146,6 +153,7 @@
                     </div>
                 </div>
             </div>
+
 
             <!-- /Add Training Type Modal -->
 
@@ -182,6 +190,10 @@
                                             <option value="Inactive"
                                                 {{ $type->status == 'Inactive' ? 'selected' : '' }}>Inactive</option>
                                         </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Contract Attachment</label>
+                                        <input class="form-control" type="file" name="contract_attachment">
                                     </div>
                                     <div class="submit-section">
                                         <button type="submit" class="btn btn-primary submit-btn">Save</button>

@@ -27,7 +27,7 @@
                     <a href="#"><i class="la la-edit"></i> <span> My Training </span> <span
                             class="menu-arrow"></span></a>
                     <ul style="display: none;">
-                        <li><a href="{{ route('training.list') }}">Current Training</a></li>
+                        <li><a href="{{ route('my.training') }}">Current Training</a></li>
                     </ul>
                 </li>
 

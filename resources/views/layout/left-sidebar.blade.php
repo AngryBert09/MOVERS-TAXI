@@ -80,8 +80,10 @@
                     </ul>
                 </li>
 
-
-
+                {{--
+                <li>
+                    <a href="{{ route('company.index') }}"><i class="la la-doc"></i> <span>Documents</span></a>
+                </li> --}}
                 <li>
                     <a href="{{ route('users') }}"><i class="la la-user-plus"></i> <span>Applicant Users</span></a>
                 </li>
@@ -91,6 +93,7 @@
                 <li>
                     <a href="{{ route('company.index') }}"><i class="la la-cog"></i> <span>Settings</span></a>
                 </li>
+
 
 
 

@@ -31,10 +31,7 @@
                                 <li class="breadcrumb-item active">Training</li>
                             </ul>
                         </div>
-                        <div class="col-auto float-right ml-auto">
-                            <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_training"><i
-                                    class="fa fa-plus"></i> Add New </a>
-                        </div>
+
                     </div>
                 </div>
                 <!-- /Page Header -->
@@ -61,69 +58,38 @@
                                 <tbody id="applicantTableBody">
                                     <tr>
                                         <td>1</td>
+                                        <td>John Doe</td>
+                                        <td>Software Engineer</td>
+                                        <td>IT</td>
                                         <td>Leadership Training</td>
-                                        <td>
-                                            <h2 class="table-avatar">
-                                                <a href="profile.html" class="avatar"><img alt=""
-                                                        src="assets/img/default.jpg"></a>
-                                                <a href="profile.html">John Doe</a>
-                                            </h2>
-                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>2</td>
+                                        <td>Jane Smith</td>
+                                        <td>Marketing Manager</td>
+                                        <td>Marketing</td>
+                                        <td>Advanced Analytics Course</td>
+                                    </tr>
+                                    <tr>
+                                        <td>3</td>
+                                        <td>Michael Johnson</td>
+                                        <td>HR Specialist</td>
                                         <td>Human Resources</td>
-                                        <td>Enhance leadership skills for team management.</td>
-                                        {{-- <td>
-                                            <i class="fa fa-dot-circle-o text-success"></i> Active
-                                        </td> --}}
-                                        {{-- <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle"
-                                                    data-toggle="dropdown" aria-expanded="false">
-                                                    <i class="material-icons">more_vert</i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                                        data-target="#edit_training_1">
-                                                        <i class="fa fa-pencil m-r-5"></i> Edit
-                                                    </a>
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                                        data-target="#deleteBudgetModal">
-                                                        <i class="fa fa-trash-o m-r-5"></i> Delete
-                                                    </a>
-                                                </div>
-                                            </div>
-                                        </td> --}}
-                                        <!-- Delete Budget Request Modal -->
-                                        <div class="modal custom-modal fade" id="deleteBudgetModal" role="dialog">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
-                                                    <div class="modal-body">
-                                                        <div class="form-header">
-                                                            <h3>Delete Budget Request</h3>
-                                                            <p>Are you sure you want to delete this Training?</p>
-                                                        </div>
-                                                        <div class="modal-btn delete-action">
-                                                            <div class="row">
-                                                                <div class="col-6">
-                                                                    <form id="deleteBudgetForm" action="#"
-                                                                        method="POST">
-                                                                        @csrf
-                                                                        @method('DELETE')
-                                                                        <button type="submit"
-                                                                            class="btn btn-danger btn-lg btn-block continue-btn">
-                                                                            Delete
-                                                                        </button>
-                                                                    </form>
-                                                                </div>
-                                                                <div class="col-6">
-                                                                    <a href="javascript:void(0);" data-dismiss="modal"
-                                                                        class="btn btn-secondary btn-lg cancel-btn">Cancel</a>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        <td>Conflict Resolution Training</td>
+                                    </tr>
+                                    <tr>
+                                        <td>4</td>
+                                        <td>Alice Brown</td>
+                                        <td>Sales Executive</td>
+                                        <td>Sales</td>
+                                        <td>Customer Relationship Management Course</td>
+                                    </tr>
+                                    <tr>
+                                        <td>5</td>
+                                        <td>David Williams</td>
+                                        <td>Product Designer</td>
+                                        <td>Design</td>
+                                        <td>Creative Thinking Workshop</td>
                                     </tr>
                                 </tbody>
                             </table>

@@ -35,11 +35,31 @@
                                 </div>
                             @endif
 
+                            <div class="form-group row">
+                                <div class="col-md-6">
+                                    <label>First Name</label>
+                                    <input class="form-control @error('first_name') is-invalid @enderror" type="text"
+                                        name="first_name" value="{{ old('first_name') }}" required>
+                                    @error('first_name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label>Last Name</label>
+                                    <input class="form-control @error('last_name') is-invalid @enderror" type="text"
+                                        name="last_name" value="{{ old('last_name') }}" required>
+                                    @error('last_name')
+                                        <span class="text-danger">{{ $message }}</span>
+                                    @enderror
+                                </div>
+                            </div>
+
+
                             <div class="form-group">
                                 <label>Email</label>
                                 <input class="form-control @error('email') is-invalid @enderror" type="email"
                                     name="email" value="{{ old('email') }}" required>
-
                                 @error('email')
                                     <span class="text-danger">{{ $message }}</span>
                                 @enderror
@@ -50,7 +70,6 @@
                                 <div class="input-group">
                                     <input class="form-control @error('password') is-invalid @enderror" type="password"
                                         name="password" id="password" required>
-
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-outline-secondary toggle-password"
                                             data-target="password">
@@ -69,7 +88,6 @@
                                     <input class="form-control @error('password_confirmation') is-invalid @enderror"
                                         type="password" name="password_confirmation" id="password_confirmation"
                                         required>
-
                                     <div class="input-group-append">
                                         <button type="button" class="btn btn-outline-secondary toggle-password"
                                             data-target="password_confirmation">
@@ -79,24 +97,22 @@
                                 </div>
                             </div>
 
-                            <!-- JavaScript for Toggle Password Visibility -->
+                            <!-- JS to toggle password visibility -->
                             <script>
                                 document.querySelectorAll('.toggle-password').forEach(button => {
                                     button.addEventListener('click', function() {
                                         let input = document.getElementById(this.getAttribute('data-target'));
                                         let icon = this.querySelector('i');
-
                                         if (input.type === 'password') {
                                             input.type = 'text';
-                                            icon.classList.replace('fa-eye', 'fa-eye-slash'); // Change to "eye slash" icon
+                                            icon.classList.replace('fa-eye', 'fa-eye-slash');
                                         } else {
                                             input.type = 'password';
-                                            icon.classList.replace('fa-eye-slash', 'fa-eye'); // Change back to "eye" icon
+                                            icon.classList.replace('fa-eye-slash', 'fa-eye');
                                         }
                                     });
                                 });
                             </script>
-
 
                             <div class="form-group text-center">
                                 <button class="btn btn-primary account-btn" type="submit">Register</button>
@@ -106,10 +122,10 @@
                                 <p>Already have an account? <a href="{{ route('auth.login') }}">Login</a></p>
                             </div>
                         </form>
-
                         <!-- /Account Form -->
                     </div>
                 </div>
+
             </div>
         </div>
     </div>

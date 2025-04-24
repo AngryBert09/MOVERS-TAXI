@@ -13,6 +13,8 @@ use Illuminate\Support\Carbon;
 use App\Models\TrainingAchievement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 class TrainingController extends Controller
 {
@@ -235,34 +237,79 @@ class TrainingController extends Controller
     // FUNCTIONS FOR TRAINERS
     public function getTrainers()
     {
-        $trainers = Trainer::all(); // Fetch all trainers
-        return view('trainings.trainers', compact('trainers'));
+        // Fetch all trainers from the local DB
+        $trainers = Trainer::all();
+
+        // Fetch employees from HR1 API
+        $token = env('HR1_API_KEY');
+        $employees = collect(); // Default empty collection
+
+        try {
+            $response = Http::withToken($token)->get('https://hr1.moverstaxi.com/api/v1/employees');
+
+            if ($response->successful()) {
+                $employees = collect($response->json());
+
+                // Filter out employees who are already assigned as trainers
+                $assignedTrainerIds = Trainer::pluck('employee_id')->toArray();
+                $employees = $employees->filter(function ($employee) use ($assignedTrainerIds) {
+                    return !in_array($employee['id'], $assignedTrainerIds);
+                });
+            } else {
+                Log::error('Failed to fetch employees', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('API Error:', ['message' => $e->getMessage()]);
+        }
+
+        return view('trainings.trainers', compact('trainers', 'employees'));
     }
+
 
     public function storeTrainer(Request $request)
     {
+        // Validate the incoming request
         $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'nullable|string|max:255',
-            'role' => 'required|string|max:255',
-            'email' => 'required|email|unique:trainers,email',
-            'phone' => 'nullable|string|max:20',
+            'trainer_id' => 'required', // Ensure trainer_id exists in employees
             'status' => 'required|in:Active,Inactive',
             'description' => 'required|string',
+            'role' => 'nullable|string', // Role is optional if you want to allow customization
         ]);
 
-        $trainer = new Trainer();
-        $trainer->first_name = $request->first_name;
-        $trainer->last_name = $request->last_name;
-        $trainer->role = $request->role;
-        $trainer->email = $request->email;
-        $trainer->phone = $request->phone;
-        $trainer->status = $request->status;
-        $trainer->description = $request->description;
-        $trainer->save();
+        // Fetch employee data from HR API based on the selected trainer_id
+        $token = env('HR1_API_KEY');
+        $response = Http::withToken($token)->get("https://hr1.moverstaxi.com/api/v1/employees/{$request->trainer_id}");
 
-        return redirect()->back()->with('success', 'Trainer added successfully!');
+        if ($response->successful()) {
+            $employee = $response->json(); // Get employee details from the API response
+
+            // Create the new trainer with data from the API and the request
+            $trainer = new Trainer();
+            $trainer->employee_id = $employee['id']; // Store the employee_id
+            $trainer->first_name = $employee['first_name'];
+            $trainer->last_name = $employee['last_name'];
+
+            // Set the role from the request or default to 'Trainer' if not provided
+            $trainer->role = $request->role ?? 'Trainer'; // Default to 'Trainer' if no role is specified
+
+            $trainer->email = $employee['email']; // Assuming the employee object contains 'email'
+            $trainer->phone = $employee['contact'] ?? null; // Assuming 'phone' might be null
+            $trainer->status = $request->status;
+            $trainer->description = $request->description;
+            $trainer->save();
+
+            return redirect()->back()->with('success', 'Trainer added successfully!');
+        } else {
+            // Handle the error if fetching from API fails
+            return redirect()->back()->with('error', 'Failed to fetch employee details from HR API');
+        }
     }
+
+
+
 
     public function updateTrainer(Request $request, $id)
     {
@@ -317,35 +364,78 @@ class TrainingController extends Controller
 
     public function storeTrainingType(Request $request)
     {
+        // Validate the incoming request
         $request->validate([
             'name' => 'required|string|max:255|unique:training_types,type_name',
             'description' => 'required|string',
             'status' => 'required|in:Active,Inactive',
+            'contract_attachment' => 'nullable|mimes:pdf,doc,docx|max:10240', // Validate file upload (optional field)
+        ], [
+            'name.required' => 'The training type name is required.',
+            'name.unique' => 'The training type name must be unique.',
+            'description.required' => 'The description is required.',
+            'status.required' => 'The status is required.',
+            'status.in' => 'The status must be either Active or Inactive.',
+            'contract_attachment.mimes' => 'The contract attachment must be a file of type: pdf, doc, docx.',
+            'contract_attachment.max' => 'The contract attachment may not be greater than 10MB.',
         ]);
 
+        // Handle the file upload if there is a contract attachment
+        $contractPath = null;
+        if ($request->hasFile('contract_attachment')) {
+            $file = $request->file('contract_attachment');
+            $contractPath = $file->store('contracts', 'public'); // Store in storage/app/public/contracts
+        }
+
+        // Create the training type and store the contract path if it exists
         TrainingType::create([
             'type_name' => $request->name,
             'description' => $request->description,
             'status' => $request->status,
+            'contract' => $contractPath, // Store file path in database
         ]);
 
         return redirect()->back()->with('success', 'Training Type added successfully!');
     }
 
+
     public function updateTrainingType(Request $request, $id)
     {
+        // Find the training type by ID
         $trainingType = TrainingType::findOrFail($id);
 
+        // Validate the incoming request (including the contract attachment)
         $request->validate([
             'name' => 'sometimes|string|max:255|unique:training_types,type_name,' . $id,
             'description' => 'sometimes|string',
             'status' => 'sometimes|in:Active,Inactive',
+            'contract_attachment' => 'nullable|mimes:pdf,doc,docx|max:10240', // Optional file validation
         ]);
 
-        $trainingType->update($request->only(['name', 'description', 'status']));
+        // Handle the file upload if there is a contract attachment
+        $contractPath = $trainingType->contract; // Keep the current contract if no new file is uploaded
+        if ($request->hasFile('contract_attachment')) {
+            // If a new contract file is uploaded, store the new file and delete the old one if exists
+            if ($contractPath) {
+                // Delete the old contract file from storage
+                Storage::disk('public')->delete($contractPath);
+            }
+
+            // Store the new file
+            $file = $request->file('contract_attachment');
+            $contractPath = $file->store('contracts', 'public'); // Store in storage/app/public/contracts
+        }
+
+        // Update the training type with the provided data
+        $trainingType->update(array_merge(
+            $request->only(['name', 'description', 'status']),
+            ['contract' => $contractPath] // Update the contract path
+        ));
 
         return redirect()->back()->with('success', 'Training Type updated successfully!');
     }
+
+
 
     public function destroyTrainingType($id)
     {
@@ -353,5 +443,48 @@ class TrainingController extends Controller
         $trainingType->delete();
 
         return redirect()->back()->with('success', 'Training Type deleted successfully!');
+    }
+
+
+    public function viewCertificate($id)
+    {
+        Log::info('View Certificate Request Received', ['training_id' => $id]);
+
+        // Find the training record
+        $training = Training::findOrFail($id);
+
+        // Use the trainee_id to get the related achievement
+        $achievement = TrainingAchievement::where('employee_id', $training->trainee_id)->first();
+
+        if (!$achievement) {
+            Log::warning('No achievement found for trainee', ['trainee_id' => $training->trainee_id]);
+            return abort(404, 'No certificate found for this trainee.');
+        }
+
+        // Fetch employee data from API
+        $token = env('HR1_API_KEY');
+        $response = Http::withToken($token)->get("https://hr1.moverstaxi.com/api/v1/employees/{$achievement->employee_id}");
+
+        if (!$response->successful()) {
+            Log::error('Failed to fetch employee data from API', [
+                'employee_id' => $achievement->employee_id,
+                'status' => $response->status(),
+            ]);
+            return abort(404, 'Employee not found in API.');
+        }
+
+        $employee = $response->json();
+        Log::info('Employee Data Fetched Successfully', ['employee' => $employee]);
+
+        // Load the PDF with portrait mode
+        $pdf = Pdf::loadView('trainings.certificate', [
+            'achievement' => $achievement,
+            'employee' => $employee,
+            'training' => $training, // Pass training if needed in the view
+        ])->setPaper('a4', 'portrait');
+
+        Log::info('PDF Certificate Generated', ['achievement_id' => $achievement->id]);
+
+        return $pdf->stream("certificate_{$achievement->id}.pdf");
     }
 }

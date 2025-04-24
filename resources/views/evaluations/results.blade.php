@@ -114,7 +114,7 @@
                                             </td>
                                         </tr>
 
-                                        <!-- Modal for trainee details -->
+                                        <!-- Modal for employee details -->
                                         <div class="modal fade" id="detailsModal{{ $trainee['trainee_id'] }}"
                                             tabindex="-1" role="dialog"
                                             aria-labelledby="detailsModalLabel{{ $trainee['trainee_id'] }}"
@@ -131,42 +131,114 @@
                                                     </div>
                                                     <div class="modal-body px-4 py-3"
                                                         style="max-height: calc(100vh - 200px); overflow-y: auto;">
-                                                        <h6><strong>Performance Evaluation</strong></h6>
-                                                        <ul class="list-unstyled">
-                                                            @php
-                                                                $criteria = [
-                                                                    'punctuality' => 'Punctuality',
-                                                                    'quality' => 'Quality',
-                                                                    'communication' => 'Communication',
-                                                                    'feedback' => 'Feedback',
-                                                                    'problem_solving' => 'Problem Solving',
-                                                                    'teamwork' => 'Teamwork',
-                                                                    'attitude' => 'Attitude',
-                                                                    'adaptability' => 'Adaptability',
-                                                                    'time_management' => 'Time Management',
-                                                                    'behavior' => 'Behavior',
-                                                                ];
-                                                            @endphp
 
-                                                            @foreach ($criteria as $key => $label)
-                                                                <li class="mb-3">
-                                                                    <strong>{{ $label }}:</strong>
-                                                                    @php
-                                                                        $rating = $trainee[$key] ?? 0;
-                                                                    @endphp
-                                                                    @for ($i = 1; $i <= 5; $i++)
-                                                                        <i
-                                                                            class="fa-star {{ $i <= $rating ? 'fas text-warning' : 'far text-muted' }}"></i>
-                                                                    @endfor
-                                                                    <span
-                                                                        class="ml-2 text-muted">({{ $rating ?? 'N/A' }})</span>
-                                                                </li>
-                                                            @endforeach
+                                                        <!-- ✅ Employee Info Section -->
+                                                        <div class="mb-4 p-3 shadow-sm"
+                                                            style="background-color: #ffffff; border-radius: 8px;">
+                                                            <h6><strong>Employee Information</strong></h6>
+                                                            <p class="mb-1"><strong>Name:</strong>
+                                                                {{ $trainee['full_name'] }}</p>
+                                                            <p class="mb-3"><strong>Position:</strong>
+                                                                {{ $trainee['position'] ?? 'N/A' }}</p>
+                                                        </div>
+
+                                                        <!-- ✅ Nav Tabs -->
+                                                        <ul class="nav nav-tabs mb-3" role="tablist">
+                                                            <li class="nav-item">
+                                                                <a class="nav-link active" data-toggle="tab"
+                                                                    href="#performance{{ $trainee['trainee_id'] }}"
+                                                                    role="tab">Performance</a>
+                                                            </li>
+                                                            <li class="nav-item">
+                                                                <a class="nav-link" data-toggle="tab"
+                                                                    href="#trainor{{ $trainee['trainee_id'] }}"
+                                                                    role="tab">Training</a>
+                                                            </li>
                                                         </ul>
+
+                                                        <div class="tab-content">
+                                                            <!-- Performance Tab -->
+                                                            <div class="tab-pane fade show active"
+                                                                id="performance{{ $trainee['trainee_id'] }}"
+                                                                role="tabpanel">
+                                                                <h6><strong>Performance Evaluation</strong></h6>
+                                                                <ul class="list-unstyled">
+                                                                    @php
+                                                                        $criteria = [
+                                                                            'punctuality' => 'Punctuality',
+                                                                            'quality' => 'Quality',
+                                                                            'communication' => 'Communication',
+                                                                            'feedback' => 'Feedback',
+                                                                            'problem_solving' => 'Problem Solving',
+                                                                            'teamwork' => 'Teamwork',
+                                                                            'attitude' => 'Attitude',
+                                                                            'adaptability' => 'Adaptability',
+                                                                            'time_management' => 'Time Management',
+                                                                            'behavior' => 'Behavior',
+                                                                        ];
+                                                                    @endphp
+                                                                    @foreach ($criteria as $key => $label)
+                                                                        <li class="mb-3">
+                                                                            <strong>{{ $label }}:</strong>
+                                                                            @php $rating = $trainee[$key] ?? 0; @endphp
+                                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                                <i
+                                                                                    class="fa-star {{ $i <= $rating ? 'fas text-warning' : 'far text-muted' }}"></i>
+                                                                            @endfor
+                                                                            <span
+                                                                                class="ml-2 text-muted">({{ $rating ?? 'N/A' }})</span>
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+
+                                                            <!-- Trainor Tab -->
+                                                            <div class="tab-pane fade"
+                                                                id="trainor{{ $trainee['trainee_id'] }}"
+                                                                role="tabpanel">
+                                                                <h6><strong>Training Evaluation</strong></h6>
+                                                                <p><em>This section contains results evaluated by the
+                                                                        trainer</em></p>
+
+                                                                @php
+                                                                    $trainorCriteria = [
+                                                                        'Knowledge',
+                                                                        'Delivery',
+                                                                        'Engagement',
+                                                                        'Preparedness',
+                                                                        'Clarity',
+                                                                        'Responsiveness',
+                                                                        'Use of Materials',
+                                                                        'Time Management',
+                                                                        'Subject Mastery',
+                                                                    ];
+                                                                @endphp
+
+                                                                <ul class="list-unstyled">
+                                                                    @foreach ($trainorCriteria as $criteria)
+                                                                        @php $rating = rand(1, 5); @endphp
+                                                                        <li>
+                                                                            <strong>{{ $criteria }}:</strong>
+                                                                            @for ($i = 1; $i <= 5; $i++)
+                                                                                <i
+                                                                                    class="fa-star {{ $i <= $rating ? 'fas text-warning' : 'far text-muted' }}"></i>
+                                                                            @endfor
+                                                                            <span
+                                                                                class="ml-2 text-muted">({{ $rating }}/5)</span>
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
+                                                            </div>
+
+
+
+                                                        </div>
+
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+
 
                                         <!-- Modal for feedback -->
                                         <div class="modal fade" id="feedbackModal{{ $trainee['trainee_id'] }}"
@@ -177,7 +249,7 @@
                                                 <div class="modal-content shadow-lg rounded-lg">
                                                     <div class="modal-header border-0">
                                                         <h5 class="modal-title text-dark font-weight-bold"
-                                                            style="font-size: 1.25rem;">Supervisor Feedback for:
+                                                            style="font-size: 1.25rem;">Feedback for:
                                                             {{ $trainee['full_name'] }}</h5>
                                                         <button type="button" class="close text-dark"
                                                             data-dismiss="modal" aria-label="Close">
@@ -187,7 +259,7 @@
                                                     <div class="modal-body px-4 py-3">
                                                         <div class="form-group">
                                                             <label for="feedback" class="text-muted font-weight-bold"
-                                                                style="font-size: 1rem;">Supervisor Feedback</label>
+                                                                style="font-size: 1rem;">Feedback</label>
                                                             <div id="feedback"
                                                                 class="form-control-plaintext p-4 bg-white rounded-lg shadow-sm"
                                                                 style="white-space: pre-wrap; overflow-y: auto; max-height: 400px; font-size: 1rem; line-height: 1.6;">

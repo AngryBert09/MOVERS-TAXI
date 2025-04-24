@@ -116,6 +116,7 @@ Route::middleware('admin')->group(function () {
     Route::put('/trainings/update/{id}', [TrainingController::class, 'updateTraining'])->name('trainings.update');
     Route::delete('/training/{id}', [TrainingController::class, 'destroyTraining'])->name('trainings.destroy');
     Route::get('/for-training', [TrainingController::class, 'getEmployees'])->name('training.for-training');
+    Route::get('/trainings/{id}/certificate', [TrainingController::class, 'viewCertificate'])->name('trainings.certificate');
 
 
 
@@ -143,6 +144,7 @@ Route::middleware('admin')->group(function () {
     Route::get('/performance-evaluation', [PerformanceController::class, 'index'])->name('performance.index');
     Route::post('/performance-evaluation/store', [PerformanceController::class, 'store'])->name('performance.store');
     Route::get('/performance-results', [PerformanceController::class, 'results'])->name('performance.results');
+    Route::post('/performance-evaluation/store/trainer', [PerformanceController::class, 'storeTrainerEval'])->name('performance.trainer.store');
 
     //EMPLOYEES
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');

@@ -130,22 +130,33 @@
                                                         @if (count($employee['achievements']) > 0)
                                                             <div class="list-group">
                                                                 @foreach ($employee['achievements'] as $achievement)
-                                                                    <div class="list-group-item">
-                                                                        <h6 class="font-weight-bold">
-                                                                            {{ $achievement->type }}</h6>
-                                                                        <p class="text-muted">
-                                                                            <small>Completed on:
-                                                                                {{ \Carbon\Carbon::parse($achievement->created_at)->format('d M Y') }}</small>
-                                                                        </p>
+                                                                    <div
+                                                                        class="list-group-item d-flex justify-content-between align-items-center">
+                                                                        <div>
+                                                                            <h6 class="font-weight-bold mb-1">
+                                                                                {{ $achievement->type }}</h6>
+                                                                            <p class="text-muted mb-0">
+                                                                                <small>Completed on:
+                                                                                    {{ \Carbon\Carbon::parse($achievement->created_at)->format('d M Y') }}
+                                                                                </small>
+                                                                            </p>
+                                                                        </div>
+                                                                        <a href="{{ route('trainings.certificate', $achievement->training->id) }}"
+                                                                            class="btn btn-sm btn-outline-primary"
+                                                                            target="_blank" title="View Certificate">
+                                                                            <i class="fa fa-eye"></i> View
+                                                                        </a>
+
                                                                     </div>
                                                                 @endforeach
                                                             </div>
                                                         @else
-                                                            <p class="text-center text-muted">No achievements
-                                                                available.
+                                                            <p class="text-center text-muted">No achievements available.
                                                             </p>
                                                         @endif
                                                     </div>
+
+
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary"
                                                             data-dismiss="modal"><i class="fa fa-times"></i>

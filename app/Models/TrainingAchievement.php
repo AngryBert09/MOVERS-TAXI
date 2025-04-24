@@ -36,4 +36,9 @@ class TrainingAchievement extends Model
     {
         return \Carbon\Carbon::parse($value)->format('F j, Y'); // Example: March 15, 2025
     }
+
+    public function training()
+    {
+        return $this->belongsTo(Training::class, 'employee_id', 'trainee_id');
+    }
 }
