@@ -18,6 +18,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ApplicantUserController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ApplicantFileController;
+use App\Http\Controllers\TrainingUserController;
 use App\Http\Controllers\FacilitiesEvaluationController;
 
 Route::middleware('guest')->group(function () {
@@ -131,6 +132,7 @@ Route::middleware('admin')->group(function () {
     Route::post('/budgets/request', [BudgetController::class, 'store'])->name('budget.store');
     Route::delete('/budgets/{id}', [BudgetController::class, 'destroy'])->name('budget.destroy');
     Route::get('/used-budget', [BudgetController::class, 'getUsedBudget'])->name('budget.used');
+    Route::post('/budget/store', [BudgetController::class, 'storeBudgetUsage'])->name('budget.usage.store');
 
 
     //INQUIRIES
@@ -170,9 +172,10 @@ Route::middleware('auth')->group(function () {
 
     //APPLICANT FACILITY EVALUATION
     Route::get('/evaluate/facility', [ApplicantUserController::class, 'evaluate'])->name('applicant.facility');
+
+    //MY TRAININGS
+    Route::get('/current-training', [TrainingUserController::class, 'index'])->name('my.training');
 });
-
-
 
 
 
@@ -180,7 +183,6 @@ Route::get('/create-symlink', function () {
     symlink(storage_path('/app/public'), public_path('storage'));
     echo "Symlink Created. Thanks";
 });
-
 
 
 Route::get('/clear-cache', function () {
@@ -193,19 +195,9 @@ Route::get('/clear-cache', function () {
 })->middleware('auth'); // Optional: restrict with middleware
 
 
-Route::get('/test-resume', function () {
-    $path = storage_path('app/public/resumes/R6BUsOEH7NgJRxbXQWUvSCqc2XuYYh8umngBxKkb.pdf');
-
-    if (!file_exists($path)) {
-        return "File not found at: " . $path;
-    }
-
-    return response()->file($path);
-});
-
 Route::get('/run-config-cache', function () {
 
 
     Artisan::call('config:cache');
     return 'Config cache refreshed!';
-});
+})->middleware('auth'); // Optional: restrict with middleware

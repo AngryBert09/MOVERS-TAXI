@@ -14,6 +14,35 @@ class BudgetController extends Controller
         // Fetch all budget requests
         $requests = DB::table('budget_requests')->get();
 
+        // 1. Get total approved budget
+        $totalApprovedBudget = DB::table('budget_requests')
+            ->where('status', 'Approved')
+            ->sum('amount');
+
+        // 2. Get total expenses from training costs
+        $totalTrainingCost = DB::table('trainings')->sum('training_cost');
+
+        // 3. Get total used from budget_used table
+        $totalUsedBudget = DB::table('budget_used')->sum('amount');
+
+        // 4. Calculate remaining budget
+        $remainingBudget = $totalApprovedBudget - ($totalTrainingCost + $totalUsedBudget);
+
+        return view('budgets.expenses', compact(
+            'requests',
+            'totalApprovedBudget',
+            'totalTrainingCost',
+            'totalUsedBudget',
+            'remainingBudget'
+        ));
+    }
+
+
+    public function getUsedBudget()
+    {
+        // Fetch all used budget records
+        $usedBudgets = DB::table('budget_used')->orderBy('date_used', 'desc')->get();
+
         // Get total approved budget
         $totalApprovedBudget = DB::table('budget_requests')
             ->where('status', 'Approved')
@@ -22,16 +51,21 @@ class BudgetController extends Controller
         // Get total expenses from training costs
         $totalTrainingCost = DB::table('trainings')->sum('training_cost');
 
+        // Get total used budget manually logged
+        $totalUsedBudget = DB::table('budget_used')->sum('amount');
+
         // Calculate remaining budget
-        $remainingBudget = $totalApprovedBudget - $totalTrainingCost;
+        $remainingBudget = $totalApprovedBudget - ($totalTrainingCost + $totalUsedBudget);
 
-        return view('budgets.expenses', compact('requests', 'totalApprovedBudget', 'remainingBudget'));
+        return view('budgets.used-budget', compact(
+            'usedBudgets',
+            'totalApprovedBudget',
+            'totalTrainingCost',
+            'totalUsedBudget',
+            'remainingBudget'
+        ));
     }
 
-    public function getUsedBudget()
-    {
-        return view('budgets.used-budget');
-    }
 
 
     public function store(Request $request)
@@ -109,5 +143,52 @@ class BudgetController extends Controller
 
             return redirect()->back()->withErrors(['error' => 'An error occurred while deleting the budget request. Please try again.']);
         }
+    }
+
+
+    /**
+     * Store a newly created budget usage.
+     */
+    public function storeBudgetUsage(Request $request)
+    {
+        $request->validate([
+            'amount' => 'required|numeric',
+            'used_for' => 'required|string',
+            'date_used' => 'required|date',
+            'attachment' => 'required|file|mimes:pdf,jpg,png,doc,docx|max:2048',
+        ]);
+
+        // 1. Total Approved Budget
+        $approvedBudgetTotal = DB::table('budget_requests')
+            ->where('status', 'Approved')
+            ->sum('amount');
+
+        // 2. Total Already Used
+        $totalUsed = DB::table('budget_used')->sum('amount');
+
+        // 3. Total Training Cost
+        $totalTrainingCost = DB::table('trainings')->sum('training_cost');
+
+        // 4. Calculate Remaining Budget
+        $remainingBudget = $approvedBudgetTotal - ($totalUsed + $totalTrainingCost);
+
+        // 5. Check against new request
+        if ($request->amount > $remainingBudget) {
+            return redirect()->back()->with('error', 'Insufficient budget. Only ₱' . number_format($remainingBudget, 2) . ' remaining after accounting for training costs and previous usage.');
+        }
+
+        // 6. Store budget usage
+        $attachmentPath = $request->file('attachment')->store('budget_attachments', 'public');
+
+        DB::table('budget_used')->insert([
+            'amount' => $request->amount,
+            'used_for' => $request->used_for,
+            'date_used' => $request->date_used,
+            'attachment' => $attachmentPath,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Budget usage recorded successfully!');
     }
 }

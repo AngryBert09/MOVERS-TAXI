@@ -160,7 +160,7 @@
 
 
 
-                <span>{{ Auth::user()->name }}</span>
+                <span>{{ Auth::user()->email }}</span>
             </a>
             <div class="dropdown-menu">
                 <a class="dropdown-item" href="{{ route('profile.index') }}">

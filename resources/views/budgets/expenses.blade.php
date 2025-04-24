@@ -61,9 +61,9 @@
                                         <th>No</th>
                                         <th>Purpose</th>
                                         <th>Amount</th>
+                                        <th>Attachment</th>
                                         <th>Request Date</th>
                                         <th>Status</th>
-
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -72,6 +72,13 @@
                                             <td>{{ $request->id }}</td>
                                             <td>{{ $request->purpose }}</td>
                                             <td>{{ $request->amount }}</td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary viewFileBtn"
+                                                    data-file="{{ asset('storage/' . $request->file_path) }}"
+                                                    data-toggle="modal" data-target="#fileViewModal">
+                                                    <i class="fa fa-eye"></i> View
+                                                </button>
+                                            </td>
                                             <td>{{ $request->created_at }}</td>
                                             <td>
                                                 @if ($request->status == 'Pending')
@@ -238,6 +245,55 @@
     </div>
     <!-- /Main Wrapper -->
 
+
+
+    <!-- File View Modal -->
+    <div class="modal fade" id="fileViewModal" tabindex="-1" role="dialog" aria-labelledby="fileViewModalLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-xl" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">File Preview</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <div id="filePreviewContainer" style="height: 80vh;">
+                        <!-- File preview will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const viewButtons = document.querySelectorAll('.viewFileBtn');
+            const previewContainer = document.getElementById('filePreviewContainer');
+
+            viewButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const fileUrl = this.getAttribute('data-file');
+                    const fileExt = fileUrl.split('.').pop().toLowerCase();
+
+                    let content = '';
+
+                    if (['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp'].includes(fileExt)) {
+                        content =
+                            `<iframe src="${fileUrl}" style="width:100%; height:100%;" frameborder="0"></iframe>`;
+                    } else if (['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'].includes(fileExt)) {
+                        content =
+                            `<iframe src="https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fileUrl)}" style="width:100%; height:100%;" frameborder="0"></iframe>`;
+                    } else {
+                        content =
+                            `<p class="text-danger">File preview not supported for this file type. Please download to view.</p>`;
+                    }
+
+                    previewContainer.innerHTML = content;
+                });
+            });
+        });
+    </script>
 
     <!-- jQuery -->
     <script src="assets/js/jquery-3.5.1.min.js"></script>

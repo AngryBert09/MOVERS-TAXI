@@ -33,7 +33,7 @@
                         </div>
                         <div class="col-auto float-right ml-auto">
                             <a href="#" class="btn add-btn" data-toggle="modal" data-target="#add_categories"><i
-                                    class="fa fa-plus"></i> Request</a>
+                                    class="fa fa-plus"></i>Add</a>
                         </div>
                     </div>
                 </div>
@@ -45,9 +45,9 @@
                         <div class="card mb-4">
                             <div class="card-body">
                                 <h4 class="card-title">Budget Summary</h4>
-                                <p><strong>Total Approved Budget:</strong> ₱
+                                <p><strong>Total Approved Budget:</strong> ₱{{ number_format($totalApprovedBudget, 2) }}
                                 </p>
-                                <p><strong>Remaining Budget:</strong> ₱</p>
+                                <p><strong>Remaining Budget:</strong> ₱{{ number_format($remainingBudget, 2) }}</p>
                             </div>
                         </div>
 
@@ -58,36 +58,32 @@
                             <table class="table table-striped custom-table mb-0">
                                 <thead>
                                     <tr>
-                                        <th>No</th>
+                                        <th>ID</th>
                                         <th>Amount</th>
                                         <th>Used For</th>
-                                        <th>Status</th>
-                                        <th class="text-right">Action</th>
+                                        <th>Date Used</th>
+                                        <th>Attachment</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>1000.00</td>
-                                        <td>2023-10-01</td>
-                                        <td>
-                                            <span class="badge badge-warning">Pending</span>
-                                        </td>
-                                        <td class="text-right">
-                                            <div class="dropdown dropdown-action">
-                                                <a href="#" class="action-icon dropdown-toggle"
-                                                    data-toggle="dropdown" aria-expanded="false">
-                                                    <i class="material-icons">more_vert</i>
-                                                </a>
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a class="dropdown-item" href="#" data-toggle="modal"
-                                                        data-target="#deleteBudgetModal">
-                                                        <i class="fa fa-trash-o m-r-5"></i> Delete
+                                    @foreach ($usedBudgets as $budget)
+                                        <tr>
+                                            <td>{{ $budget->id }}</td>
+                                            <td>₱{{ number_format($budget->amount, 2) }}</td>
+                                            <td>{{ $budget->used_for }}</td>
+                                            <td>{{ \Carbon\Carbon::parse($budget->date_used)->format('F d, Y') }}</td>
+                                            <td>
+                                                @if ($budget->attachment)
+                                                    <a href="{{ asset('storage/' . $budget->attachment) }}"
+                                                        target="_blank" class="btn btn-sm btn-primary">
+                                                        <i class="fa fa-eye"></i> View
                                                     </a>
-                                                </div>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                                @else
+                                                    N/A
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endforeach
                                 </tbody>
                             </table>
                         </div>
@@ -101,14 +97,17 @@
                 <div class="modal-dialog modal-dialog-centered" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">Request Budget</h5>
+                            <h5 class="modal-title">Add Budget Usage</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form action="{{ route('budget.store') }}" method="POST" enctype="multipart/form-data">
+                            <form action="{{ route('budget.usage.store') }}" method="POST"
+                                enctype="multipart/form-data">
                                 @csrf
+
+                                <!-- Amount -->
                                 <div class="form-group form-row">
                                     <label class="col-lg-12 control-label">Amount <span
                                             class="text-danger">*</span></label>
@@ -118,23 +117,35 @@
                                     </div>
                                 </div>
 
+                                <!-- Purpose (used_for) -->
                                 <div class="form-group form-row">
-                                    <label class="col-lg-12 control-label">Purpose <span
+                                    <label class="col-lg-12 control-label">Used For <span
                                             class="text-danger">*</span></label>
                                     <div class="col-lg-12">
-                                        <textarea class="form-control ta" name="purpose" required></textarea>
+                                        <textarea class="form-control" name="used_for" placeholder="Explain what the budget was used for" required></textarea>
                                     </div>
                                 </div>
 
+                                <!-- Date Used -->
+                                <div class="form-group form-row">
+                                    <label class="col-lg-12 control-label">Date Used <span
+                                            class="text-danger">*</span></label>
+                                    <div class="col-lg-12">
+                                        <input type="date" class="form-control" name="date_used" required>
+                                    </div>
+                                </div>
+
+                                <!-- Attachment -->
                                 <div class="form-group form-row position-relative">
                                     <label class="col-lg-12 control-label">Attach File <span
                                             class="text-danger">*</span></label>
                                     <div class="col-lg-12">
-                                        <input type="file" class="form-control" name="file"
+                                        <input type="file" class="form-control" name="attachment"
                                             accept=".pdf,.jpg,.png,.doc,.docx" required>
                                     </div>
                                 </div>
 
+                                <!-- Submit Button -->
                                 <div class="submit-section">
                                     <button type="submit" class="btn btn-primary submit-btn">Submit</button>
                                 </div>
