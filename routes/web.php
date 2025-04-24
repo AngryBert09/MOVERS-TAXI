@@ -191,3 +191,14 @@ Route::get('/clear-cache', function () {
 
     return 'Application cache, config, routes, and views cleared!';
 })->middleware('auth'); // Optional: restrict with middleware
+
+
+Route::get('/test-resume', function () {
+    $path = storage_path('app/public/resumes/R6BUsOEH7NgJRxbXQWUvSCqc2XuYYh8umngBxKkb.pdf');
+
+    if (!file_exists($path)) {
+        return "File not found at: " . $path;
+    }
+
+    return response()->file($path);
+});
