@@ -34,7 +34,7 @@ class DashboardController extends Controller
         $jobApplicationsCount = JobApplication::count();
         $hiredCount = JobApplication::where('status', 'Hired')->count();
         $jobPostingsCount = JobPosting::count();
-        $activeTrainingCount = Training::where('status', 'Active')->count();
+        $activeTrainingCount = Training::count();
         $latestJobPosts = JobPosting::latest('created_at')->take(5)->get();
 
         $jobApplicationsByMonth = JobApplication::selectRaw('MONTH(created_at) as month, COUNT(*) as count')
@@ -48,7 +48,7 @@ class DashboardController extends Controller
             ->orderBy('month')
             ->pluck('count', 'month');
 
-        $activeTrainingByMonth = Training::where('status', 'Active')
+        $activeTrainingByMonth = Training::where('status', 'Ongoing')
             ->selectRaw('MONTH(created_at) as month, COUNT(*) as count')
             ->groupBy('month')
             ->orderBy('month')

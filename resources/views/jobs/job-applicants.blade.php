@@ -192,7 +192,7 @@
                                                             @endif
 
                                                             {{-- AI Analyze Resume --}}
-                                                            @if (in_array($applicant->status, ['Pending', 'Interviewed', 'Initial', 'Final']))
+                                                            @if (in_array($applicant->status, ['Pending', 'Interviewed', 'Initial', 'Final', 'Qualified', 'Not Qualified']))
                                                                 <a class="dropdown-item analyze-resume" href="#"
                                                                     data-id="{{ $applicant->id }}" data-toggle="modal"
                                                                     data-target="#analyzeResumeModal">

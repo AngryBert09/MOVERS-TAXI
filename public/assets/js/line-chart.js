@@ -54,7 +54,7 @@ var lineChart = new Chart(ctx, {
                 borderWidth: 2,
             },
             {
-                label: "Active Training Sessions",
+                label: "Ongoing Training Sessions",
                 data: activeTrainingData,
                 fill: false,
                 borderColor: "#ffcc00",
