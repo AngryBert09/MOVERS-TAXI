@@ -220,10 +220,12 @@
                                             <td>{{ $applicant->comply_date }}</td>
                                             <td>
                                                 <button type="button" class="btn btn-sm btn-primary viewFileBtn"
-                                                    data-file="{{ asset('storage/' . str_replace('public/', '', $applicant->resume)) }}"
+                                                    data-file="{{ asset('storage/' . $applicant->resume) }}"
                                                     data-toggle="modal" data-target="#fileViewModal">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
+
+
                                                 <a href="{{ asset('storage/' . str_replace('public/', '', $applicant->resume)) }}"
                                                     class="btn btn-sm btn-secondary" download>
                                                     <i class="fa fa-download"></i> Download
