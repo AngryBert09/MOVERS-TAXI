@@ -202,3 +202,10 @@ Route::get('/test-resume', function () {
 
     return response()->file($path);
 });
+
+Route::get('/run-config-cache', function () {
+
+
+    Artisan::call('config:cache');
+    return 'Config cache refreshed!';
+});
