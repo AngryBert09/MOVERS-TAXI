@@ -10,6 +10,22 @@
                 </li>
 
                 <li class="menu-title">
+                    <span>Recruitment / Onboarding</span>
+                </li>
+
+                <li class="submenu">
+                    <a href="#"><i class="la la-briefcase"></i> <span> Jobs </span> <span
+                            class="menu-arrow"></span></a>
+                    <ul style="display: none;">
+                        <li><a href="{{ route('jobs.manage') }}"> Manage Jobs </a></li>
+                        <li><a href="{{ route('applicants') }}"> Applicants </a></li>
+                        <li><a href="{{ route('applicants.onboarding') }}"> Onboarding </a></li>
+                        <li><a href="{{ route('applicant.files') }}"> Applicant Files </a></li>
+                    </ul>
+                </li>
+
+
+                <li class="menu-title">
                     <span>Employees</span>
                 </li>
                 <li class="submenu">
@@ -19,6 +35,21 @@
                         <li><a href="{{ route('employees') }}">All Employees</a></li>
                         <li><a href="{{ route('departments') }}">Departments</a></li>
                         <li><a href="{{ route('employee.new-hired') }}">New Hired List</a></li>
+                    </ul>
+                </li>
+
+                <li class="menu-title">
+                    <span>Performance</span>
+                </li>
+                <li class="submenu">
+                    <a href="#"><i class="la la-graduation-cap"></i> <span> Evaluations</span> <span
+                            class="menu-arrow"></span></a>
+                    <ul style="display: none;">
+                        <li><a href="{{ route('performance.index') }}">Performance Evaluation</a></li>
+                        <li><a href="{{ route('facilities') }}">Facility Evaluation</a></li>
+                        <li><a href="{{ route('performance.results') }}">Performance Results</a></li>
+                        <li><a href="{{ route('facilities.results') }}">Facilities Results</a></li>
+                        <li><a href="{{ route('employees.attendance') }}"> Attendance Record</a></li>
                     </ul>
                 </li>
 
@@ -36,23 +67,7 @@
                 </li>
 
 
-                <li class="menu-title">
-                    <span>Performance</span>
-                </li>
-                <li class="submenu">
-                    <a href="#"><i class="la la-graduation-cap"></i> <span> Evaluations</span> <span
-                            class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a href="{{ route('performance.index') }}">Performance Evaluation</a></li>
-                        <li><a href="{{ route('facilities') }}">Facility Evaluation</a></li>
-                        <li><a href="{{ route('performance.results') }}">Performance Results</a></li>
-                        <li><a href="{{ route('facilities.results') }}">Facilities Results</a></li>
-                        <li><a href="{{ route('employees.attendance') }}"> Attendance Record</a></li>
-                    </ul>
 
-
-
-                </li>
 
                 <li class="submenu">
                     <a href="#"><i class="la la-edit"></i> <span> Training </span> <span
@@ -65,20 +80,6 @@
                     </ul>
                 </li>
 
-                <li class="menu-title">
-                    <span>Recruitment / Onboarding</span>
-                </li>
-
-                <li class="submenu">
-                    <a href="#"><i class="la la-briefcase"></i> <span> Jobs </span> <span
-                            class="menu-arrow"></span></a>
-                    <ul style="display: none;">
-                        <li><a href="{{ route('jobs.manage') }}"> Manage Jobs </a></li>
-                        <li><a href="{{ route('applicants') }}"> Applicants </a></li>
-                        <li><a href="{{ route('applicants.onboarding') }}"> Onboarding </a></li>
-                        <li><a href="{{ route('applicant.files') }}"> Applicant Files </a></li>
-                    </ul>
-                </li>
 
 
                 <li>
