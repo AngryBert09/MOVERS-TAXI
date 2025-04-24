@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\JobController;
@@ -179,3 +180,14 @@ Route::get('/create-symlink', function () {
     symlink(storage_path('/app/public'), public_path('storage'));
     echo "Symlink Created. Thanks";
 });
+
+
+
+Route::get('/clear-cache', function () {
+    Artisan::call('cache:clear');
+    Artisan::call('config:clear');
+    Artisan::call('route:clear');
+    Artisan::call('view:clear');
+
+    return 'Application cache, config, routes, and views cleared!';
+})->middleware('auth'); // Optional: restrict with middleware
