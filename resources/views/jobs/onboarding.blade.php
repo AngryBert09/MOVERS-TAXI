@@ -224,7 +224,7 @@
                                                     data-toggle="modal" data-target="#fileViewModal">
                                                     <i class="fa fa-eye"></i> View
                                                 </button>
-                                                <a href="{{ asset('storage/' . $applicant->resume) }}"
+                                                <a href="{{ asset('storage/' . str_replace('public/', '', $applicant->resume)) }}"
                                                     class="btn btn-sm btn-secondary" download>
                                                     <i class="fa fa-download"></i> Download
                                                 </a>
