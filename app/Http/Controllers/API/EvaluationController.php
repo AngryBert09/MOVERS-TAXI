@@ -79,11 +79,10 @@ class EvaluationController extends Controller
 
     public function store(Request $request)
     {
-        // Define validation rules
         $apiUrl = env('EMPLOYEE_API_URL', 'https://hr1.moverstaxi.com/api/v1/employees');
         $apiToken = env('HR1_API_KEY');
 
-        // Add this custom validation before the main validation rules
+        // Fetch employee data from external API
         $employeeResponse = Http::withToken($apiToken)->get($apiUrl);
 
         if (!$employeeResponse->successful()) {
@@ -96,7 +95,7 @@ class EvaluationController extends Controller
         $employees = collect($employeeResponse->json());
         $employeeIds = $employees->pluck('id')->toArray();
 
-        // Main validation rules
+        // Define validation rules
         $rules = [
             'employee_id' => [
                 'required',
@@ -129,12 +128,10 @@ class EvaluationController extends Controller
                     }
                 }
             ],
-            'department' => 'required|string|max:255',
             'performance.*' => 'required|integer|between:1,5',
             'supervisor_feedback' => 'nullable|string|max:2000',
         ];
 
-        // Custom validation messages
         $messages = [
             'performance.*.required' => 'All performance ratings must be provided.',
             'performance.*.between' => 'Ratings must be between 1 and 5.',
@@ -150,37 +147,47 @@ class EvaluationController extends Controller
             ], 422);
         }
 
-        // Additional null value check
+        // Check for null values in performance ratings
         if (in_array(null, $validated['performance'], true)) {
             return response()->json([
                 'message' => 'All performance ratings must be provided.'
             ], 400);
         }
 
-        // Begin database transaction
+        // Get department from API
+        $employee = $employees->firstWhere('id', $validated['employee_id']);
+
+        if (!$employee || empty($employee['department'])) {
+            return response()->json([
+                'message' => 'Department information not found for this employee.'
+            ], 400);
+        }
+
+        $departmentFromApi = $employee['department'];
+
+        // Begin DB transaction
         DB::beginTransaction();
 
         try {
-
-            // Store each performance rating
+            // Store performance ratings
             foreach ($validated['performance'] as $criteria => $rating) {
                 PerformanceEvaluation::create([
                     'employee_id' => $validated['employee_id'],
-                    'department' => $validated['department'],
+                    'department' => $departmentFromApi,
                     'category' => 'performance',
                     'criteria' => $criteria,
                     'rating' => $rating,
                 ]);
             }
 
-            // Store supervisor feedback if provided
+            // Store supervisor feedback if available
             if (!empty($validated['supervisor_feedback'])) {
                 PerformanceEvaluation::updateOrCreate(
                     [
                         'employee_id' => $validated['employee_id'],
                         'category' => 'feedback',
                         'criteria' => 'supervisor_feedback',
-                        'department' => $validated['department'],
+                        'department' => $departmentFromApi,
                     ],
                     [
                         'rating' => 0,
