@@ -47,10 +47,14 @@ class ApplicantUserController extends Controller
             }
         }
 
-        // Load questions based on the exam_type
-        $questions = DB::table('questions')
-            ->where('category', $application->exam_type)
-            ->get();
+        // Load questions based on the exam_type of the first application, if available
+        $questions = collect();
+        if ($applications->isNotEmpty()) {
+            $firstApplication = $applications->first();
+            $questions = DB::table('questions')
+                ->where('category', $firstApplication->exam_type)
+                ->get();
+        }
 
         Log::info('Job applications and questions fetched successfully', [
             'email' => $email,
