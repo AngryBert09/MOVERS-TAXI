@@ -6,7 +6,8 @@
                     <span>Main</span>
                 </li>
                 <li>
-                    <a href="{{ route('applicant.dashboard') }}"><i class="la la-dashboard"></i> <span> Dashboard</span>
+                    <a href="{{ route('applicant.dashboard') }}"><i class="la la-folder"></i> <span> My
+                            Application</span>
                 </li>
 
 
@@ -43,9 +44,9 @@
                 <li>
                     <a href="{{ route('jobs.vacancies') }}"><i class="la la-briefcase"></i> <span> Apply Jobs</span></a>
                 </li>
-                <li>
+                {{-- <li>
                     <a href="{{ route('company.index') }}"><i class="la la-cog"></i> <span>Settings</span></a>
-                </li>
+                </li> --}}
 
 
 

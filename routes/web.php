@@ -150,7 +150,8 @@ Route::middleware('admin')->group(function () {
     //EMPLOYEES
     Route::get('/employees', [EmployeeController::class, 'index'])->name('employees');
     Route::get('/new-hired', [EmployeeController::class, 'getNewHired'])->name('employee.new-hired');
-    Route::get('/employee-attendance', [EmployeeController::class, 'getAttendance'])->name('employees.attendance');
+    Route::get('/employee-attendance', [EmployeeController::class, 'fetchAttendance'])->name('employees.attendance');
+    Route::get('/employee/attendance', [EmployeeController::class, 'searchAttendance'])->name('employee.attendance.search');
 
 
     //COMPANY SETTINGS

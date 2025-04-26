@@ -59,7 +59,7 @@
                                         <th>Apply Date</th>
                                         <th class="text-center">Status</th>
                                         <th>Resume</th>
-                                        <th class="text-right">Actions</th>
+                                        {{-- <th class="text-right">Actions</th> --}}
                                     </tr>
                                 </thead>
                                 <tbody id="applicantTableBody">
@@ -91,12 +91,12 @@
                                                     <i class="fa fa-download"></i> Download
                                                 </a>
                                             </td>
-                                            <td class="text-right">
+                                            {{-- <td class="text-right">
                                                 <div class="dropdown dropdown-action">
                                                     <a href="#" class="action-icon dropdown-toggle"
                                                         data-toggle="dropdown" aria-expanded="false"><i
                                                             class="material-icons">more_vert</i></a>
-                                                    {{-- <div class="dropdown-menu dropdown-menu-right">
+                                                 <div class="dropdown-menu dropdown-menu-right">
                                                         @if ($employee->performanceEvaluations->isEmpty())
                                                             <!-- Display the Evaluate link -->
                                                             <a class="dropdown-item" href="#" data-toggle="modal"
@@ -109,9 +109,9 @@
                                                                 <i class="fa fa-check m-r-5"></i> Evaluated
                                                             </span>
                                                         @endif
-                                                    </div> --}}
+                                                    </div>
                                                 </div>
-                                            </td>
+                                            </td> --}}
                                         </tr>
                                     @endforeach
                                 </tbody>

@@ -25,9 +25,9 @@
                 <div class="page-header">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h3 class="page-title">Applicant Dashboard</h3>
+                            <h3 class="page-title">My Application</h3>
                             <ul class="breadcrumb">
-                                <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+
                                 <li class="breadcrumb-item">Applicant</li>
                             </ul>
                         </div>
@@ -225,6 +225,37 @@
                     </div>
                 </div> --}}
 
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title mb-0">
+                                    <i class="fa fa-list-alt mr-2"></i> Applicant Application Steps
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    <li class="list-group-item">
+                                        <strong>Step 1:</strong> Submit your application with all required details and
+                                        documents.
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Step 2:</strong> Wait for the initial review by the recruitment team.
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Step 3:</strong> If shortlisted, attend the scheduled interview.
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Step 4:</strong> Submit additional requirements if requested.
+                                    </li>
+                                    <li class="list-group-item">
+                                        <strong>Step 5:</strong> Await final decision and onboarding instructions.
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="row">
                     <div class="col-md-12">
@@ -379,7 +410,8 @@
                                                                                 id="withdrawModalLabel">
                                                                                 Withdraw Application</h5>
                                                                             <button type="button" class="close"
-                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                data-dismiss="modal"
+                                                                                aria-label="Close">
                                                                                 <span aria-hidden="true">&times;</span>
                                                                             </button>
                                                                         </div>

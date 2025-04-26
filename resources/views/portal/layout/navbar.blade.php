@@ -163,11 +163,11 @@
                 <span>{{ Auth::user()->email }}</span>
             </a>
             <div class="dropdown-menu">
-                <a class="dropdown-item" href="{{ route('profile.index') }}">
+                {{-- <a class="dropdown-item" href="{{ route('profile.index') }}">
                     My Profile
-                </a>
+                </a> --}}
 
-                <a class="dropdown-item" href="{{ route('company.index') }}">Settings</a>
+                {{-- <a class="dropdown-item" href="{{ route('company.index') }}">Settings</a> --}}
                 <form id="logout-form" action="{{ route('auth.logout') }}" method="POST" style="display: none;">
                     @csrf
                 </form>

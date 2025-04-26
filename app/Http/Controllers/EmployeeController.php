@@ -52,8 +52,56 @@ class EmployeeController extends Controller
         return view('employee.new-hired', compact('employees'));
     }
 
-    public function getAttendance()
+    public function fetchAttendance()
     {
-        return view('employee.attendance');
+        try {
+            // Call the external API
+            $response = Http::get('https://hr3.moverstaxi.com/wemovers/api/attendance_data_adjustment.php');
+
+            // Check if the response is successful
+            if ($response->successful()) {
+                $attendanceData = $response->json(); // Decode JSON data
+
+                // Pass data to the employee.attendancee view
+                return view('employee.attendance', ['attendances' => $attendanceData]);
+            } else {
+                return redirect()->back()->with('error', 'Failed to fetch attendance data.');
+            }
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'An error occurred: ' . $e->getMessage());
+        }
+    }
+
+    public function searchAttendance(Request $request)
+    {
+        $employeeName = $request->input('employee_name');
+        $month = $request->input('month');
+        $year = $request->input('year');
+
+        // Call the external API
+        $response = Http::get('https://hr3.moverstaxi.com/wemovers/api/attendance_data_adjustment.php');
+
+        $attendanceData = collect(json_decode($response->body(), true));
+
+        // Filter by name if provided
+        if ($employeeName) {
+            $attendanceData = $attendanceData->filter(function ($item) use ($employeeName) {
+                return stripos($item['emp_name'], $employeeName) !== false;
+            });
+        }
+
+        // Filter by month/year if provided
+        if ($month || $year) {
+            $attendanceData = $attendanceData->filter(function ($item) use ($month, $year) {
+                $logDate = \Carbon\Carbon::parse($item['log_date']);
+                return (!$month || $logDate->month == $month) &&
+                    (!$year || $logDate->year == $year);
+            });
+        }
+
+        // Group attendance by user_id for the calendar view
+        $grouped = $attendanceData->groupBy('user_id');
+
+        return view('employee.attendancee', compact('grouped', 'attendanceData'));
     }
 }
