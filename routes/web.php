@@ -20,6 +20,7 @@ use App\Http\Controllers\UserController;
 use App\Http\Controllers\ApplicantFileController;
 use App\Http\Controllers\TrainingUserController;
 use App\Http\Controllers\FacilitiesEvaluationController;
+use App\Http\Controllers\DocumentController;
 
 Route::middleware('guest')->group(function () {
     Route::name('landing.')->group(function () {
@@ -165,6 +166,10 @@ Route::middleware('admin')->group(function () {
     Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
     Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
     Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
+
+    //DOCUMENTS
+    Route::get('/documents', [DocumentController::class, 'index'])->name('documents');
+    Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
 });
 
 //FACILITIES EVALUATION
