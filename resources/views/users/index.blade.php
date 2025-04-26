@@ -40,30 +40,37 @@
                 <!-- /Page Header -->
 
                 <!-- Search Filter -->
-                <div class="row filter-row">
-                    <div class="col-sm-6 col-md-3">
-                        <div class="form-group form-focus">
-                            <input type="text" class="form-control floating">
-                            <label class="focus-label">Name</label>
+                <form method="GET" action="{{ route('users.search') }}">
+                    <div class="row filter-row">
+                        <div class="col-sm-6 col-md-3">
+                            <div class="form-group form-focus">
+                                <input type="text" name="search" value="{{ request('search') }}"
+                                    class="form-control floating">
+                                <label class="focus-label">SEARCH</label>
+                            </div>
                         </div>
-                    </div>
 
-                    <div class="col-sm-6 col-md-3">
-                        <div class="form-group form-focus select-focus">
-                            <select class="select floating">
-                                <option>Select Roll</option>
-                                <option>Web Developer</option>
-                                <option>Web Designer</option>
-                                <option>Android Developer</option>
-                                <option>Ios Developer</option>
-                            </select>
-                            <label class="focus-label">Role</label>
+                        <div class="col-sm-6 col-md-3">
+                            <div class="form-group form-focus select-focus">
+                                <select class="select floating" name="role">
+                                    <option value="">Select Role</option>
+                                    <option value="Web Developer" {{ request('role') == 'Admin' ? 'selected' : '' }}>
+                                        Admin
+                                    </option>
+                                    <option value="Web Designer" {{ request('role') == 'Applicant' ? 'selected' : '' }}>
+                                        Applicant</option>
+
+                                </select>
+                                <label class="focus-label">Role</label>
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6 col-md-3">
+                            <button type="submit" class="btn btn-success btn-block"> Search </button>
                         </div>
                     </div>
-                    <div class="col-sm-6 col-md-3">
-                        <a href="#" class="btn btn-success btn-block"> Search </a>
-                    </div>
-                </div>
+                </form>
+
                 <!-- /Search Filter -->
 
                 <div class="row">
@@ -76,6 +83,7 @@
                                         <th>Email</th>
                                         <th>Created Date</th>
                                         <th>Role</th>
+                                        <th>Status</th>
                                         <th class="text-right">Action</th>
                                     </tr>
                                 </thead>
@@ -92,9 +100,16 @@
                                             <td>{{ $user->created_at->format('d M Y') }}</td>
                                             <td>
                                                 <span
-                                                    class="badge bg-inverse-{{ $user->role == 'admin' ? 'danger' : 'success' }}">
+                                                    class="badge bg-inverse-{{ $user->role == 'Admin' ? 'danger' : 'success' }}">
                                                     {{ $user->role }}
                                                 </span>
+                                            </td>
+                                            <td>
+                                                <span
+                                                    class="badge bg-inverse-{{ $user->status == 'Active' ? 'success' : 'danger' }}">
+                                                    {{ $user->status }}
+                                                </span>
+                                            </td>
                                             </td>
                                             <td class="text-right">
                                                 <div class="dropdown dropdown-action">
@@ -103,7 +118,8 @@
                                                             class="material-icons">more_vert</i></a>
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
-                                                            data-target="#edit_user"><i class="fa fa-pencil m-r-5"></i>
+                                                            data-target="#edit_user_{{ $user->id }}"><i
+                                                                class="fa fa-pencil m-r-5"></i>
                                                             Edit</a>
                                                         {{-- <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#delete_user"><i
@@ -133,81 +149,58 @@
                             </button>
                         </div>
                         <div class="modal-body">
-                            <form>
+                            <form action="{{ route('users.store') }}" method="POST">
+                                @csrf
                                 <div class="row">
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label>First Name <span class="text-danger">*</span></label>
-                                            <input class="form-control" type="text">
+                                            <input class="form-control" type="text" name="first_name" required>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label>Last Name</label>
-                                            <input class="form-control" type="text">
+                                            <input class="form-control" type="text" name="last_name" required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Username <span class="text-danger">*</span></label>
-                                            <input class="form-control" type="text">
-                                        </div>
-                                    </div>
+
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label>Email <span class="text-danger">*</span></label>
-                                            <input class="form-control" type="email">
+                                            <input class="form-control" type="email" name="email" required>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label>Password</label>
-                                            <input class="form-control" type="password">
+                                            <input class="form-control" type="password" name="password" required>
                                         </div>
                                     </div>
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label>Confirm Password</label>
-                                            <input class="form-control" type="password">
+                                            <input class="form-control" type="password" name="password_confirmation"
+                                                required>
                                         </div>
                                     </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Phone </label>
-                                            <input class="form-control" type="text">
-                                        </div>
-                                    </div>
+
                                     <div class="col-sm-6">
                                         <div class="form-group">
                                             <label>Role</label>
-                                            <select class="select">
-                                                <option>Admin</option>
-                                                <option>Client</option>
-                                                <option>Employee</option>
+                                            <select class="select" name="role" required>
+                                                <option value="Admin">Admin</option>
+                                                <option value="Applicant">Applicant</option>
                                             </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Company</label>
-                                            <select class="select">
-                                                <option>Global Technologies</option>
-                                                <option>Delta Infotech</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Employee ID <span class="text-danger">*</span></label>
-                                            <input type="text" class="form-control floating">
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Submit</button>
+                                    <button class="btn btn-primary submit-btn" type="submit">Submit</button>
                                 </div>
                             </form>
+
                         </div>
                     </div>
                 </div>
@@ -215,97 +208,98 @@
             <!-- /Add User Modal -->
 
             <!-- Edit User Modal -->
-            <div id="edit_user" class="modal custom-modal fade" role="dialog">
-                <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Edit User</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="row">
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>First Name <span class="text-danger">*</span></label>
-                                            <input class="form-control" value="John" type="text">
+            @foreach ($users as $user)
+                <div id="edit_user_{{ $user->id }}" class="modal custom-modal fade" role="dialog">
+                    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Edit User</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form method="POST" action="{{ route('users.update', $user->id) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <input type="hidden" name="user_id" value="{{ $user->id }}">
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>First Name <span class="text-danger">*</span></label>
+                                                <input class="form-control" name="first_name"
+                                                    value="{{ $user->personalInformation->first_name ?? '' }}"
+                                                    type="text">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Last Name</label>
-                                            <input class="form-control" value="Doe" type="text">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Last Name</label>
+                                                <input class="form-control" name="last_name"
+                                                    value="{{ $user->personalInformation->last_name ?? '' }}"
+                                                    type="text">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Username <span class="text-danger">*</span></label>
-                                            <input class="form-control" value="johndoe" type="text">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Email <span class="text-danger">*</span></label>
+                                                <input class="form-control" name="email"
+                                                    value="{{ $user->email }}" type="email">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Email <span class="text-danger">*</span></label>
-                                            <input class="form-control" value="johndoe@example.com" type="email">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Password</label>
+                                                <input class="form-control" name="password" type="password">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Password</label>
-                                            <input class="form-control" type="password">
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Confirm Password</label>
+                                                <input class="form-control" name="password_confirmation"
+                                                    type="password">
+                                            </div>
                                         </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Confirm Password</label>
-                                            <input class="form-control" type="password">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Phone </label>
-                                            <input class="form-control" value="9876543210" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Role</label>
-                                            <select class="select">
-                                                <option>Admin</option>
-                                                <option>Client</option>
-                                                <option selected>Employee</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Company</label>
-                                            <select class="select">
-                                                <option>Global Technologies</option>
-                                                <option>Delta Infotech</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-6">
-                                        <div class="form-group">
-                                            <label>Employee ID <span class="text-danger">*</span></label>
-                                            <input type="text" value="FT-0001" class="form-control floating">
-                                        </div>
-                                    </div>
-                                </div>
 
-                                <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Save</button>
-                                </div>
-                            </form>
+                                        <div class="col-sm-6">
+                                            <div class="form-group">
+                                                <label>Role</label>
+                                                <select class="select" name="role">
+                                                    <option value="Admin"
+                                                        {{ $user->role == 'Admin' ? 'selected' : '' }}>Admin</option>
+                                                    <option value="Applicant"
+                                                        {{ $user->role == 'Applicant' ? 'selected' : '' }}>Applicant
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div class="col-sm-12">
+                                            <div class="form-group">
+                                                <label>Status</label>
+                                                <select class="select" name="status">
+                                                    <option value="Active"
+                                                        {{ $user->status == 'Active' ? 'selected' : '' }}>Active
+                                                    </option>
+                                                    <option value="Inactive"
+                                                        {{ $user->status == 'Inactive' ? 'selected' : '' }}>Inactive
+                                                    </option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="submit-section">
+                                        <button class="btn btn-primary submit-btn">Save</button>
+                                    </div>
+                                </form>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <!-- /Edit User Modal -->
+            @endforeach
 
+            <!-- /Edit User Modal -->
+            {{--
             <!-- Delete User Modal -->
             <div class="modal custom-modal fade" id="delete_user" role="dialog">
                 <div class="modal-dialog modal-dialog-centered">
@@ -330,7 +324,7 @@
                     </div>
                 </div>
             </div>
-            <!-- /Delete User Modal -->
+            <!-- /Delete User Modal --> --}}
 
         </div>
         <!-- /Page Wrapper -->
@@ -338,29 +332,54 @@
     </div>
     <!-- /Main Wrapper -->
 
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: "{{ session('success') }}",
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'OK'
+                });
+            @endif
+
+            @if (session('error'))
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error!',
+                    text: "{{ session('error') }}",
+                    confirmButtonColor: '#d33',
+                    confirmButtonText: 'Try Again'
+                });
+            @endif
+        });
+    </script>
+
     <!-- jQuery -->
-    <script src="assets/js/jquery-3.5.1.min.js"></script>
+    <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
     <!-- Bootstrap Core JS -->
-    <script src="assets/js/popper.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
     <!-- Slimscroll JS -->
-    <script src="assets/js/jquery.slimscroll.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.slimscroll.min.js') }}"></script>
 
     <!-- Select2 JS -->
-    <script src="assets/js/select2.min.js"></script>
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
 
     <!-- Datetimepicker JS -->
-    <script src="assets/js/moment.min.js"></script>
-    <script src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="{{ asset('assets/js/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
 
     <!-- Datatable JS -->
-    <script src="assets/js/jquery.dataTables.min.js"></script>
-    <script src="assets/js/dataTables.bootstrap4.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/js/dataTables.bootstrap4.min.js') }}"></script>
 
     <!-- Custom JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
 
 </body>
 

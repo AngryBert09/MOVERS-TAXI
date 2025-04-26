@@ -62,8 +62,7 @@
                                                         {{ $user->id ?? 'FT-0001' }}</div>
                                                     <div class="small doj text-muted">Date of Join :
                                                         {{ $user->created_at ?? '1st Jan 2013' }}</div>
-                                                    <div class="staff-msg"><a class="btn btn-primary"
-                                                            href="chat.html">LOL</a></div>
+                                                    <div class="staff-msg"></div>
                                                 </div>
                                             </div>
                                             <div class="col-md-7">

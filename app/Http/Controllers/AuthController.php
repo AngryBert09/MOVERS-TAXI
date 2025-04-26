@@ -39,7 +39,7 @@ class AuthController extends Controller
 
         // Verify reCAPTCHA
         $recaptchaResponse = $request->input('g-recaptcha-response');
-        $secretKey = '6LfueP0qAAAAAMae8EWZI9ubex1cy505U_ws70UL';
+        $secretKey = env('RECAPTCHA_SECRET_KEY');
         $recaptchaVerify = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => $secretKey,
             'response' => $recaptchaResponse,
@@ -56,6 +56,12 @@ class AuthController extends Controller
         if (!$user) {
             Log::warning("Login attempt failed: Email not found ({$request->email})", ['ip' => $request->ip()]);
             return back()->with('error', 'No account found with this email.');
+        }
+
+        // Check if account is active
+        if ($user->status !== 'Active') {
+            Log::warning("Inactive account login attempt: {$user->email}", ['ip' => $request->ip()]);
+            return back()->with('error', 'Your account is not active. Please contact support.');
         }
 
         // Check if email is verified

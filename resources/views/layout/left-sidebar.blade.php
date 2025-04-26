@@ -88,8 +88,8 @@
                     <a href="{{ route('users') }}">
                         <i class="la la-user-plus"></i>
                         <span>Users</span>
-                        <span style="color: rgb(0, 60, 255); font-size: 0.75rem; margin-left: 5px;">(Under
-                            Development)</span>
+                        {{-- <span style="color: rgb(0, 60, 255); font-size: 0.75rem; margin-left: 5px;">(Under
+                            Development)</span> --}}
                     </a>
                 </li>
 

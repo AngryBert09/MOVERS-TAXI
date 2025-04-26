@@ -162,6 +162,9 @@ Route::middleware('admin')->group(function () {
 
     //USERS
     Route::get('/users', [UserController::class, 'index'])->name('users');
+    Route::get('/users/search', [UserController::class, 'search'])->name('users.search');
+    Route::post('/users/store', [UserController::class, 'store'])->name('users.store');
+    Route::put('/users/{id}', [UserController::class, 'update'])->name('users.update');
 });
 
 //FACILITIES EVALUATION
