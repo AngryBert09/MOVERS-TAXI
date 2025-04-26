@@ -23,6 +23,7 @@
                     <li><a href="{{ route('jobs.vacancies') }}" class="animsition-link">Job Vacancies</a></li>
                     <li><a href="{{ route('landing.contact') }}" class="animsition-link">Contact</a></li>
                     <li><a href="{{ route('auth.login') }}" class="animsition-link">Login</a></li>
+                    <li><a href="{{ route('auth.register') }}" class="animsition-link">Register</a></li>
                     <li><a href="{{ route('search') }}" class="animsition-link">My Application</a></li>
                 </ul> <!-- .templateux-menu -->
 
