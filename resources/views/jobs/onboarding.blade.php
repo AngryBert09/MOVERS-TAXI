@@ -158,12 +158,12 @@
                                                                 <i class="fa fa-dot-circle-o text-info"></i> Move to
                                                                 Final Interview
                                                             </a>
-                                                            <a class="dropdown-item update-status" href="#"
-                                                                data-id="{{ $applicant->id }}"
-                                                                data-status="Examination">
+                                                            <a class="dropdown-item" href="#" data-toggle="modal"
+                                                                data-target="#exam_modal_{{ $applicant->id }}">
                                                                 <i class="fa fa-dot-circle-o text-dark"></i> Move to
                                                                 Examination
                                                             </a>
+
                                                             <a class="dropdown-item" href="#" data-toggle="modal"
                                                                 data-target="#failReasonModal"
                                                                 data-id="{{ $applicant->id }}">
@@ -277,6 +277,25 @@
                                                                     <i class="fa fa-check-circle"></i> Scheduled
                                                                 </a>
                                                             @endif
+
+                                                            {{-- Show Scheduled (Disabled) --}}
+                                                            @if ($applicant->status === 'Examination')
+                                                                @php
+                                                                    // Fetch the exam result for the applicant
+                                                                    $examResult = DB::table('exam_results')
+                                                                        ->where('job_application_id', $applicant->id)
+                                                                        ->first();
+                                                                @endphp
+
+                                                                @if ($examResult)
+                                                                    <a class="dropdown-item" href="#"
+                                                                        data-toggle="modal"
+                                                                        data-target="#examResultModal_{{ $applicant->id }}">
+                                                                        <i class="fa fa-check-circle"></i> Results
+                                                                    </a>
+                                                                @endif
+                                                            @endif
+
                                                         </div>
 
 
@@ -284,6 +303,72 @@
                                                 @endif
                                             </td>
 
+                                            <!-- Modal to display the exam result -->
+                                            <div class="modal custom-modal fade"
+                                                id="examResultModal_{{ $applicant->id }}" role="dialog">
+                                                <div class="modal-dialog modal-dialog-centered modal-lg"
+                                                    role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header"
+                                                            style="background-color: #4CAF50; color: white;">
+                                                            <h5 class="modal-title">Examination Results</h5>
+                                                            <button type="button" class="close"
+                                                                data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="card"
+                                                                        style="border: none; background-color: #f9f9f9; box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);">
+                                                                        <div class="card-body">
+                                                                            <h4 class="card-title"
+                                                                                style="font-weight: bold; font-size: 1.25rem;">
+                                                                                Applicant: <span
+                                                                                    style="font-weight: normal;">{{ $applicant->name }}</span>
+                                                                            </h4>
+                                                                            <div class="row mt-4">
+                                                                                <div class="col-md-6">
+                                                                                    <p><strong><i
+                                                                                                class="fa fa-question-circle"
+                                                                                                style="color: #4CAF50;"></i>
+                                                                                            Total Questions:</strong>
+                                                                                        {{ $examResult->total_questions }}
+                                                                                    </p>
+                                                                                </div>
+                                                                                <div class="col-md-6">
+                                                                                    <p><strong><i
+                                                                                                class="fa fa-check-circle"
+                                                                                                style="color: #4CAF50;"></i>
+                                                                                            Correct Answers:</strong>
+                                                                                        {{ $examResult->correct_answers }}
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="row mt-3">
+                                                                                <div class="col-md-12">
+                                                                                    <p><strong><i class="fa fa-percent"
+                                                                                                style="color: #4CAF50;"></i>
+                                                                                            Score Percentage:</strong>
+                                                                                        <span
+                                                                                            style="font-size: 1.2rem; font-weight: bold;">{{ $examResult->score_percentage }}%</span>
+                                                                                    </p>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal"
+                                                                style="background-color: #4CAF50; color: white; border: none;">Close</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
 
 
                                             <!-- Requirements Modal -->
@@ -368,6 +453,51 @@
                                                             </div>
                                                         </div>
                                                     </form>
+                                                </div>
+                                            </div>
+
+
+                                            <!-- MODAL FOR EXAMINATION -->
+                                            <div class="modal custom-modal fade" id="exam_modal_{{ $applicant->id }}"
+                                                role="dialog">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Select Exam Type</h5>
+                                                            <button type="button" class="close"
+                                                                data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <form
+                                                                action="{{ route('application.move.examination', $applicant->id) }}"
+                                                                method="POST">
+                                                                @csrf
+                                                                <div class="form-group">
+                                                                    <label for="exam_type">Exam Type</label>
+                                                                    <select name="exam_type" id="exam_type"
+                                                                        class="form-control" required>
+                                                                        <option value="" disabled selected>Select
+                                                                            Exam Type</option>
+                                                                        @foreach ($questions as $question)
+                                                                            <option value="{{ $question->category }}">
+                                                                                {{ $question->category }}
+                                                                            </option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                                <div class="submit-section text-center">
+                                                                    <button type="submit"
+                                                                        class="btn btn-primary">Move</button>
+                                                                    <button type="button" class="btn btn-secondary"
+                                                                        data-dismiss="modal">Cancel</button>
+                                                                </div>
+                                                            </form>
+
+
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 

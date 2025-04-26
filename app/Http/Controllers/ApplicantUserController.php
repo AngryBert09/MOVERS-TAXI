@@ -47,12 +47,16 @@ class ApplicantUserController extends Controller
             }
         }
 
-        Log::info('Job applications fetched successfully', [
+        // Load questions from the database
+        $questions = DB::table('questions')->get();
+
+        Log::info('Job applications and questions fetched successfully', [
             'email' => $email,
-            'application_count' => $applications->count()
+            'application_count' => $applications->count(),
+            'question_count' => $questions->count()
         ]);
 
-        return view('portal.dashboard', compact('applications'));
+        return view('portal.dashboard', compact('applications', 'questions'));
     }
 
 

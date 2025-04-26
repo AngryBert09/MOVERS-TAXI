@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Http;
 use App\Mail\ApplicantCustomMessageMail;
 use Smalot\PdfParser\Parser as PdfParser;
 use PhpOffice\PhpWord\IOFactory;
+use Illuminate\Support\Facades\DB;
 
 class ApplicantController extends Controller
 {
@@ -30,8 +31,8 @@ class ApplicantController extends Controller
 
             return view('jobs.job-applicants', compact('jobApplications'));
         } catch (\Exception $e) {
-            Log::error('Error fetching all job applicants.', ['error' => $e->getMessage()]);
-            return redirect()->route('dashboard')->with('error', 'Unable to fetch job applicants.');
+            Log::error('Error fetching all job applicants or categories.', ['error' => $e->getMessage()]);
+            return redirect()->route('dashboard')->with('error', 'Unable to fetch job applicants or categories.');
         }
     }
 
@@ -44,7 +45,14 @@ class ApplicantController extends Controller
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
-            return view('jobs.onboarding', compact('jobApplications'));
+            // Retrieve categories for questions from the database
+            $questions = DB::table('questions')
+                ->select('category')
+                ->distinct()
+                ->get();
+
+
+            return view('jobs.onboarding', compact('jobApplications', 'questions'));
         } catch (\Exception $e) {
             Log::error('Error fetching job applicants with Initial or Final status.', ['error' => $e->getMessage()]);
             return redirect()->route('dashboard')->with('error', 'Unable to fetch filtered job applicants.');
@@ -344,6 +352,26 @@ class ApplicantController extends Controller
         $jobApp->save();
 
         return redirect()->back()->with('success', 'Compliance date updated successfully.');
+    }
+
+    public function moveToExamination(Request $request, $id)
+    {
+        // Validate input
+        $request->validate([
+            'exam_type' => 'required|string',
+        ]);
+
+        // Find the JobApplication by ID
+        $jobApplication = JobApplication::findOrFail($id);
+
+        // Update the status and exam_type
+        $jobApplication->update([
+            'status'    => 'Examination',
+            'exam_type' => $request->exam_type,
+        ]);
+
+        // Redirect back with success message
+        return redirect()->back()->with('success', 'Application moved to Examination phase successfully.');
     }
 
 

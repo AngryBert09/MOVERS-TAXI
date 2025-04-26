@@ -359,6 +359,35 @@
                                                                             Requirements
                                                                         </a>
                                                                     @endif
+                                                                    @if ($application->status == 'Examination')
+                                                                        @php
+                                                                            // Check if there is already an exam result for this application
+                                                                            $examResult = DB::table('exam_results')
+                                                                                ->where(
+                                                                                    'job_application_id',
+                                                                                    $application->id,
+                                                                                )
+                                                                                ->first();
+                                                                        @endphp
+
+                                                                        @if ($examResult)
+                                                                            <!-- If an exam result exists, show "Exam Done" -->
+                                                                            <span class="dropdown-item text-muted">
+                                                                                <i class="fa fa-check-circle m-r-5"></i>
+                                                                                Exam Completed
+                                                                            </span>
+                                                                        @else
+                                                                            <!-- If no exam result exists, allow taking the exam -->
+                                                                            <a class="dropdown-item" href="#"
+                                                                                data-toggle="modal"
+                                                                                data-target="#examination_modal_{{ $application->id }}">
+                                                                                <i
+                                                                                    class="fa fa-pencil-square-o m-r-5"></i>
+                                                                                Take Examination
+                                                                            </a>
+                                                                        @endif
+                                                                    @endif
+
                                                                     @if ($application->status == 'Failed')
                                                                         <a class="dropdown-item" href="#"
                                                                             data-toggle="modal"
@@ -396,12 +425,91 @@
                                                             </div>
                                                         </td>
 
+
+                                                        <!-- EXAMINATION MODAL -->
+                                                        <div class="modal custom-modal fade"
+                                                            id="examination_modal_{{ $application->id }}"
+                                                            role="dialog">
+                                                            <div class="modal-dialog modal-dialog-centered modal-lg"
+                                                                role="document">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title">Take Examination
+                                                                            ({{ $application->exam_type }})
+                                                                        </h5>
+                                                                        <button type="button" class="close"
+                                                                            data-dismiss="modal" aria-label="Close">
+                                                                            <span aria-hidden="true">&times;</span>
+                                                                        </button>
+                                                                    </div>
+
+                                                                    <div class="modal-body">
+                                                                        <form
+                                                                            action="{{ route('submit.exam', $application->id) }}"
+                                                                            method="POST">
+                                                                            @csrf
+
+                                                                            @foreach ($questions as $key => $question)
+                                                                                <div class="mb-4">
+                                                                                    <h5>{{ $key + 1 }}.
+                                                                                        {{ $question->question }}</h5>
+                                                                                    <div class="form-group">
+                                                                                        <div>
+                                                                                            <input type="radio"
+                                                                                                name="answers[{{ $question->id }}]"
+                                                                                                value="A"
+                                                                                                required>
+                                                                                            {{ $question->option_a }}
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <input type="radio"
+                                                                                                name="answers[{{ $question->id }}]"
+                                                                                                value="B"
+                                                                                                required>
+                                                                                            {{ $question->option_b }}
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <input type="radio"
+                                                                                                name="answers[{{ $question->id }}]"
+                                                                                                value="C"
+                                                                                                required>
+                                                                                            {{ $question->option_c }}
+                                                                                        </div>
+                                                                                        <div>
+                                                                                            <input type="radio"
+                                                                                                name="answers[{{ $question->id }}]"
+                                                                                                value="D"
+                                                                                                required>
+                                                                                            {{ $question->option_d }}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            @endforeach
+
+                                                                            <div class="submit-section text-center">
+                                                                                <button type="submit"
+                                                                                    class="btn btn-success">Submit
+                                                                                    Exam</button>
+                                                                                <button type="button"
+                                                                                    class="btn btn-secondary"
+                                                                                    data-dismiss="modal">Cancel</button>
+                                                                            </div>
+
+                                                                        </form>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+
+
                                                         @if (!in_array($application->status, ['Failed', 'Onboarding']))
                                                             <!-- Withdraw Application Modal -->
                                                             <div class="modal fade"
                                                                 id="delete_application_{{ $application->id }}"
                                                                 tabindex="-1" role="dialog"
-                                                                aria-labelledby="withdrawModalLabel" aria-hidden="true">
+                                                                aria-labelledby="withdrawModalLabel"
+                                                                aria-hidden="true">
                                                                 <div class="modal-dialog modal-dialog-centered"
                                                                     role="document">
                                                                     <div class="modal-content">

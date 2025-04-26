@@ -21,6 +21,7 @@ use App\Http\Controllers\ApplicantFileController;
 use App\Http\Controllers\TrainingUserController;
 use App\Http\Controllers\FacilitiesEvaluationController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ExamController;
 
 Route::middleware('guest')->group(function () {
     Route::name('landing.')->group(function () {
@@ -34,6 +35,7 @@ Route::middleware('guest')->group(function () {
 
     // Authentication Routes
     Route::get('/login', [AuthController::class, 'showLogin'])->name('auth.login');
+    Route::get('/admin/login', [AuthController::class, 'showLogin']);
     Route::post('/login', [AuthController::class, 'login'])->name('auth.login.post');
 
 
@@ -98,6 +100,8 @@ Route::middleware('admin')->group(function () {
         ->name('applicant.files');
     Route::post('/applications/fail', [ApplicantController::class, 'failApplicant'])->name('applications.fail');
     Route::post('/applications/{id}/comply-date', [ApplicantController::class, 'submissionRequirements'])->name('applications.submission.requirements');
+    Route::post('/applications/{id}/move', [ApplicantController::class, 'moveToExamination'])->name('application.move.examination');
+
 
     //FACILITIES EVALUATION
     Route::get('/evaluate/facilities', [FacilitiesEvaluationController::class, 'index'])->name('facilities');
@@ -171,6 +175,10 @@ Route::middleware('admin')->group(function () {
     //DOCUMENTS
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents');
     Route::post('/documents', [DocumentController::class, 'store'])->name('documents.store');
+
+    //EXAMINATION
+    Route::get('/exams', [ExamController::class, 'index'])->name('examinations');
+    Route::post('/exams/store', [ExamController::class, 'store'])->name('questions.store');
 });
 
 //FACILITIES EVALUATION
@@ -186,6 +194,9 @@ Route::middleware('auth')->group(function () {
 
     //MY TRAININGS
     Route::get('/current-training', [TrainingUserController::class, 'index'])->name('my.training');
+
+    //EXAMS
+    Route::post('/submit-exam/{id}', [ExamController::class, 'submitExam'])->name('submit.exam');
 });
 
 

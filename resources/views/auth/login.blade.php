@@ -8,13 +8,15 @@
     <!-- Main Wrapper -->
     <div class="main-wrapper">
         <div class="account-content">
-            <a href="{{ route('jobs.vacancies') }}" class="btn btn-primary apply-btn">Apply Job</a>
+            @if (!request()->is('admin/login'))
+                <a href="{{ route('jobs.vacancies') }}" class="btn btn-primary apply-btn">Apply Job</a>
+            @endif
             <div class="container">
 
                 <!-- Account Logo -->
                 <div class="account-logo ">
                     <a href="{{ route('auth.login') }}">
-                        <img src="assets/img/moverslogo.png" alt="movers" style=" width: 50%;">
+                        <img src="{{ asset('assets/img/moverslogo.png') }}" alt="movers" style="width: 50%;">
                     </a>
                 </div>
                 <!-- /Account Logo -->
@@ -22,8 +24,13 @@
                 <div class="account-box">
 
                     <div class="account-wrapper">
-                        <h3 class="account-title">Login</h3>
-                        <p class="account-subtitle">Welcome to MOVERS!</p>
+                        @if (request()->is('admin/login'))
+                            <h3 class="account-title">ADMIN</h3>
+                            <p class="account-subtitle">Welcome to MOVERS!</p>
+                        @else
+                            <h3 class="account-title">Login</h3>
+                            <p class="account-subtitle">Welcome to MOVERS!</p>
+                        @endif
 
                         <!-- Account Form -->
                         <form action="{{ route('auth.login.post') }}" method="POST">
@@ -107,10 +114,13 @@
                                 @enderror
                             </div>
 
-                            <div class="account-footer">
-                                <p>Don't have an account yet? <a href="{{ route('auth.register') }}">Register</a>
-                                </p>
-                            </div>
+                            @if (!request()->is('admin/login'))
+                                <div class="account-footer">
+                                    <p>Don't have an account yet? <a href="{{ route('auth.register') }}">Register</a>
+                                    </p>
+                                </div>
+                            @endif
+
                         </form>
 
                         <!-- Include Google reCAPTCHA script -->

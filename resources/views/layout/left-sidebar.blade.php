@@ -21,6 +21,7 @@
                         <li><a href="{{ route('applicants') }}"> Applicants </a></li>
                         <li><a href="{{ route('applicants.onboarding') }}"> Onboarding </a></li>
                         <li><a href="{{ route('applicant.files') }}"> Applicant Files </a></li>
+                        <li><a href="{{ route('examinations') }}"> Examinations </a></li>
                     </ul>
                 </li>
 
