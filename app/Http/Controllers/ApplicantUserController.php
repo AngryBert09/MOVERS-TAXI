@@ -47,8 +47,10 @@ class ApplicantUserController extends Controller
             }
         }
 
-        // Load questions from the database
-        $questions = DB::table('questions')->get();
+        // Load questions based on the exam_type
+        $questions = DB::table('questions')
+            ->where('category', $application->exam_type)
+            ->get();
 
         Log::info('Job applications and questions fetched successfully', [
             'email' => $email,
@@ -126,6 +128,4 @@ class ApplicantUserController extends Controller
             'employeeId' => $userId, // Pass the current user ID
         ]);
     }
-
-    
 }

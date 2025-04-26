@@ -293,6 +293,10 @@
                                                                         data-target="#examResultModal_{{ $applicant->id }}">
                                                                         <i class="fa fa-check-circle"></i> Results
                                                                     </a>
+                                                                @else
+                                                                    <a class="dropdown-item disabled" href="#">
+                                                                        <i class="fa fa-times-circle"></i>Ongoing
+                                                                    </a>
                                                                 @endif
                                                             @endif
 
@@ -326,7 +330,7 @@
                                                                             <h4 class="card-title"
                                                                                 style="font-weight: bold; font-size: 1.25rem;">
                                                                                 Applicant: <span
-                                                                                    style="font-weight: normal;">{{ $applicant->name }}</span>
+                                                                                    style="font-weight: normal;">{{ $applicant->name ?? 'N/A' }}</span>
                                                                             </h4>
                                                                             <div class="row mt-4">
                                                                                 <div class="col-md-6">
@@ -334,7 +338,7 @@
                                                                                                 class="fa fa-question-circle"
                                                                                                 style="color: #4CAF50;"></i>
                                                                                             Total Questions:</strong>
-                                                                                        {{ $examResult->total_questions }}
+                                                                                        {{ $examResult->total_questions ?? 'N/A' }}
                                                                                     </p>
                                                                                 </div>
                                                                                 <div class="col-md-6">
@@ -342,7 +346,7 @@
                                                                                                 class="fa fa-check-circle"
                                                                                                 style="color: #4CAF50;"></i>
                                                                                             Correct Answers:</strong>
-                                                                                        {{ $examResult->correct_answers }}
+                                                                                        {{ $examResult->correct_answers ?? 'N/A' }}
                                                                                     </p>
                                                                                 </div>
                                                                             </div>
@@ -352,7 +356,7 @@
                                                                                                 style="color: #4CAF50;"></i>
                                                                                             Score Percentage:</strong>
                                                                                         <span
-                                                                                            style="font-size: 1.2rem; font-weight: bold;">{{ $examResult->score_percentage }}%</span>
+                                                                                            style="font-size: 1.2rem; font-weight: bold;">{{ $examResult->score_percentage ?? 'N/A' }}%</span>
                                                                                     </p>
                                                                                 </div>
                                                                             </div>
@@ -369,6 +373,7 @@
                                                     </div>
                                                 </div>
                                             </div>
+
 
 
                                             <!-- Requirements Modal -->

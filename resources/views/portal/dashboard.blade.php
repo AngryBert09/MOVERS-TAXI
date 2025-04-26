@@ -449,7 +449,7 @@
                                                                             method="POST">
                                                                             @csrf
 
-                                                                            @foreach ($questions as $key => $question)
+                                                                            @forelse ($questions as $key => $question)
                                                                                 <div class="mb-4">
                                                                                     <h5>{{ $key + 1 }}.
                                                                                         {{ $question->question }}</h5>
@@ -484,7 +484,12 @@
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
-                                                                            @endforeach
+                                                                            @empty
+                                                                                <div class="text-center">
+                                                                                    <p>No questions available for this
+                                                                                        exam.</p>
+                                                                                </div>
+                                                                            @endforelse
 
                                                                             <div class="submit-section text-center">
                                                                                 <button type="submit"
