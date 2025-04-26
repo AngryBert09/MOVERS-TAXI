@@ -21,9 +21,10 @@ class ApplicantController extends Controller
     public function index()
     {
         try {
-            // Retrieve all job applications
+            // Retrieve all job applications and prioritize 'Qualified'
             $jobApplications = JobApplication::with('jobPosting')
-                ->whereIn('status', ['Qualified', 'Not Qualified', 'Pending',])
+                ->whereIn('status', ['Qualified', 'Not Qualified'])
+                ->orderByRaw("FIELD(status, 'Pending', 'Qualified', 'Not Qualified')")
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -39,7 +40,7 @@ class ApplicantController extends Controller
         try {
             // Retrieve job applications with status 'Initial' or 'Final'
             $jobApplications = JobApplication::with('jobPosting')
-                ->whereIn('status', ['Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding', 'Failed', 'Scheduled', 'Hired', 'Rejected'])
+                ->whereIn('status', ['Pending', 'Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding', 'Failed', 'Scheduled', 'Hired', 'Rejected'])
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -346,8 +347,6 @@ class ApplicantController extends Controller
     }
 
 
-
-
     public function failApplicant(Request $request)
     {
         Log::info('Fail Applicant Request Received:', $request->all());
@@ -441,6 +440,7 @@ class ApplicantController extends Controller
                 $personalInfo = PersonalInformation::updateOrCreate(
                     ['user_id' => $userId],
                     [
+                        'application_id' => $jobApplication->id,
                         'phone_number' => $validatedData['phone'],
                         'gender' => $validatedData['gender'],
                         'birth_date' => $validatedData['birthdate'],
