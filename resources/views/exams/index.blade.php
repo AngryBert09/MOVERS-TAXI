@@ -77,7 +77,7 @@
                                                             class="material-icons">more_vert</i></a>
                                                     <div class="dropdown-menu dropdown-menu-right">
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
-                                                            data-target="#edit_question"><i
+                                                            data-target="#edit_question_{{ $question->id }}"><i
                                                                 class="fa fa-pencil m-r-5"></i>
                                                             Edit</a>
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
@@ -87,6 +87,121 @@
                                                 </div>
                                             </td>
                                         </tr>
+
+                                        <!-- Edit Question Modal -->
+                                        <div id="edit_question_{{ $question->id }}" class="modal custom-modal fade"
+                                            role="dialog">
+                                            <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Edit Question</h5>
+                                                        <button type="button" class="close" data-dismiss="modal"
+                                                            aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form method="POST"
+                                                            action="{{ route('questions.update', $question->id) }}">
+                                                            @csrf
+                                                            @method('PUT')
+
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Category</label>
+                                                                        <input class="form-control" type="text"
+                                                                            name="category"
+                                                                            value="{{ $question->category ?? '' }}">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Question</label>
+                                                                        <textarea class="form-control" name="question">{{ $question->question ?? '' }}</textarea>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label>Option A</label>
+                                                                        <input class="form-control" type="text"
+                                                                            name="option_a"
+                                                                            value="{{ $question->option_a ?? '' }}">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label>Option B</label>
+                                                                        <input class="form-control" type="text"
+                                                                            name="option_b"
+                                                                            value="{{ $question->option_b ?? '' }}">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label>Option C</label>
+                                                                        <input class="form-control" type="text"
+                                                                            name="option_c"
+                                                                            value="{{ $question->option_c ?? '' }}">
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="col-md-6">
+                                                                    <div class="form-group">
+                                                                        <label>Option D</label>
+                                                                        <input class="form-control" type="text"
+                                                                            name="option_d"
+                                                                            value="{{ $question->option_d ?? '' }}">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="row">
+                                                                <div class="col-md-12">
+                                                                    <div class="form-group">
+                                                                        <label>Correct Answer</label>
+                                                                        <select name="correct_answer"
+                                                                            class="form-control">
+                                                                            <option value="">Select Correct
+                                                                                Answer</option>
+                                                                            <option value="A"
+                                                                                {{ $question->correct_answer == 'A' ? 'selected' : '' }}>
+                                                                                Option A</option>
+                                                                            <option value="B"
+                                                                                {{ $question->correct_answer == 'B' ? 'selected' : '' }}>
+                                                                                Option B</option>
+                                                                            <option value="C"
+                                                                                {{ $question->correct_answer == 'C' ? 'selected' : '' }}>
+                                                                                Option C</option>
+                                                                            <option value="D"
+                                                                                {{ $question->correct_answer == 'D' ? 'selected' : '' }}>
+                                                                                Option D</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+
+                                                            <div class="submit-section">
+                                                                <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Cancel</button>
+                                                                <button type="submit" class="btn btn-primary">Save
+                                                                    Changes</button>
+                                                            </div>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     @endforeach
                                 </tbody>
                             </table>
@@ -187,39 +302,9 @@
             <!-- /Add Questions Modal -->
 
 
-            <!-- Add Category Modal -->
-            <div id="add_category" class="modal custom-modal fade" role="dialog">
-                <div class="modal-dialog modal-dialog-centered" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Add Category</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form>
-                                <div class="row">
-                                    <div class="col-md-12">
-                                        <div class="form-group">
-                                            <label>Add Category</label>
-                                            <input class="form-control" type="text">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="submit-section">
-                                    <button class="btn btn-primary submit-btn">Cancel</button>
-                                    <button class="btn btn-primary submit-btn">Save</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <!-- /Add Questions Modal -->
 
-            <!-- Edit Job Modal -->
-            <div id="edit_question" class="modal custom-modal fade" role="dialog">
+            <!-- Edit question Modal -->
+            {{-- <div id="edit_question" class="modal custom-modal fade" role="dialog">
                 <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -231,7 +316,7 @@
                         <div class="modal-body">
                             <form>
                                 <div class="row">
-                                    <div class="col-md-6">
+                                    <div class="col-md-12">
                                         <div class="form-group">
                                             <label>Category</label>
                                             <select class="select">
@@ -241,20 +326,7 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Department</label>
-                                            <select class="select">
-                                                <option>-</option>
-                                                <option selected>Web Development</option>
-                                                <option>Application Development</option>
-                                                <option>IT Management</option>
-                                                <option>Accounts Management</option>
-                                                <option>Support Management</option>
-                                                <option>Marketing</option>
-                                            </select>
-                                        </div>
-                                    </div>
+
                                 </div>
                                 <div class="row">
                                     <div class="col-md-12">
@@ -307,38 +379,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Code Snippets</label>
-                                            <textarea class="form-control">
 
-												</textarea>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Answer Explanation</label>
-                                            <textarea class="form-control">
-
-												</textarea>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Add Video Link</label>
-                                            <input class="form-control" type="text">
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label>Add Image To Question</label>
-                                            <input class="form-control" type="file">
-                                        </div>
-                                    </div>
-                                </div>
                                 <div class="submit-section">
                                     <button class="btn btn-primary submit-btn">Cancel</button>
                                     <button class="btn btn-primary submit-btn">Save</button>
@@ -347,7 +388,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
             <!-- /Edit Job Modal -->
 
             <!-- Delete Job Modal -->
@@ -355,18 +396,23 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-body">
-                            <div class="form-header">
+                            <div class="form-header text-center">
                                 <h3>Delete</h3>
-                                <p>Are you sure want to delete?</p>
+                                <p>Are you sure you want to delete?</p>
                             </div>
                             <div class="modal-btn delete-action">
                                 <div class="row">
                                     <div class="col-6">
-                                        <a href="javascript:void(0);" class="btn btn-primary continue-btn">Delete</a>
+                                        <form method="POST"
+                                            action="{{ route('questions.destroy', $question->id) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-block">Delete</button>
+                                        </form>
                                     </div>
                                     <div class="col-6">
-                                        <a href="javascript:void(0);" data-dismiss="modal"
-                                            class="btn btn-primary cancel-btn">Cancel</a>
+                                        <button type="button" data-dismiss="modal"
+                                            class="btn btn-secondary btn-block">Cancel</button>
                                     </div>
                                 </div>
                             </div>
@@ -374,6 +420,7 @@
                     </div>
                 </div>
             </div>
+
             <!-- /Delete Job Modal -->
 
         </div>
@@ -382,29 +429,67 @@
     </div>
     <!-- /Main Wrapper -->
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        // Example usage of SweetAlert2
+        document.addEventListener('DOMContentLoaded', function() {
+            // Example: Show a success alert when a question is added
+            @if (session('success'))
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: '{{ session('success') }}',
+                    timer: 3000,
+                    showConfirmButton: false
+                });
+            @endif
+
+            // Example: Confirmation before deleting a question
+            document.querySelectorAll('.delete-action .continue-btn').forEach(function(button) {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: "You won't be able to revert this!",
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#3085d6',
+                        cancelButtonColor: '#d33',
+                        confirmButtonText: 'Yes, delete it!'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            // Perform delete action here
+                            window.location.href = button.getAttribute('href');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
     <!-- jQuery -->
-    <script src="assets/js/jquery-3.5.1.min.js"></script>
+    <script src="{{ asset('assets/js/jquery-3.5.1.min.js') }}"></script>
 
     <!-- Bootstrap Core JS -->
-    <script src="assets/js/popper.min.js"></script>
-    <script src="assets/js/bootstrap.min.js"></script>
+    <script src="{{ asset('assets/js/popper.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap.min.js') }}"></script>
 
     <!-- Slimscroll JS -->
-    <script src="assets/js/jquery.slimscroll.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.slimscroll.min.js') }}"></script>
 
     <!-- Select2 JS -->
-    <script src="assets/js/select2.min.js"></script>
+    <script src="{{ asset('assets/js/select2.min.js') }}"></script>
 
     <!-- Datatable JS -->
-    <script src="assets/js/jquery.dataTables.min.js"></script>
-    <script src="assets/js/dataTables.bootstrap4.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.dataTables.min.js') }}"></script>
+    <script src="{{ asset('assets/js/dataTables.bootstrap4.min.js') }}"></script>
 
     <!-- Datetimepicker JS -->
-    <script src="assets/js/moment.min.js"></script>
-    <script src="assets/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="{{ asset('assets/js/moment.min.js') }}"></script>
+    <script src="{{ asset('assets/js/bootstrap-datetimepicker.min.js') }}"></script>
 
     <!-- Custom JS -->
-    <script src="assets/js/app.js"></script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
 
 </body>
 

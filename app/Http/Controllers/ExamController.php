@@ -49,6 +49,50 @@ class ExamController extends Controller
         return redirect()->route('examinations')->with('success', 'Question added successfully!');
     }
 
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'category' => 'required|string|max:255',
+            'question' => 'required|string',
+            'option_a' => 'required|string',
+            'option_b' => 'required|string',
+            'option_c' => 'required|string',
+            'option_d' => 'required|string',
+            'correct_answer' => 'required|in:A,B,C,D',
+        ]);
+
+        $question = DB::table('questions')->where('id', $id)->first();
+
+        if (!$question) {
+            return redirect()->back()->with('error', 'Question not found!');
+        }
+
+        DB::table('questions')->where('id', $id)->update([
+            'category' => $request->category,
+            'question' => $request->question,
+            'option_a' => $request->option_a,
+            'option_b' => $request->option_b,
+            'option_c' => $request->option_c,
+            'option_d' => $request->option_d,
+            'correct_answer' => $request->correct_answer,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->back()->with('success', 'Question updated successfully!');
+    }
+
+    public function destroy($id)
+    {
+        $question = DB::table('questions')->where('id', $id)->first();
+
+        if (!$question) {
+            return redirect()->back()->with('error', 'Question not found!');
+        }
+
+        DB::table('questions')->where('id', $id)->delete();
+
+        return redirect()->back()->with('success', 'Question deleted successfully!');
+    }
 
     public function submitExam(Request $request, $applicationId)
     {

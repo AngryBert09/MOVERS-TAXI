@@ -179,6 +179,8 @@ Route::middleware('admin')->group(function () {
     //EXAMINATION
     Route::get('/exams', [ExamController::class, 'index'])->name('examinations');
     Route::post('/exams/store', [ExamController::class, 'store'])->name('questions.store');
+    Route::put('/questions/{question}', [ExamController::class, 'update'])->name('questions.update');
+    Route::delete('/exams/{id}', [ExamController::class, 'destroy'])->name('questions.destroy');
 });
 
 //FACILITIES EVALUATION
