@@ -211,9 +211,7 @@ Route::get('/create-symlink', function () {
 
 Route::get('/clear-cache', function () {
     Artisan::call('cache:clear');
-    Artisan::call('config:clear');
-    Artisan::call('route:clear');
-    Artisan::call('view:clear');
+
 
     return 'Application cache, config, routes, and views cleared!';
 })->middleware('auth'); // Optional: restrict with middleware
