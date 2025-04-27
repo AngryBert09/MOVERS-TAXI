@@ -97,10 +97,10 @@
                                                             data-target="#edit_trainer_{{ $trainer->id }}">
                                                             <i class="fa fa-pencil m-r-5"></i> Edit
                                                         </a>
-                                                        <a class="dropdown-item" href="#" data-toggle="modal"
+                                                        {{-- <a class="dropdown-item" href="#" data-toggle="modal"
                                                             data-target="#evaluateModal{{ $trainer->id }}">
                                                             <i class="fa fa-check-circle m-r-5"></i> Evaluate
-                                                        </a>
+                                                        </a> --}}
 
                                                         {{--
                                                         <a class="dropdown-item" href="#" data-toggle="modal"
@@ -256,10 +256,10 @@
                                         </div>
                                     </div>
 
-                                    <div class="form-group mt-3">
+                                    {{-- <div class="form-group mt-3">
                                         <button type="submit" class="btn btn-primary btn-block">Submit
                                             Evaluation</button>
-                                    </div>
+                                    </div> --}}
                                 </form>
                             </div>
                         </div>
