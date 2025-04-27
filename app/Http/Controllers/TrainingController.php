@@ -13,7 +13,6 @@ use Illuminate\Support\Carbon;
 use App\Models\TrainingAchievement;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Storage;
 
 class TrainingController extends Controller
