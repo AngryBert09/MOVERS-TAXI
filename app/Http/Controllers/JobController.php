@@ -47,28 +47,32 @@ class JobController extends Controller
     {
         Log::debug('JobController@store: Received request to store a new job.', ['request_data' => $request->all()]);
 
-        $request->validate([
-            'job_title'     => 'required|string|max:255',
-            'department'    => 'required|string|max:255',
-            'job_location'  => 'required|string|max:255',
-            'no_of_vacancies' => 'required|integer|min:1',
-            'experience'    => 'required|string|max:255',
-            'age'           => 'nullable|integer|min:18',
-            'salary_from'   => 'required|numeric|min:0',
-            'salary_to'     => 'required|numeric|min:0|gte:salary_from',
-            'job_type'      => 'required|string|in:Full Time,Part Time,Internship,Temporary,Remote,Others',
-            'status'        => 'required|string|in:Open,Closed,Cancelled',
-            'start_date'    => 'required|date',
-            'expired_date'  => 'required|date|after:start_date',
-            'description'   => 'required|string',
-        ]);
-
         try {
-            Log::debug('JobController@store: Validation passed. Creating job posting.');
-            $job = JobPosting::create($request->all());
+            $validated = $request->validate([
+                'job_title'     => 'required|string|max:255',
+                'department'    => 'required|string|max:255',
+                'job_location'  => 'required|string|max:255',
+                'no_of_vacancies' => 'required|integer|min:1',
+                'experience'    => 'required|string|max:255',
+                'age'           => 'nullable|integer|min:18',
+                'salary_from'   => 'required|numeric|min:0',
+                'salary_to'     => 'required|numeric|min:0|gte:salary_from',
+                'job_type'      => 'required|string|in:Full Time,Part Time,Internship,Temporary,Remote,Others',
+                'status'        => 'required|string|in:Open,Closed,Cancelled',
+                'start_date'    => 'required|date',
+                'expired_date'  => 'required|date|after:start_date',
+                'description'   => 'required|string',
+            ]);
+
+            Log::debug('JobController@store: Validation passed. Creating job posting.', ['validated_data' => $validated]);
+
+            $job = JobPosting::create($validated);
 
             Log::info("New job posted: {$job->job_title}", ['job_id' => $job->id]);
             return redirect()->back()->with('success', 'Job posted successfully!');
+        } catch (ValidationException $e) {
+            Log::error("JobController@store: Validation failed.", ['errors' => $e->errors()]);
+            return redirect()->back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             Log::error("JobController@store: Job posting failed.", ['error' => $e->getMessage()]);
             return redirect()->back()->with('error', 'Failed to post job. Please try again.');
