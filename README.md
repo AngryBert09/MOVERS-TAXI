@@ -34,5 +34,5 @@ Whether you operate a fleet of rideshare vehicles or manage a TNVS service at sc
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/movers-taxi-tnvs-hr.git
+   git clone https://github.com/AngryBert09/MOVERS-TAXI.git
    cd movers-taxi-tnvs-hr
