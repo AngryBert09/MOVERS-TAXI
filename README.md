@@ -1,4 +1,3 @@
-
 # 🚖 Movers-Taxi: TNVS HR Management System
 
 **Movers-Taxi** is a technology-driven TNVS (Transport Network Vehicle Service) platform tailored to manage the **human resources lifecycle** of drivers and staff. This system focuses on automating and organizing key HR processes such as onboarding, training, and performance evaluation.
@@ -7,6 +6,7 @@
 
 ### 1. Onboarding Automation
 - Seamless digital onboarding of new drivers and staff  
+- **AI-powered Resume Evaluation** that identifies whether an applicant is qualified based on experience, skills, and role-specific requirements  
 - AI-powered document validation and pre-employment checks  
 - Step-by-step orientation modules  
 
@@ -34,5 +34,5 @@ Whether you operate a fleet of rideshare vehicles or manage a TNVS service at sc
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/AngryBert09/MOVERS-TAXI.git
+   git clone https://github.com/your-username/movers-taxi-tnvs-hr.git
    cd movers-taxi-tnvs-hr
