@@ -103,11 +103,11 @@
                                 <h5>Job Type</h5>
                                 <p>{{ $job->job_type }}</p>
                             </div>
-                            <div class="info-list">
+                            {{-- <div class="info-list">
                                 <span><i class="fa fa-money"></i></span>
                                 <h5>Salary</h5>
                                 <p>₱{{ number_format($job->salary_from) }} - ₱{{ number_format($job->salary_to) }}</p>
-                            </div>
+                            </div> --}}
                             <div class="info-list">
                                 <span><i class="fa fa-suitcase"></i></span>
                                 <h5>Experience</h5>
@@ -137,6 +137,11 @@
             <!-- Apply Job Modal -->
             <!-- AUTHENTICATED MODAL -->
             @auth
+                @php
+                    $user = Auth::user();
+                    $info = $user->personalInformation;
+                @endphp
+
                 <div class="modal custom-modal fade" id="apply_job" role="dialog">
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
@@ -153,51 +158,54 @@
                                     <input type="hidden" name="job_posting_id" value="{{ $job->id }}">
 
                                     <div class="form-group">
-                                        <label>Name <span style="font-size: 0.75rem; color: #000000;">(e.g., Richmon D.
-                                                Salarda)</span></label>
-                                        <input class="form-control" type="text" name="name" required>
+                                        <label>Name</label>
+                                        <input class="form-control" type="text"
+                                            value="{{ $info->first_name }} {{ $info->last_name }}" disabled>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Contact Number</label>
-                                        <input class="form-control" type="text" name="phone" required pattern="\d*"
-                                            title="Please enter a valid phone number">
+                                        <input class="form-control" type="text" value="{{ $info->phone_number }}"
+                                            disabled>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Gender</label>
-                                        <select class="form-control" name="gender" required>
-                                            <option value="">Select Gender</option>
-                                            <option value="Male">Male</option>
-                                            <option value="Female">Female</option>
-                                            <option value="Other">Other</option>
+                                        <select class="form-control" disabled>
+                                            <option value="Male" {{ $info->gender == 'Male' ? 'selected' : '' }}>Male
+                                            </option>
+                                            <option value="Female" {{ $info->gender == 'Female' ? 'selected' : '' }}>Female
+                                            </option>
+                                            <option value="Other" {{ $info->gender == 'Other' ? 'selected' : '' }}>Other
+                                            </option>
                                         </select>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Birthdate</label>
-                                        <input class="form-control" type="date" name="birthdate" required>
+                                        <input class="form-control" type="date" value="{{ $info->birth_date }}"
+                                            disabled>
                                     </div>
 
                                     <div class="form-group">
                                         <label>Upload your CV</label>
                                         <div class="custom-file">
-                                            <input type="file" class="custom-file-input" id="cv_upload"
-                                                name="resume" required>
+                                            <input type="file" class="custom-file-input" id="cv_upload" name="resume"
+                                                required>
                                             <label class="custom-file-label" for="cv_upload">Choose file</label>
                                         </div>
                                     </div>
-
+{{-- 
                                     <div class="form-group">
                                         <div class="custom-control custom-checkbox">
                                             <input type="checkbox" class="custom-control-input" id="termsAgreement"
-                                                required>
+                                                name="terms" required>
                                             <label class="custom-control-label" for="termsAgreement">
                                                 I agree to the <a href="#" id="openTermsModal">terms and
                                                     conditions</a>.
                                             </label>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                     <div class="submit-section">
                                         <button type="submit" class="btn btn-primary submit-btn">Submit</button>
@@ -208,6 +216,7 @@
                     </div>
                 </div>
             @endauth
+
 
             <!-- GUEST MODAL -->
             @guest

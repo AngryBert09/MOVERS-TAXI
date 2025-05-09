@@ -140,6 +140,10 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',
+            'contact_number' => 'required|string|max:20',
+            'gender' => 'required|in:Male,Female,Other',
+            'birthdate' => 'required|date|before:today',
+            'terms' => 'accepted',
         ]);
 
         try {
@@ -150,14 +154,20 @@ class AuthController extends Controller
                 'role' => 'Applicant',
             ]);
 
-            // Store Personal Information
+            // Store personal information
             PersonalInformation::create([
                 'user_id' => $user->id,
                 'first_name' => $request->first_name,
                 'last_name' => $request->last_name,
+                'phone_number' => $request->contact_number,
+                'gender' => $request->gender,
+                'birth_date' => $request->birthdate,
             ]);
 
-            Log::info("New user registered: {$user->email}", ['user_id' => $user->id, 'ip' => $request->ip()]);
+            Log::info("New user registered: {$user->email}", [
+                'user_id' => $user->id,
+                'ip' => $request->ip()
+            ]);
 
             // Generate verification URL
             $verificationUrl = URL::signedRoute('auth.verify', [
@@ -174,7 +184,9 @@ class AuthController extends Controller
 
             return redirect()->route('auth.login')->with('success', 'Registration successful! Please check your email to verify your account.');
         } catch (\Exception $e) {
-            Log::error("Registration failed for {$request->email}: " . $e->getMessage(), ['ip' => $request->ip()]);
+            Log::error("Registration failed for {$request->email}: " . $e->getMessage(), [
+                'ip' => $request->ip()
+            ]);
             return back()->with('error', 'An error occurred during registration. Please try again.');
         }
     }

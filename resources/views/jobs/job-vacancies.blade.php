@@ -113,8 +113,8 @@
                                     <div class="job-list-footer">
                                         <ul>
                                             <li><i class="fa fa-map-signs"></i> {{ $job->job_location }}</li>
-                                            <li><i class="fa fa-money"></i> ₱{{ number_format($job->salary_from) }} -
-                                                ₱{{ number_format($job->salary_to) }}</li>
+                                            {{-- <li><i class="fa fa-money"></i> ₱{{ number_format($job->salary_from) }} -
+                                                ₱{{ number_format($job->salary_to) }}</li> --}}
                                             <li><i class="fa fa-clock-o"></i> {{ $job->created_at->diffForHumans() }}
                                             </li>
                                         </ul>

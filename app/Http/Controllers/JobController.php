@@ -55,8 +55,7 @@ class JobController extends Controller
                 'no_of_vacancies' => 'required|integer|min:1',
                 'experience'    => 'required|string|max:255',
                 'age'           => 'nullable|integer|min:18',
-                'salary_from'   => 'required|numeric|min:0',
-                'salary_to'     => 'required|numeric|min:0|gte:salary_from',
+
                 'job_type'      => 'required|string|in:Full Time,Part Time,Internship,Temporary,Remote,Others',
                 'status'        => 'required|string|in:Open,Closed,Cancelled',
                 'start_date'    => 'required|date',
@@ -89,8 +88,7 @@ class JobController extends Controller
             'no_of_vacancies' => 'sometimes|integer|min:1',
             'experience'    => 'sometimes|string|max:255',
             'age'           => 'sometimes|nullable|integer|min:18',
-            'salary_from'   => 'sometimes|numeric|min:0',
-            'salary_to'     => 'sometimes|numeric|min:0|gte:salary_from',
+
             'job_type'      => 'sometimes|string|in:Full Time,Part Time,Internship,Temporary,Remote,Others',
             'status'        => 'sometimes|string|in:Open,Closed,Cancelled',
             'start_date'    => 'sometimes|date',

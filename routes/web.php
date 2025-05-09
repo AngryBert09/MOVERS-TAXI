@@ -88,6 +88,8 @@ Route::middleware('admin')->group(function () {
     //APPLICANTS
     Route::get('/job-postings/applicants', [ApplicantController::class, 'index'])
         ->name('applicants');
+    Route::get('/job-applications/archive', [ApplicantController::class, 'showArchived'])->name('applicants.archive');
+
     Route::get('/job-postings/{id}/applicants', [ApplicantController::class, 'getApplicants'])
         ->name('job.applicants');
     Route::post('/applicant/update-status', [ApplicantController::class, 'updateStatus'])->name('update.applicant.status');
@@ -218,8 +220,6 @@ Route::get('/clear-cache', function () {
 
 
 Route::get('/run-config-cache', function () {
-
-
     Artisan::call('config:cache');
     return 'Config cache refreshed!';
 })->middleware('auth'); // Optional: restrict with middleware

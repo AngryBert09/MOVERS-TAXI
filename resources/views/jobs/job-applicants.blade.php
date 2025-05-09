@@ -23,14 +23,25 @@
 
                 <!-- Page Header -->
                 <div class="page-header">
-                    <div class="row">
-                        <div class="col-sm-12">
+                    <div class="row align-items-center">
+                        <div class="col">
                             <h3 class="page-title">Job Applicants</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
-                                <li class="breadcrumb-item active">Job Applicants</li>
+                                <li class="breadcrumb-item active">Applicants</li>
                             </ul>
                         </div>
+                        @if (Route::currentRouteName() === 'applicants.archive')
+                            <div class="col-auto float-right ml-auto">
+                                <a href="{{ route('applicants') }}" class="btn btn-secondary"><i
+                                        class="fa fa-arrow-left"></i> Back</a>
+                            </div>
+                        @else
+                            <div class="col-auto float-right ml-auto">
+                                <a href="{{ route('applicants.archive') }}" class="btn btn-primary"><i
+                                        class="fa fa-archive"></i> Archive</a>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <!-- /Page Header -->
@@ -204,7 +215,8 @@
                                                             {{-- Send Message --}}
                                                             @if ($applicant->status === 'Final')
                                                                 <a class="dropdown-item send-message" href="#"
-                                                                    data-id="{{ $applicant->id }}" data-toggle="modal"
+                                                                    data-id="{{ $applicant->id }}"
+                                                                    data-toggle="modal"
                                                                     data-target="#sendMessageModal"
                                                                     onclick="setApplicantId({{ $applicant->id }})">
                                                                     <i class="fa fa-envelope"></i> Send Message

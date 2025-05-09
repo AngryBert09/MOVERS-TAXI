@@ -23,14 +23,25 @@
 
                 <!-- Page Header -->
                 <div class="page-header">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <h3 class="page-title">Onboarding Applicants</h3>
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h3 class="page-title">Onboarding</h3>
                             <ul class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
                                 <li class="breadcrumb-item active">Onboarding Applicants</li>
                             </ul>
                         </div>
+                        @if (Route::currentRouteName() === 'applicants.archive')
+                            <div class="col-auto float-right ml-auto">
+                                <a href="{{ route('applicants.onboarding') }}" class="btn btn-secondary"><i
+                                        class="fa fa-arrow-left"></i> Back</a>
+                            </div>
+                        @else
+                            <div class="col-auto float-right ml-auto">
+                                <a href="{{ route('applicants.archive') }}" class="btn btn-primary"><i
+                                        class="fa fa-archive"></i> Archive</a>
+                            </div>
+                        @endif
                     </div>
                 </div>
                 <!-- /Page Header -->

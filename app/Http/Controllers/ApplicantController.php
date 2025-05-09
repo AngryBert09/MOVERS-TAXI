@@ -41,7 +41,7 @@ class ApplicantController extends Controller
         try {
             // Retrieve job applications with status 'Initial' or 'Final'
             $jobApplications = JobApplication::with('jobPosting')
-                ->whereIn('status', ['Pending', 'Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding', 'Failed', 'Scheduled', 'Hired', 'Rejected'])
+                ->whereIn('status', ['Pending', 'Initial', 'Final', 'Interviewed', 'Examination', 'Requirements', 'Onboarding', 'Failed', 'Scheduled', 'Hired'])
                 ->orderBy('apply_date', 'desc')
                 ->get();
 
@@ -210,6 +210,15 @@ class ApplicantController extends Controller
             return redirect()->back()->with('error', 'Failed to send the message.');
         }
     }
+
+    public function showArchived()
+    {
+        $jobApplications = JobApplication::where('status', 'Rejected')->get();
+
+
+        return view('jobs.job-applicants', compact('jobApplications'));
+    }
+
 
 
 
@@ -412,28 +421,23 @@ class ApplicantController extends Controller
         try {
             Log::info('Job application request received.', ['request' => $request->all()]);
 
-            // Step 1: Validate input
+            // Step 1: Validate only necessary input
             $validatedData = $request->validate([
-                'name' => 'required|string|max:255',
-                'phone' => 'required|string|max:15',
                 'resume' => 'required|file|mimes:pdf,doc,docx|max:2048',
                 'job_posting_id' => 'required|exists:job_postings,id',
-                'gender' => 'required|in:Male,Female,Other',
-                'birthdate' => 'required|date',
             ]);
 
-            // Use authenticated email
-            $validatedData['email'] = auth()->user()->email;
+            $user = auth()->user();
+            $userId = $user->id;
+            $email = $user->email;
 
-            $userId = auth()->check() ? auth()->id() : null;
-
-            // Step 2: Check if email already exists for the job posting
-            $existingApplication = JobApplication::where('email', $validatedData['email'])
+            // Step 2: Prevent duplicate applications
+            $existingApplication = JobApplication::where('email', $email)
                 ->where('job_posting_id', $validatedData['job_posting_id'])
                 ->first();
 
             if ($existingApplication) {
-                Log::warning('Duplicate application attempt detected.', ['email' => $validatedData['email'], 'job_posting_id' => $validatedData['job_posting_id']]);
+                Log::warning('Duplicate application attempt detected.', ['email' => $email, 'job_posting_id' => $validatedData['job_posting_id']]);
                 return response()->json([
                     'message' => 'You have already applied for this job. You can only apply once.',
                 ], 400);
@@ -443,16 +447,15 @@ class ApplicantController extends Controller
             $resumePath = $request->file('resume')->store('resumes', 'public');
             Log::info('Resume uploaded successfully.', ['resume_path' => $resumePath]);
 
-            // Step 4: Split name
-            $nameParts = explode(' ', trim($validatedData['name']));
-            $firstName = $nameParts[0] ?? '';
-            $lastName = count($nameParts) > 2 ? array_pop($nameParts) : '';
+            // Step 4: Build name from Personal Information
+            $info = $user->personalInformation;
+            $fullName = trim("{$info->first_name} {$info->last_name}");
 
-            // Step 5: Create job application (initially Pending)
+            // Step 5: Create job application
             $jobApplication = JobApplication::create([
-                'name' => $validatedData['name'],
-                'email' => $userId ? auth()->user()->email : $validatedData['email'],
-                'phone' => $validatedData['phone'],
+                'name' => $fullName,
+                'email' => $email,
+                'phone' => $info->phone_number,
                 'apply_date' => now(),
                 'status' => 'Pending',
                 'resume' => $resumePath,
@@ -462,24 +465,9 @@ class ApplicantController extends Controller
 
             Log::info('Job application created successfully.', ['job_application' => $jobApplication]);
 
-
-            // Step 6: Update personal info for the authenticated user
-            if ($userId) {
-                $personalInfo = PersonalInformation::updateOrCreate(
-                    ['user_id' => $userId],
-                    [
-                        'application_id' => $jobApplication->id,
-                        'phone_number' => $validatedData['phone'],
-                        'gender' => $validatedData['gender'],
-                        'birth_date' => $validatedData['birthdate'],
-                    ]
-                );
-
-                Log::info('Personal information updated for user.', ['user_id' => $userId, 'personal_info' => $personalInfo]);
-            }
-
-
-            Log::info('Personal information saved successfully.', ['personal_info' => $personalInfo]);
+            // Step 6: Update only the application_id in PersonalInformation
+            $info->update(['application_id' => $jobApplication->id]);
+            Log::info('application_id updated in personal information.', ['user_id' => $userId]);
 
             // Step 7: Extract text from resume
             $fullResumePath = storage_path("app/public/{$resumePath}");
@@ -488,7 +476,7 @@ class ApplicantController extends Controller
             // Step 8: Get job description
             $jobDescription = JobPosting::find($validatedData['job_posting_id'])->description ?? '';
 
-            // Step 9: Send to AI and update status
+            // Step 9: Evaluate with AI
             $aiResult = $this->sendToGeminiAI($resumeText, $jobDescription, $jobApplication->id);
 
             if (is_array($aiResult) && isset($aiResult['suitability_score'])) {
@@ -523,6 +511,7 @@ class ApplicantController extends Controller
             ], 500);
         }
     }
+
 
     public function applicantFiles()
     {
